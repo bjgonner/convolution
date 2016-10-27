@@ -22,7 +22,7 @@ Running ide with `scide -style=gtkrc` makes tooltips legible which is crucial fo
 Hopefully his will be fixed in future version of SC and will not need change.
 
 
-<b>How to open supercollider without IDE:<b>
+<b>How to open supercollider without IDE:
 
 Mac: `/Applications/Supercollider/Supercollider.App/Contents/MacOS/sclang path/to/supercollider.scd`
 Linux: just `sclang path/to/scfile.scd` after starting jackd
