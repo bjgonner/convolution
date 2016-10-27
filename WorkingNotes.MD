@@ -21,3 +21,17 @@ Need to test: setting cpu_scaling to performance and turning off certain unneede
 Running ide with `scide -style=gtkrc` makes tooltips legible which is crucial for training beginners.  
 Hopefully his will be fixed in future version of SC and will not need change.
 
+
+<b>How to open supercollider without IDE:<b>
+
+Mac: `/Applications/Supercollider/Supercollider.App/Contents/MacOS/sclang path/to/supercollider.scd`
+Linux: just `sclang path/to/scfile.scd` after starting jackd
+Also if running via ssh:<br>
+`export DISPLAY=0.0`<br>
+`jackd (the required options)`<br>
+`sclang path/to/file.scd`
+
+To quit sclang: `0.exit;`
+
+These are steps toward running SC from boot without needing desktop and using openFrameworks as osc interface.
+
