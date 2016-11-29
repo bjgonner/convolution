@@ -57,7 +57,7 @@ void setup(){
   pinMode(irqpin, INPUT_PULLUP);
   pinMode(irqpin2, INPUT_PULLUP);
   
- // digitalWrite(irqpin, HIGH); //enable pullup resistor
+ 
 
   pinMode(pinA, INPUT_PULLUP); // set pinA as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
   pinMode(pinB, INPUT_PULLUP); // set pinB as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)

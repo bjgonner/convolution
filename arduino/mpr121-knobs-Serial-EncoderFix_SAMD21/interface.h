@@ -31,3 +31,5 @@ int rotButtState;
 int lastRotButtState = LOW;
 long lastDebounceTime = 0;  // the last time the output pin was toggled
 long debounceDelay = 50;    // the debounce time; increase if the output flickers
+long curInterruptTime = 0;
+long lastInterruptTime = 0;

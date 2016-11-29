@@ -53,8 +53,8 @@
 
 
 void setup(){
-  pinMode(irqpin, INPUT);
-  digitalWrite(irqpin, HIGH); //enable pullup resistor
+  pinMode(irqpin, INPUT_PULLUP);
+ 
 
   pinMode(pinA, INPUT_PULLUP); // set pinA as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
   pinMode(pinB, INPUT_PULLUP); // set pinB as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
@@ -71,7 +71,7 @@ void setup(){
   //Serial.begin(9600);
   Wire.begin();
 
-  mpr121_setup();
+ // mpr121_setup();
 
     establishContact();  // send a byte to establish contact until receiver responds
    analogReadResolution(12);
@@ -80,14 +80,19 @@ void setup(){
 
 
 void loop(){
-  encoderPos = readPins(pinA, pinB, encoderPos);
+  curInterruptTime = millis();
+  if ((curInterruptTime - lastInterruptTime) >= 10) {
+    encoderPos = readPins(pinA, pinB, encoderPos);
+    lastInterruptTime = curInterruptTime;
+  }
+  
   if(encoderPos%2 == 0) digitalWrite(13, HIGH);
   else digitalWrite(13,LOW);
   if(mode == oMode){
     octCheck = checkOctave(octCheck, numOctaves, encoderPos, oldEncPos);
   }else volume = checkVolume(volume, encoderPos, oldEncPos);
   if(octCheck != octave) octave = octCheck;
-  readTouchInputs();
+  //readTouchInputs();
   readRotButt();
   readKnobs(knobs, sizeof(knobs)/sizeof(int));
   
@@ -218,7 +223,7 @@ int checkVolume(int current, long newPos, long oldPos){
    }
    return current;
 }
-
+//maybe add timer for debounce
 long readPins(int a, int b, long pos){
   curA = digitalRead(a);
   curB = digitalRead(b);

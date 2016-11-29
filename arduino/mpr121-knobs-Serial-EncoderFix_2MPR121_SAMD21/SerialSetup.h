@@ -5,6 +5,7 @@ String noteOffData;
 String encoderData;
 String rawEncData;
 
+int timerLength = 500;
 int knobTimer=0;
 int inByte = 0;         // incoming serial byte
 int knobs[6];
@@ -38,10 +39,10 @@ void readKnobs(int k[], int theSize){
       knobData += String(k[i]) + " ";
     }
     knobData += "\n";
-   if (millis() - knobTimer >= 100) {
+   if (millis() - knobTimer >= timerLength) {
     Serial.print(knobData);
     sendEncoder(octave);
-    sendRawEnc(rawEnc);
+    sendRawEnc(encoderPos);
     knobTimer = millis();
   }
     
