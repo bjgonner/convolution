@@ -80,11 +80,11 @@ void setup(){
 
 
 void loop(){
-  curInterruptTime = millis();
-  if ((curInterruptTime - lastInterruptTime) >= 10) {
+ // curInterruptTime = millis();
+  //if ((curInterruptTime - lastInterruptTime) >= 10) {
     encoderPos = readPins(pinA, pinB, encoderPos);
-    lastInterruptTime = curInterruptTime;
-  }
+  //  lastInterruptTime = curInterruptTime;
+  //}
   
   if(encoderPos%2 == 0) digitalWrite(13, HIGH);
   else digitalWrite(13,LOW);
