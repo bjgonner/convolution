@@ -29,7 +29,24 @@ String[] instNames = {"bass",
                       "synth1",
                       "synth2"
                     };
+String[] sliderNames = {"attack",
+                        "decay",
+                        "sustain",
+                        "release",
+                        "effect1",
+                        "effect2"
+                        };
+                        
+String[] funcs = {"setAtk",
+                  "setDcy",
+                  "setSus",
+                  "setRel",
+                  "setEffect1",
+                  "setEffect2"
+                  };
+                  
 int listIndex = 5;
+int lastListIndex = 4;
 int bpm = 30;
 boolean mFlag = true;
 boolean tFlag = true;
@@ -55,6 +72,9 @@ void setup() {
   cp5 = new ControlP5(this);
   println(mHeight);
   println(test);
+  
+  
+  
   cp5.addMatrix("myMatrix", nx,ny,0,height-mHeight,mWidth, mHeight)//704,176)
      //.setPosition(100, height-200)
     // .setSize(750, 200)
@@ -97,17 +117,7 @@ void setup() {
      .setFont(createFont("AvenirNext-DemiBold",14))
      ;
 */     
-      cp5.addTextlabel("inst")
-      .setText(dynText)
-      .setPosition(0,height-mHeight-20)
-      .setSize(300,30)
-      .setColorValue(0xffffff00)
-      .setFont(createFont("AvenirNext-DemiBold",14))
-      .setMultiline(true)
-      .setLineHeight(30)
-      
-      ;
-  
+
   cp5.getController("myMatrix").getCaptionLabel().alignX(CENTER);
   
   // use setMode to change the cell-activation which by 
@@ -126,9 +136,13 @@ void setup() {
   instDsplyTime = new Timer(2000);
   
   bass = new Instrument("bass", 0);
-  //for(int i=0; i < instNames.length; i++){
-  //  insts[i] = new Instrument(instNames[i], i);
-  //}
+  insts = new Instrument[instNames.length];
+  for(int i=0; i < instNames.length; i++){
+    insts[i] = new Instrument(instNames[i], i);
+   
+  }
+  
+  setupInstSliders();
 }
 
 
@@ -211,6 +225,7 @@ void keyPressed() {
   }
   
   if(key == CODED){
+    lastListIndex = listIndex;
     if (keyCode == UP) {
       listIndex -= 1;
       if(listIndex < 0) listIndex = instNames.length-1;
@@ -218,8 +233,11 @@ void keyPressed() {
      listIndex = (listIndex+1) % instNames.length;
     }
    // println(cp5.get(ScrollableList.class, "Insturment").setValue(listIndex));
-   cp5.get(Textlabel.class, "inst").setText("Insturment: " + instNames[listIndex]);
-  // println(listIndex + " : " + log(listIndex)*10);
+   //cp5.get(Textlabel.class, "inst").setText("Instrument: " + instNames[listIndex]);
+   cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);
+   unPlugSliders(lastListIndex);
+   plugSliders(listIndex, lastListIndex);
+   //println(listIndex);
   }
 }
 
@@ -248,173 +266,108 @@ class Dong {
   }
 }
 
+void plugSliders(int active, int last){
+ unPlugSliders(last);
+  
+  for(int i=0; i < sliderNames.length; i++){
+  cp5.getController(sliderNames[i]).setValue(insts[active].sliderValues[i]); //.setSliderValue(insts[active], funcs[i]);
+  cp5.getController(sliderNames[i]).plugTo(insts[active], funcs[i]);
+  }
+}
 
+void unPlugSliders(int last){
+  for(int i=0; i < sliderNames.length; i++){
+  cp5.getController(sliderNames[i]).unplugFrom(insts[last]);
+  }
+}
 
-/*
-a list of all methods available for the Matrix Controller
-use ControlP5.printPublicMethodsFor(Matrix.class);
-to print the following list into the console.
-
-You can find further details about class Matrix in the javadoc.
-
-Format:
-ClassName : returnType methodName(parameter type)
-
-
-controlP5.Controller : CColor getColor() 
-controlP5.Controller : ControlBehavior getBehavior() 
-controlP5.Controller : ControlWindow getControlWindow() 
-controlP5.Controller : ControlWindow getWindow() 
-controlP5.Controller : ControllerProperty getProperty(String) 
-controlP5.Controller : ControllerProperty getProperty(String, String) 
-controlP5.Controller : ControllerView getView() 
-controlP5.Controller : Label getCaptionLabel() 
-controlP5.Controller : Label getValueLabel() 
-controlP5.Controller : List getControllerPlugList() 
-controlP5.Controller : Matrix addCallback(CallbackListener) 
-controlP5.Controller : Matrix addListener(ControlListener) 
-controlP5.Controller : Matrix addListenerFor(int, CallbackListener) 
-controlP5.Controller : Matrix align(int, int, int, int) 
-controlP5.Controller : Matrix bringToFront() 
-controlP5.Controller : Matrix bringToFront(ControllerInterface) 
-controlP5.Controller : Matrix hide() 
-controlP5.Controller : Matrix linebreak() 
-controlP5.Controller : Matrix listen(boolean) 
-controlP5.Controller : Matrix lock() 
-controlP5.Controller : Matrix onChange(CallbackListener) 
-controlP5.Controller : Matrix onClick(CallbackListener) 
-controlP5.Controller : Matrix onDoublePress(CallbackListener) 
-controlP5.Controller : Matrix onDrag(CallbackListener) 
-controlP5.Controller : Matrix onDraw(ControllerView) 
-controlP5.Controller : Matrix onEndDrag(CallbackListener) 
-controlP5.Controller : Matrix onEnter(CallbackListener) 
-controlP5.Controller : Matrix onLeave(CallbackListener) 
-controlP5.Controller : Matrix onMove(CallbackListener) 
-controlP5.Controller : Matrix onPress(CallbackListener) 
-controlP5.Controller : Matrix onRelease(CallbackListener) 
-controlP5.Controller : Matrix onReleaseOutside(CallbackListener) 
-controlP5.Controller : Matrix onStartDrag(CallbackListener) 
-controlP5.Controller : Matrix onWheel(CallbackListener) 
-controlP5.Controller : Matrix plugTo(Object) 
-controlP5.Controller : Matrix plugTo(Object, String) 
-controlP5.Controller : Matrix plugTo(Object[]) 
-controlP5.Controller : Matrix plugTo(Object[], String) 
-controlP5.Controller : Matrix registerProperty(String) 
-controlP5.Controller : Matrix registerProperty(String, String) 
-controlP5.Controller : Matrix registerTooltip(String) 
-controlP5.Controller : Matrix removeBehavior() 
-controlP5.Controller : Matrix removeCallback() 
-controlP5.Controller : Matrix removeCallback(CallbackListener) 
-controlP5.Controller : Matrix removeListener(ControlListener) 
-controlP5.Controller : Matrix removeListenerFor(int, CallbackListener) 
-controlP5.Controller : Matrix removeListenersFor(int) 
-controlP5.Controller : Matrix removeProperty(String) 
-controlP5.Controller : Matrix removeProperty(String, String) 
-controlP5.Controller : Matrix setArrayValue(float[]) 
-controlP5.Controller : Matrix setArrayValue(int, float) 
-controlP5.Controller : Matrix setBehavior(ControlBehavior) 
-controlP5.Controller : Matrix setBroadcast(boolean) 
-controlP5.Controller : Matrix setCaptionLabel(String) 
-controlP5.Controller : Matrix setColor(CColor) 
-controlP5.Controller : Matrix setColorActive(int) 
-controlP5.Controller : Matrix setColorBackground(int) 
-controlP5.Controller : Matrix setColorCaptionLabel(int) 
-controlP5.Controller : Matrix setColorForeground(int) 
-controlP5.Controller : Matrix setColorLabel(int) 
-controlP5.Controller : Matrix setColorValue(int) 
-controlP5.Controller : Matrix setColorValueLabel(int) 
-controlP5.Controller : Matrix setDecimalPrecision(int) 
-controlP5.Controller : Matrix setDefaultValue(float) 
-controlP5.Controller : Matrix setHeight(int) 
-controlP5.Controller : Matrix setId(int) 
-controlP5.Controller : Matrix setImage(PImage) 
-controlP5.Controller : Matrix setImage(PImage, int) 
-controlP5.Controller : Matrix setImages(PImage, PImage, PImage) 
-controlP5.Controller : Matrix setImages(PImage, PImage, PImage, PImage) 
-controlP5.Controller : Matrix setLabel(String) 
-controlP5.Controller : Matrix setLabelVisible(boolean) 
-controlP5.Controller : Matrix setLock(boolean) 
-controlP5.Controller : Matrix setMax(float) 
-controlP5.Controller : Matrix setMin(float) 
-controlP5.Controller : Matrix setMouseOver(boolean) 
-controlP5.Controller : Matrix setMoveable(boolean) 
-controlP5.Controller : Matrix setPosition(float, float) 
-controlP5.Controller : Matrix setPosition(float[]) 
-controlP5.Controller : Matrix setSize(PImage) 
-controlP5.Controller : Matrix setSize(int, int) 
-controlP5.Controller : Matrix setStringValue(String) 
-controlP5.Controller : Matrix setUpdate(boolean) 
-controlP5.Controller : Matrix setValue(float) 
-controlP5.Controller : Matrix setValueLabel(String) 
-controlP5.Controller : Matrix setValueSelf(float) 
-controlP5.Controller : Matrix setView(ControllerView) 
-controlP5.Controller : Matrix setVisible(boolean) 
-controlP5.Controller : Matrix setWidth(int) 
-controlP5.Controller : Matrix show() 
-controlP5.Controller : Matrix unlock() 
-controlP5.Controller : Matrix unplugFrom(Object) 
-controlP5.Controller : Matrix unplugFrom(Object[]) 
-controlP5.Controller : Matrix unregisterTooltip() 
-controlP5.Controller : Matrix update() 
-controlP5.Controller : Matrix updateSize() 
-controlP5.Controller : Pointer getPointer() 
-controlP5.Controller : String getAddress() 
-controlP5.Controller : String getInfo() 
-controlP5.Controller : String getName() 
-controlP5.Controller : String getStringValue() 
-controlP5.Controller : String toString() 
-controlP5.Controller : Tab getTab() 
-controlP5.Controller : boolean isActive() 
-controlP5.Controller : boolean isBroadcast() 
-controlP5.Controller : boolean isInside() 
-controlP5.Controller : boolean isLabelVisible() 
-controlP5.Controller : boolean isListening() 
-controlP5.Controller : boolean isLock() 
-controlP5.Controller : boolean isMouseOver() 
-controlP5.Controller : boolean isMousePressed() 
-controlP5.Controller : boolean isMoveable() 
-controlP5.Controller : boolean isUpdate() 
-controlP5.Controller : boolean isVisible() 
-controlP5.Controller : float getArrayValue(int) 
-controlP5.Controller : float getDefaultValue() 
-controlP5.Controller : float getMax() 
-controlP5.Controller : float getMin() 
-controlP5.Controller : float getValue() 
-controlP5.Controller : float[] getAbsolutePosition() 
-controlP5.Controller : float[] getArrayValue() 
-controlP5.Controller : float[] getPosition() 
-controlP5.Controller : int getDecimalPrecision() 
-controlP5.Controller : int getHeight() 
-controlP5.Controller : int getId() 
-controlP5.Controller : int getWidth() 
-controlP5.Controller : int listenerSize() 
-controlP5.Controller : void remove() 
-controlP5.Controller : void setView(ControllerView, int) 
-controlP5.Matrix : Matrix clear() 
-controlP5.Matrix : Matrix pause() 
-controlP5.Matrix : Matrix play() 
-controlP5.Matrix : Matrix plugTo(Object) 
-controlP5.Matrix : Matrix plugTo(Object, String) 
-controlP5.Matrix : Matrix set(int, int, boolean) 
-controlP5.Matrix : Matrix setBackground(int) 
-controlP5.Matrix : Matrix setCells(int[][]) 
-controlP5.Matrix : Matrix setGap(int, int) 
-controlP5.Matrix : Matrix setGrid(int, int) 
-controlP5.Matrix : Matrix setInterval(int) 
-controlP5.Matrix : Matrix setMode(int) 
-controlP5.Matrix : Matrix setValue(float) 
-controlP5.Matrix : Matrix stop() 
-controlP5.Matrix : Matrix trigger(int) 
-controlP5.Matrix : Matrix update() 
-controlP5.Matrix : boolean get(int, int) 
-controlP5.Matrix : boolean isPlaying() 
-controlP5.Matrix : int getInterval() 
-controlP5.Matrix : int getMode() 
-controlP5.Matrix : int[][] getCells() 
-controlP5.Matrix : void remove() 
-java.lang.Object : String toString() 
-java.lang.Object : boolean equals(Object) 
-
-created: 2015/03/24 12:21:14
-
-*/
+void setupInstSliders(){
+  Group g1 = cp5.addGroup("test")
+                 .setPosition(10,10)
+                 .setBackgroundHeight(250)
+                 .setSize(400,250)
+                 .setBackgroundColor(0xff1111ff)
+                 ;
+   
+   cp5.addSlider( "attack" )
+       .setRange( 0.0, 5.0 )
+       //.plugTo( this, "setAtk" )
+       .setValue( 0.1 )
+       .setLabel("attack")
+       .setPosition(10,10)
+       .setSize(50, 180)
+       .setGroup(g1)
+       ;
+       
+     cp5.addSlider( "decay" )
+       .setRange( 0.01, 5.0 )
+       //.plugTo( this, "setDcy" )
+       .setValue( 0.5 )
+       .setLabel("Decay")
+       .setPosition(70,10)
+       .setSize(50, 180)
+       .setGroup(g1)
+       ;
+       
+  cp5.addSlider( "sustain" )
+       .setRange( 0.01, 5.0 )
+       //.plugTo( this, "setSus" )
+       .setValue( 0.3 )
+       .setLabel("Sustain")
+       .setPosition(130,10)
+       .setSize(50, 180)
+       .setGroup(g1)
+       ;
+       
+ cp5.addSlider( "release" )
+       .setRange( 0.01, 5.0 )
+       //.plugTo( this, "setRel" )
+       .setValue( 1 )
+       .setLabel("Release")
+       .setPosition(190,10)
+       .setSize(50, 180)
+       .setGroup(g1)
+       ;
+       
+  cp5.addSlider( "effect1" )
+       .setRange( 0.0, 100.0 )
+       //.plugTo( this, "setEffect1" )
+       .setValue( 50 )
+       .setLabel("Effect1")
+       .setPosition(250,10)
+       .setSize(50, 180)
+       .setGroup(g1)
+       ;
+       
+  cp5.addSlider( "effect2" )
+       .setRange( 0.0, 100.0 )
+       //.plugTo( this, "setEffect2" )
+       .setValue( 50 )
+       .setLabel("Effect2")
+       .setPosition(310,10)
+       .setSize(50, 180)
+       .setGroup(g1)
+       ;
+       
+  cp5.addTextlabel("instName")
+       .setText("Instrument: " + instNames[listIndex])
+       .setPosition(10,210)
+       .setSize(50, 300)
+       .setColorValue(0xffffff00)
+       .setFont(createFont("AvenirNext-DemiBold",24))
+       //.setMultiline(true)
+       .setLineHeight(30)
+       .setGroup(g1)
+       ;
+       
+       
+       
+  cp5.getController("attack").getValueLabel().alignX(ControlP5.CENTER);
+  cp5.getController("decay").getValueLabel().alignX(ControlP5.CENTER);
+  cp5.getController("sustain").getValueLabel().alignX(ControlP5.CENTER);
+  cp5.getController("release").getValueLabel().alignX(ControlP5.CENTER);
+  cp5.getController("effect1").getValueLabel().alignX(ControlP5.CENTER);
+  cp5.getController("effect2").getValueLabel().alignX(ControlP5.CENTER);
+  
+  plugSliders(listIndex, 0);
+}
