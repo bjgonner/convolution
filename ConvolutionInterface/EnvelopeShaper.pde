@@ -16,6 +16,7 @@ class EnvShaper{
   int selectedIndex;
   float offset = 10;
   float boarder;
+  float opacity;
   
  
   EnvShaper(int _vNum, float _x, float _y, float _w, float _h, float _vDiam){
@@ -60,13 +61,14 @@ class EnvShaper{
     buttons = new Ball[2];
     selected = new boolean[vNum];
     
+    opacity = 255;
     //default x values for envelope are evenly spaced across 5 seconds
     float[] dummy = {0,0};
     float defaultSubs = w/vertices.length;
     for(int i = 0; i< vertices.length; i++){
       
       //init vertices
-      vertices[i] = new Ball(i*defaultSubs,h-(envDefaults.get(i)*h),vDiam);
+      vertices[i] = new Ball(i*defaultSubs,h-(envDefaults.get(i)*h),vDiam, color(0,255,0,255));
       //init selected state of each vert
       selected[i] = false;
       //adjust values for x,y != 0
@@ -81,11 +83,12 @@ class EnvShaper{
     for(int i = 0; i<buttons.length; i++){
      buttons[i] = new Ball(w+x-10, y+10*(i+1)+i*30, 30.0, 0xff00ffff); 
     }
+    
   }
   
   void disp(){
-    color fillc = color(128);
-    color strokec = color(190);
+    color fillc = color(128, opacity);
+    color strokec = color(190, opacity);
    fill(fillc);
    stroke(strokec);
    strokeWeight(2);
@@ -98,9 +101,10 @@ class EnvShaper{
       }
     }
     line(w+x, y, w+x, y+h);
-    strokec = color(255,255,0);
+    strokec = color(255,255,0, opacity);
     stroke(strokec);
     for(int i = 0; i<vertices.length; i++){
+     // vertices[i].c = vertices[i].c & ((int)opacity << 24);//color(vertices[i].c, opacity);
       if(i<vertices.length-1){
       line(vertices[i].x, vertices[i].y, vertices[i+1].x, vertices[i+1].y);
     
@@ -113,6 +117,7 @@ class EnvShaper{
       text("("+ xVal+","+yVal+")",vertices[i].x+10,vertices[i].y );
       stroke(strokec);
   }
+  noStroke();
   buttons[0].dispButt(offset, 0, this);
   buttons[1].dispButt(offset,1,this);
   
@@ -154,7 +159,8 @@ class EnvShaper{
     
      envPoints.set(i, map(vertices[i/2].x, x, w+x, 0, tSecs));
      envPoints.set(i+1, map(vertices[i/2].y, h+y, y, 0,1));
-    save_State(envPoints);
+     
+    //save_State(envPoints);
     }
     
   }
@@ -223,7 +229,7 @@ class EnvShaper{
      fill(255);
      
     }else{
-      fill(c);
+      fill(c, sup.opacity);
       s.selected[i] = false;
     }
    

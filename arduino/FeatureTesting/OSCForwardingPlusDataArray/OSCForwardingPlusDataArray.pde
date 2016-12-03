@@ -120,7 +120,7 @@ class HardwareInput{
   
   if(v[0].equals("/encoder")){
     //encoder has 12 positions (0-11) based on Midi notes there should only be 11 octaves  may need to fix better in future
-    
+    //code to turn off notes if held down while octave changes
     for (int i = 1; i < v.length; i++){
       lastEncode[i-1] = encoders[i-1];
       encoders[i-1] = float(trim(v[i]));

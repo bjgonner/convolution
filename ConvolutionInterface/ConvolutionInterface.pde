@@ -16,6 +16,7 @@ import java.util.*;
 EnvShaper sup;
 ControlP5 cp5;
 Instrument bass;
+Instrument[] insts;
 Dong[][] d;
 Timer instDsplyTime;
 boolean instDisplay = true;
@@ -48,7 +49,7 @@ JSONObject json;
 void setup() {
   size(800, 480, P2D);
   //smooth(2);
-  sup = new EnvShaper(5,425,65,300,200, 20);
+  sup = new EnvShaper(5,425,15,300,200, 20);
   String instText = join(instNames, "\n");
   String dynText = "Insturment: " + instNames[0];
   cp5 = new ControlP5(this);
@@ -124,7 +125,10 @@ void setup() {
   smooth();
   instDsplyTime = new Timer(2000);
   
-  bass = new Instrument("bass");
+  bass = new Instrument("bass", 0);
+  //for(int i=0; i < instNames.length; i++){
+  //  insts[i] = new Instrument(instNames[i], i);
+  //}
 }
 
 
@@ -168,6 +172,8 @@ void setBPM(float v){
 void keyPressed() {
   if (key=='1') {
     cp5.get(Matrix.class, "myMatrix").set(0, 0, true);
+    cp5.getGroup("bass").setVisible(true);
+    sup.opacity = 255;
   } 
   else if (key=='2') {
     cp5.get(Matrix.class, "myMatrix").set(0, 1, true);
@@ -185,6 +191,8 @@ void keyPressed() {
   }  
   else if (key=='0') {
     cp5.get(Matrix.class, "myMatrix").clear();
+    cp5.getGroup("bass").setVisible(false);
+    sup.opacity = 0;
   }
    else if (key=='7') {
      mFlag = !mFlag;

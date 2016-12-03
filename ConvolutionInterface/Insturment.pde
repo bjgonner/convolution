@@ -1,5 +1,6 @@
 class Instrument{
  String theName;
+ int id;
  float atk;
  float decay;
  float sustain;
@@ -7,13 +8,17 @@ class Instrument{
  float effect1, effect2;
  boolean visible = false;
  int[] steps;
+ //EnvShaper env;
  
- Instrument(String _theName){
+ 
+ Instrument(String _theName, int _id){
    atk = 0.1;
    decay = 0.5;
    sustain = 0.3;
    release =0.2;
    theName = _theName;
+   id = _id;
+   
    
    Group g1 = cp5.addGroup(theName)
                  .setPosition(10,10)
