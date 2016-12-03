@@ -46,6 +46,11 @@
 #include "mpr121.h"
 #include "SerialSetup.h"
 #include <Wire.h>
+#include "EnCode.h"
+
+EnCode enc1(5,6,7);
+EnCode enc2(8,9,10);
+
 
 const byte mpr121_A = 0x5A;
 const byte mpr121_B = 0x5B;
@@ -59,8 +64,8 @@ void setup(){
   
  
 
-  pinMode(pinA, INPUT_PULLUP); // set pinA as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
-  pinMode(pinB, INPUT_PULLUP); // set pinB as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
+ // pinMode(pinA, INPUT_PULLUP); // set pinA as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
+ // pinMode(pinB, INPUT_PULLUP); // set pinB as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
 
   pinMode(rotButt, INPUT_PULLUP);
   
