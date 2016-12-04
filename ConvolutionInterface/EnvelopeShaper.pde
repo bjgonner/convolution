@@ -164,7 +164,31 @@ class EnvShaper{
     }
     
   }
+  void updateVertices(){
+    for(int i=0; i<envPoints.size(); i+=2){
+    vertices[i/2].x = map(envPoints.get(i),0, tSecs, x, w+x);
+    vertices[i/2].y = map(envPoints.get(i+1),0,1,y+h, y);
+   //  envPoints.get(i);, map(vertices[i/2].x, x, w+x, 0, tSecs));
+    // envPoints.get(i+1);, map(vertices[i/2].y, h+y, y, 0,1));
+     
+    //save_State(envPoints);
+    }
+    
+  }
+  float[] exportEnvPointsArray(){
+    return envPoints.array();
+    
+  }
   
+  void copyEnvPointsFrom(Instrument inst){
+    println("Inst: " + inst.envPoints);
+    envPoints = inst.envPoints.copy();
+    println("Envt: " + envPoints);
+  }
+  
+  void copyEnvPointsTo(Instrument inst){
+    inst.envPoints = envPoints.copy();
+  }
   
    void save_State(FloatList env){
      JSONObject newState = new JSONObject();

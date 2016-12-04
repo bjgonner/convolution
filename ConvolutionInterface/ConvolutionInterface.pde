@@ -47,6 +47,7 @@ String[] funcs = {"setAtk",
                   
 int listIndex = 5;
 int lastListIndex = 4;
+int mode = 1;  //sequencer mode
 int bpm = 30;
 boolean mFlag = true;
 boolean tFlag = true;
@@ -154,6 +155,8 @@ void draw() {
      }
    }
   background(0);
+  fill(255,0,255);
+  rect(0,height-mHeight-100,mWidth, 2);
   fill(255, 100);
  
   pushMatrix();
@@ -167,6 +170,7 @@ void draw() {
   popMatrix();
    sup.updateEnvPoints();
   sup.disp();
+ 
 }
 
 
@@ -186,7 +190,7 @@ void setBPM(float v){
 void keyPressed() {
   if (key=='1') {
     cp5.get(Matrix.class, "myMatrix").set(0, 0, true);
-    cp5.getGroup("bass").setVisible(true);
+    cp5.getGroup("Effects Controls").setVisible(true);
     sup.opacity = 255;
   } 
   else if (key=='2') {
@@ -205,7 +209,7 @@ void keyPressed() {
   }  
   else if (key=='0') {
     cp5.get(Matrix.class, "myMatrix").clear();
-    cp5.getGroup("bass").setVisible(false);
+    cp5.getGroup("Effects Controls").setVisible(false);
     sup.opacity = 0;
   }
    else if (key=='7') {
@@ -223,7 +227,7 @@ void keyPressed() {
     instDsplyTime.reset();
     
   }
-  
+  //cannot use left/right without error!
   if(key == CODED){
     lastListIndex = listIndex;
     if (keyCode == UP) {
@@ -235,6 +239,14 @@ void keyPressed() {
    // println(cp5.get(ScrollableList.class, "Insturment").setValue(listIndex));
    //cp5.get(Textlabel.class, "inst").setText("Instrument: " + instNames[listIndex]);
    cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);
+   sup.copyEnvPointsTo(insts[lastListIndex]);
+   // println("Inst:");
+   //printArray(insts[lastListIndex].envPoints.array());
+  // printArray(insts[listIndex].envPoints.array());
+   sup.copyEnvPointsFrom(insts[listIndex]);
+   sup.updateVertices();
+   println("Sup:");
+   printArray(sup.envPoints.array());
    unPlugSliders(lastListIndex);
    plugSliders(listIndex, lastListIndex);
    //println(listIndex);
@@ -282,7 +294,7 @@ void unPlugSliders(int last){
 }
 
 void setupInstSliders(){
-  Group g1 = cp5.addGroup("test")
+  Group g1 = cp5.addGroup("Effects Controls")
                  .setPosition(10,10)
                  .setBackgroundHeight(250)
                  .setSize(400,250)
@@ -370,4 +382,15 @@ void setupInstSliders(){
   cp5.getController("effect2").getValueLabel().alignX(ControlP5.CENTER);
   
   plugSliders(listIndex, 0);
+}
+
+void mouseWheel(MouseEvent event) {
+  float e = event.getCount();
+  listIndex += e;
+  if(listIndex < 0) listIndex = instNames.length-1;
+  listIndex = (listIndex+1) % instNames.length;
+  cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);
+   unPlugSliders(lastListIndex);
+   plugSliders(listIndex, lastListIndex);
+  println(e + " " +listIndex);
 }

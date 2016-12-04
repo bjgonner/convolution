@@ -9,6 +9,8 @@ class Instrument{
  boolean visible = false;
  int[] steps;
  float[] sliderValues = {0.1,0.5,0.3,0.2,0.0,0.0};
+ float[] envArray;
+ FloatList envPoints;
  //EnvShaper env;
  
  
@@ -19,7 +21,7 @@ class Instrument{
    release =0.2;
    theName = _theName;
    id = _id;
-   
+   initEnvPoints();
    
    
        
@@ -69,5 +71,23 @@ class Instrument{
     println(theName + ": effect2: " + sliderValues[5]);  
   }
   
+  void initEnvPoints(){
+     envPoints = new FloatList();
+     envPoints.append(0.0); //start length
+     envPoints.append(0.0); //start amp
+     
+     envPoints.append(1.0);//Attack
+     envPoints.append(1.0);
+     envPoints.append(2.0);//decay
+     envPoints.append(0.5);
+     envPoints.append(3.0);//sustain
+     envPoints.append(0.3);
+     envPoints.append(4.0); //release
+     envPoints.append(0.0);
+     //envPoints.set(i, map(vertices[i/2].x, x, w+x, 0, tSecs));
+     //envPoints.set(i+1, map(vertices[i/2].y, h+y, y, 0,1));
+    
+    //save_State(envPoints);
+    }
    
 }
