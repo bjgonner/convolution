@@ -32,3 +32,10 @@ int rotButtState;
 int lastRotButtState = LOW;
 long lastDebounceTime = 0;  // the last time the output pin was toggled
 long debounceDelay = 50;    // the debounce time; increase if the output flickers
+
+EnCode enc1(5,6,7);
+EnCode enc2(8,9,10);
+
+
+const byte mpr121_A = 0x5A;
+const byte mpr121_B = 0x5B;

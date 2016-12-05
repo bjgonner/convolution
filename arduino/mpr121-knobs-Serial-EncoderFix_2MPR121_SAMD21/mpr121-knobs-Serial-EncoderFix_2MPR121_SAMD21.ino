@@ -42,18 +42,14 @@
 
  */
 
-#include "interface.h"
-#include "mpr121.h"
-#include "SerialSetup.h"
 #include <Wire.h>
+#include "mpr121.h"
+
+
 #include "EnCode.h"
+#include "interface.h"
+#include "SerialSetup.h"
 
-EnCode enc1(5,6,7);
-EnCode enc2(8,9,10);
-
-
-const byte mpr121_A = 0x5A;
-const byte mpr121_B = 0x5B;
 
 
 
@@ -67,7 +63,7 @@ void setup(){
  // pinMode(pinA, INPUT_PULLUP); // set pinA as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
  // pinMode(pinB, INPUT_PULLUP); // set pinB as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
 
-  pinMode(rotButt, INPUT_PULLUP);
+ // pinMode(rotButt, INPUT_PULLUP);
   
   pinMode(13, OUTPUT);
   
@@ -89,7 +85,8 @@ void setup(){
 
 
 void loop(){
-  encoderPos = readPins(pinA, pinB, encoderPos);
+  encoderPos = enc1.readPins();
+  enc2.readPins();
   if(encoderPos%2 == 0) digitalWrite(13, HIGH);
   else digitalWrite(13,LOW);
   if(mode == oMode){

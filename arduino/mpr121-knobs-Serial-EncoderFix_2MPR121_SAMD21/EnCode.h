@@ -15,6 +15,7 @@ class EnCode {
 
   EnCode(int a, int b, int but);
   int readPins();
+  int getPos();
 };
 
 EnCode::EnCode(int a, int b, int but){
@@ -48,6 +49,10 @@ int EnCode::readPins(){
   }
   
   this->lastA = this->currA;
+  return this->pos;
+}
+
+int EnCode::getPos(){
   return this->pos;
 }
 

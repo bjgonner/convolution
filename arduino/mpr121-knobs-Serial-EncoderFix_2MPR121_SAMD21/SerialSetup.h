@@ -20,9 +20,10 @@ void establishContact() {
     delay(300);
   }
 }
-void sendRawEnc(int e){
+void sendRawEnc(int e1, int e2){
   rawEncData = "/rawEnc ";
-  rawEncData += String(e) + "\n";
+  rawEncData += String(e1) + "\n";
+  rawEncData += String(e2) + "\n";
   Serial.print(rawEncData);
 }
 
@@ -42,7 +43,7 @@ void readKnobs(int k[], int theSize){
    if (millis() - knobTimer >= timerLength) {
     Serial.print(knobData);
     sendEncoder(octave);
-    sendRawEnc(encoderPos);
+    sendRawEnc(enc1.getPos(), enc2.getPos());
     knobTimer = millis();
   }
     
