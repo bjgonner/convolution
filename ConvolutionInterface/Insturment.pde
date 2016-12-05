@@ -27,14 +27,10 @@ class Instrument{
        
  }
   
-  void setVisible(boolean v){
-    //do something
-    
-  }
-  
+ 
   void record(){
   }
-  
+// update slider values (currently atk decay etc, but should be mapped to other features as envelope is better for these)  
   void setAtk(float v){
    //atk = v;
    sliderValues[0] = v;
@@ -70,7 +66,7 @@ class Instrument{
     sliderValues[5] = v;
     println(theName + ": effect2: " + sliderValues[5]);  
   }
-  
+//initialize default envelop settings 
   void initEnvPoints(){
      envPoints = new FloatList();
      envPoints.append(0.0); //start length

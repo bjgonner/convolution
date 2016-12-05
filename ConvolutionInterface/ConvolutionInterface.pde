@@ -67,7 +67,7 @@ JSONObject json;
 void setup() {
   size(800, 480, P2D);
   //smooth(2);
-  sup = new EnvShaper(5,425,15,300,200, 20);
+  sup = new EnvShaper(5,425,15,350,233, 20);
   String instText = join(instNames, "\n");
   String dynText = "Insturment: " + instNames[0];
   cp5 = new ControlP5(this);
@@ -236,20 +236,16 @@ void keyPressed() {
     } else if (keyCode == DOWN) {
      listIndex = (listIndex+1) % instNames.length;
     }
-   // println(cp5.get(ScrollableList.class, "Insturment").setValue(listIndex));
-   //cp5.get(Textlabel.class, "inst").setText("Instrument: " + instNames[listIndex]);
-   cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);
-   sup.copyEnvPointsTo(insts[lastListIndex]);
-   // println("Inst:");
-   //printArray(insts[lastListIndex].envPoints.array());
-  // printArray(insts[listIndex].envPoints.array());
-   sup.copyEnvPointsFrom(insts[listIndex]);
-   sup.updateVertices();
-   println("Sup:");
-   printArray(sup.envPoints.array());
-   unPlugSliders(lastListIndex);
-   plugSliders(listIndex, lastListIndex);
-   //println(listIndex);
+//-----------Code to be moved into function called on keyup/down and rotary encoder change
+   cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);  //change inst name display
+   sup.copyEnvPointsTo(insts[lastListIndex]);  //copy the existing envelop from the shaper to the last insturment
+
+   sup.copyEnvPointsFrom(insts[listIndex]);  //copy the envelop from current instrument to shaper
+   sup.updateVertices();  //update vertices on envelop display
+  
+   unPlugSliders(lastListIndex);  //unplug the effects sliders from the previos instrument
+   plugSliders(listIndex, lastListIndex);  //plug the sliders to the current instrument
+//-------------------------------------------------
   }
 }
 
