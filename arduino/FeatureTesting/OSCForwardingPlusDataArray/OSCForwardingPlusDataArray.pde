@@ -124,7 +124,9 @@ class HardwareInput{
     for (int i = 1; i < v.length; i++){
       lastEncode[i-1] = encoders[i-1];
       encoders[i-1] = float(trim(v[i]));
-    }
+    //  lastEncode[1] = encoders[1];
+     // encoders[1] = float(trim(v[2]));
+  }
    if(lastEncode[0] < encoders[0]){
      int subLength;
    //  println("positive encoder change! turn off keys:" + (12*lastEncode[0]) + " to " + (12*lastEncode[0]+11) );

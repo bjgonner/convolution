@@ -5,7 +5,7 @@ String noteOffData;
 String encoderData;
 String rawEncData;
 
-int timerLength = 500;
+int timerLength = 100;
 int knobTimer=0;
 int inByte = 0;         // incoming serial byte
 int knobs[6];

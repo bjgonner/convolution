@@ -57,13 +57,7 @@
 void setup(){
   pinMode(irqpin, INPUT_PULLUP);
   pinMode(irqpin2, INPUT_PULLUP);
-  
- 
 
- // pinMode(pinA, INPUT_PULLUP); // set pinA as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
- // pinMode(pinB, INPUT_PULLUP); // set pinB as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
-
- // pinMode(rotButt, INPUT_PULLUP);
   
   pinMode(13, OUTPUT);
   
@@ -78,7 +72,7 @@ void setup(){
   mpr121_setup(mpr121_A);
   mpr121_setup(mpr121_B);
 
-    establishContact();  // send a byte to establish contact until receiver responds
+   // establishContact();  // send a byte to establish contact until receiver responds
    analogReadResolution(12);
 }
 
