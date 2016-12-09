@@ -10,7 +10,29 @@
  * www.sojamo.de/libraries/controlp5
  *
  */
+//----Serial and OSC routing-----------------------
+import processing.serial.*;
 
+import netP5.*;
+import oscP5.*;
+
+// which serial device to use. this is an index into the list
+// of serial devices printed when this program runs. 
+int SERIAL_PORT = 5;
+int BAUD = 1843200; // baud rate of the serial device
+
+// the OSC server to talk to
+String HOST = "127.0.0.1";
+int PORT = 57120;
+
+
+Serial port;
+OscP5 osc;
+NetAddress address;
+HardwareInput arduino;
+
+//---------------------------
+//--------Interface---------------
 import controlP5.*;
 import java.util.*;
 EnvShaper sup;
@@ -35,6 +57,13 @@ String[] sliderNames = {"attack",
                         "release",
                         "effect1",
                         "effect2"
+                        };
+String[] globalSliders = {"Global FX1",
+                        "Global FX2",
+                        "Global FX3",
+                        "Global FX4",
+                        "Global FX5",
+                        "Global FX6"
                         };
                         
 String[] funcs = {"setAtk",
@@ -63,18 +92,31 @@ int gWidth = (800-64)/32;//32*20+32*2; //int(700/float(nx));
 int gHeight = 8*23 + 8*2;
 
 JSONObject json;
-
+//================================================
+//========Setup=================================
 void setup() {
   size(800, 480, P2D);
   //smooth(2);
+  //==========Serial/OSC setup==============
+  arduino = new HardwareInput(6,128,2,0);
+  printArray(Serial.list());
+  osc = new OscP5(this, 12000);
+  address = new NetAddress(HOST, PORT);
+  port = new Serial(this, Serial.list()[SERIAL_PORT], BAUD);
+  port.bufferUntil('\n');
+  //==============================================
+  
   sup = new EnvShaper(5,425,15,350,233, 20);
   String instText = join(instNames, "\n");
   String dynText = "Insturment: " + instNames[0];
   cp5 = new ControlP5(this);
-  println(mHeight);
-  println(test);
   
   
+    // use setMode to change the cell-activation which by 
+  // default is ControlP5.SINGLE_ROW, 1 active cell per row, 
+  // but can be changed to ControlP5.SINGLE_COLUMN or 
+  // ControlP5.MULTIPLES
+  //check about changing matrix buttons from toggles
   
   cp5.addMatrix("myMatrix", nx,ny,0,height-mHeight,mWidth, mHeight)//704,176)
      //.setPosition(100, height-200)
@@ -105,26 +147,11 @@ void setup() {
        .setRange(30,240)
        .plugTo(this,"setBPM")
        ;
-     
-/*     List l = Arrays.asList(instNames);
-   //add a ScrollableList, by default it behaves like a DropdownList 
-  cp5.addScrollableList("Insturment")
-     .setPosition(0, height-mHeight-60)
-     .setSize(110, 60)
-     .setBarHeight(30)
-     .setItemHeight(30)
-     .addItems(l)
-     .setType(ScrollableList.LIST) // currently supported DROPDOWN and LIST
-     .setFont(createFont("AvenirNext-DemiBold",14))
-     ;
-*/     
+        
 
   cp5.getController("myMatrix").getCaptionLabel().alignX(CENTER);
   
-  // use setMode to change the cell-activation which by 
-  // default is ControlP5.SINGLE_ROW, 1 active cell per row, 
-  // but can be changed to ControlP5.SINGLE_COLUMN or 
-  // ControlP5.MULTIPLES
+
 
     d = new Dong[nx][ny];
   for (int x = 0;x<nx;x++) {
@@ -170,6 +197,11 @@ void draw() {
   popMatrix();
    sup.updateEnvPoints();
   sup.disp();
+  if(arduino.knobFlag){
+    setGlobalEffects(arduino.smoothKnobs());
+    //arduino.smoothKnobs();
+    arduino.knobFlag  = false;
+  }
  
 }
 
@@ -290,12 +322,24 @@ void unPlugSliders(int last){
 }
 
 void setupInstSliders(){
+  Group g2 = cp5.addGroup("Global Controls")
+                 .setPosition(10,80)
+                 .setBarHeight(40)
+                 .setBackgroundHeight(200)
+                 .setSize(400,220)
+                 .setBackgroundColor(0xff1111ff)
+                 .close()
+                 ;
+                 
   Group g1 = cp5.addGroup("Effects Controls")
-                 .setPosition(10,10)
-                 .setBackgroundHeight(250)
-                 .setSize(400,250)
+                 .setPosition(10,40)
+                 .setBarHeight(40)
+                 .setBackgroundHeight(200)
+                 .setSize(400,220)
                  .setBackgroundColor(0xff1111ff)
                  ;
+                 
+  
    
    cp5.addSlider( "attack" )
        .setRange( 0.0, 5.0 )
@@ -367,18 +411,93 @@ void setupInstSliders(){
        .setLineHeight(30)
        .setGroup(g1)
        ;
-       
-       
-       
   cp5.getController("attack").getValueLabel().alignX(ControlP5.CENTER);
   cp5.getController("decay").getValueLabel().alignX(ControlP5.CENTER);
   cp5.getController("sustain").getValueLabel().alignX(ControlP5.CENTER);
   cp5.getController("release").getValueLabel().alignX(ControlP5.CENTER);
   cp5.getController("effect1").getValueLabel().alignX(ControlP5.CENTER);
   cp5.getController("effect2").getValueLabel().alignX(ControlP5.CENTER);
+       
+       //End g1 === ========
+       
+  cp5.addSlider( "Global FX1" )
+       .setRange( 0.0, 5.0 )
+       //.plugTo( this, "setAtk" )
+       .setValue( 0.1 )
+       .setLabel("FX1")
+       .setPosition(10,10)
+       .setSize(50, 180)
+       .setGroup(g2)
+       ;
+       
+     cp5.addSlider( "Global FX2" )
+       .setRange( 0.01, 5.0 )
+       //.plugTo( this, "setDcy" )
+       .setValue( 0.5 )
+       .setLabel("FX2")
+       .setPosition(70,10)
+       .setSize(50, 180)
+       .setGroup(g2)
+       ;
+       
+  cp5.addSlider( "Global FX3" )
+       .setRange( 0.01, 5.0 )
+       //.plugTo( this, "setSus" )
+       .setValue( 0.3 )
+       .setLabel("FX3")
+       .setPosition(130,10)
+       .setSize(50, 180)
+       .setGroup(g2)
+       ;
+       
+ cp5.addSlider( "Global FX4" )
+       .setRange( 0.01, 5.0 )
+       //.plugTo( this, "setRel" )
+       .setValue( 1 )
+       .setLabel("FX4")
+       .setPosition(190,10)
+       .setSize(50, 180)
+       .setGroup(g2)
+       ;
+       
+  cp5.addSlider( "Global FX5" )
+       .setRange( 0.0, 100.0 )
+       //.plugTo( this, "setEffect1" )
+       .setValue( 50 )
+       .setLabel("FX5")
+       .setPosition(250,10)
+       .setSize(50, 180)
+       .setGroup(g2)
+       ;
+       
+  cp5.addSlider( "Global FX6" )
+       .setRange( 0.0, 100.0 )
+       //.plugTo( this, "setEffect2" )
+       .setValue( 50 )
+       .setLabel("FX6")
+       .setPosition(310,10)
+       .setSize(50, 180)
+       .setGroup(g2)
+       ;     
+ cp5.getController("Global FX1").getValueLabel().alignX(ControlP5.CENTER);
+  cp5.getController("Global FX2").getValueLabel().alignX(ControlP5.CENTER);
+  cp5.getController("Global FX3").getValueLabel().alignX(ControlP5.CENTER);
+  cp5.getController("Global FX4").getValueLabel().alignX(ControlP5.CENTER);
+  cp5.getController("Global FX5").getValueLabel().alignX(ControlP5.CENTER);
+  cp5.getController("Global FX6").getValueLabel().alignX(ControlP5.CENTER); 
   
   plugSliders(listIndex, 0);
 }
+
+void setGlobalEffects(float[] input){
+  for(int i = 0; i < input.length; i++){
+    float min = cp5.getController(globalSliders[i]).getMin();
+    float max = cp5.getController(globalSliders[i]).getMax();
+    float temp = map(input[i], 0, 4096, min, max);
+    cp5.getController(globalSliders[i]).setValue(temp);
+  }
+  }
+  
 
 void mouseWheel(MouseEvent event) {
   float e = event.getCount();
@@ -389,4 +508,34 @@ void mouseWheel(MouseEvent event) {
    unPlugSliders(lastListIndex);
    plugSliders(listIndex, lastListIndex);
   println(e + " " +listIndex);
+}
+
+void serialEvent(Serial port)
+{
+  String line = port.readStringUntil('\n');
+  if (line == null) return;
+  String[] vals = splitTokens(line);
+  OscMessage msg = new OscMessage(trim(vals[0]));
+  
+  for (int i = 1; i < vals.length; i++) {
+    float val = float(trim(vals[i]));
+  //  print("\t" + val);
+    msg.add(val);
+  }
+  //println();
+  osc.send(msg, address);
+  arduino.recordValues(vals);
+  
+}
+
+void oscEvent(OscMessage msg)
+{
+  print("<");
+  for (int i = 0; i < msg.arguments().length; i++) {
+    print("\t" + msg.arguments()[i].toString());
+    port.write(msg.arguments()[i].toString());
+    if (i < msg.arguments().length - 1) port.write("\t");
+  }
+  println();
+  port.write("\n");
 }
