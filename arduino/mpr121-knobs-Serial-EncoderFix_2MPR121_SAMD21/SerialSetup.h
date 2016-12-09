@@ -3,6 +3,7 @@ String knobData;
 String noteOnData;
 String noteOffData;
 String encoderData;
+String encButtData;
 String rawEncData;
 
 int timerLength = 100;
@@ -22,7 +23,7 @@ void establishContact() {
 }
 void sendRawEnc(int e1, int e2){
   rawEncData = "/rawEnc ";
-  rawEncData += String(e1) + "\n";
+  rawEncData += String(e1) + " ";
   rawEncData += String(e2) + "\n";
   Serial.print(rawEncData);
 }
@@ -31,6 +32,13 @@ void sendEncoder(int e){
   encoderData = "/encoder ";
   encoderData += String(e) + "\n";
   Serial.print(encoderData);
+}
+void sendModeState(EnCode e){
+  if(e.getSendFlag()){
+    e.setSendFlag(false);
+    encButtData = "/mode ";
+    encButtData += String(e.getMode()) + "\n"; 
+  }
 }
 void readKnobs(int k[], int theSize){
   knobData = "/knobs ";
