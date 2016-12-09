@@ -90,6 +90,8 @@ void loop(){
   readTouchInputs(irqpin, mpr121_A);
   readTouchInputs(irqpin2, mpr121_B);
   readRotButt();
+  enc1.getButtonState(3);
+  enc2.getButtonState(10);
   readKnobs(knobs, sizeof(knobs)/sizeof(int));
   
   //serialComm();

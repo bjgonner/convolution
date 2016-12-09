@@ -28,6 +28,7 @@ class EnCode {
   bool getSendFlag();
   void setSendFlag(bool v);
   int getMode();
+  int getID();
   int getButtonState(int nModes);
 };
 
@@ -43,7 +44,8 @@ EnCode::EnCode(int a, int b, int but, int _id){
   this->dBounceTime = 0;
   this->dBounce = 50;
   this->lastButtPinState = LOW;
-  this->sendFlag = false;
+  this->mode = 0;
+  this->sendFlag = true;
   
   pinMode(this->pinA, INPUT_PULLUP); // set pinA as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
   pinMode(this->pinB, INPUT_PULLUP); // set pinB as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
@@ -84,6 +86,10 @@ void EnCode::setSendFlag(bool v){
 
 int EnCode::getMode(){
   return this->mode;
+}
+
+int EnCode::getID(){
+  return this->id;
 }
 
 int EnCode::getButtonState(int nModes){
