@@ -39,7 +39,7 @@ EnvShaper sup;
 ControlP5 cp5;
 Instrument bass;
 Instrument[] insts;
-Dong[][] d;
+
 Timer instDsplyTime;
 boolean instDisplay = true;
 String[] instNames = {"bass",
@@ -153,12 +153,6 @@ void setup() {
   
 
 
-    d = new Dong[nx][ny];
-  for (int x = 0;x<nx;x++) {
-    for (int y = 0;y<ny;y++) {
-      d[x][y] = new Dong();
-    }
-  }  
   noStroke();
   smooth();
   instDsplyTime = new Timer(2000);
@@ -186,29 +180,22 @@ void draw() {
   rect(0,height-mHeight-100,mWidth, 2);
   fill(255, 100);
  
-  pushMatrix();
-  translate(width/2 + 150, height/2);
-  rotate(frameCount*0.001);
-  for (int x = 0;x<nx;x++) {
-    for (int y = 0;y<ny;y++) {
-      d[x][y].display();
-    }
-  }
-  popMatrix();
    sup.updateEnvPoints();
   sup.disp();
   if(arduino.knobFlag){
     setGlobalEffects(arduino.smoothKnobs());
-    //arduino.smoothKnobs();
+    
     arduino.knobFlag  = false;
   }
- 
+// double total = (double)((Runtime.getRuntime().totalMemory()/1024)/1024);
+//double used  = (double)((Runtime.getRuntime().totalMemory()/1024 - Runtime.getRuntime().freeMemory()/1024)/1024);
+//println("total: " + total + " Used: " + used); 
 }
 
 
 void myMatrix(int theX, int theY) {
   println("got it: "+theX+", "+theY);
-  d[theX][theY].update();
+ 
 }
 
 void setBPM(float v){
