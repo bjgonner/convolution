@@ -11,7 +11,7 @@ class Timer{
   }
   
   boolean isFinished(){
-    if(millis() -current >= delayTime){
+    if(millis() - current >= delayTime){
       reset();
       return true;
     }else{

@@ -30,7 +30,7 @@ Serial port;
 OscP5 osc;
 NetAddress address;
 HardwareInput arduino;
-
+Matricks seq;
 //---------------------------
 //--------Interface---------------
 import controlP5.*;
@@ -39,6 +39,7 @@ EnvShaper sup;
 ControlP5 cp5;
 Instrument bass;
 Instrument[] insts;
+EffectsGroup efg;
 
 Timer instDsplyTime;
 boolean instDisplay = true;
@@ -102,7 +103,8 @@ void setup() {
   printArray(Serial.list());
   osc = new OscP5(this, 12000);
   address = new NetAddress(HOST, PORT);
-  port = new Serial(this, Serial.list()[SERIAL_PORT], BAUD);
+ // port = new Serial(this, Serial.list()[SERIAL_PORT], BAUD);
+  port = new Serial(this, Serial.list()[2], BAUD);
   port.bufferUntil('\n');
   //==============================================
   
@@ -117,8 +119,9 @@ void setup() {
   // but can be changed to ControlP5.SINGLE_COLUMN or 
   // ControlP5.MULTIPLES
   //check about changing matrix buttons from toggles
-  
-  cp5.addMatrix("myMatrix", nx,ny,0,height-mHeight,mWidth, mHeight)//704,176)
+  // Matricks(String _matrixName, int _nx, int _ny, int _mWidth, int _mHeight, String[] _instNames){
+    seq = new Matricks("seq", nx, ny, mWidth, mHeight, instNames, 125);
+ /* cp5.addMatrix("myMatrix", nx,ny,0,height-mHeight,mWidth, mHeight)//704,176)
      //.setPosition(100, height-200)
     // .setSize(750, 200)
      //.setGrid(nx, ny)
@@ -129,6 +132,7 @@ void setup() {
      .setBackground(color(40))
      .setVisible(mFlag);
      ;
+     */
     int tWidth = 100; 
     cp5.addTextlabel("label")
       .setText(instText)
@@ -149,7 +153,7 @@ void setup() {
        ;
         
 
-  cp5.getController("myMatrix").getCaptionLabel().alignX(CENTER);
+//  cp5.getController("myMatrix").getCaptionLabel().alignX(CENTER);
   
 
 
@@ -165,6 +169,8 @@ void setup() {
   }
   
   setupInstSliders();
+  efg = new EffectsGroup("test", sliderNames, 100,100,500, 300);
+  efg.setupSliders();
 }
 
 
@@ -179,7 +185,8 @@ void draw() {
   fill(255,0,255);
   rect(0,height-mHeight-100,mWidth, 2);
   fill(255, 100);
- 
+   seq.update();
+   //seq.sendMatrixOsc();
    sup.updateEnvPoints();
   sup.disp();
   if(arduino.knobFlag){
@@ -216,7 +223,7 @@ void keyPressed() {
     cp5.get(Matrix.class, "myMatrix").set(0, 1, true);
   }  
   else if (key=='3') {
-    cp5.get(Matrix.class, "myMatrix").trigger(0);
+   // cp5.get(Matrix.class, "myMatrix").trigger(0);
   }
   else if (key=='p') {
     if (cp5.get(Matrix.class, "myMatrix").isPlaying()) {
@@ -496,7 +503,7 @@ void mouseWheel(MouseEvent event) {
    plugSliders(listIndex, lastListIndex);
   println(e + " " +listIndex);
 }
-
+//version that forwards info directly from serial to osc
 void serialEvent(Serial port)
 {
   String line = port.readStringUntil('\n');
