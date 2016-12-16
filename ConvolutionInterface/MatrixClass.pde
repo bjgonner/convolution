@@ -19,11 +19,12 @@ class Matricks {
     // .setSize(750, 200)
      //.setGrid(nx, ny)
      .setGap(gap, gap)
-     .setInterval(interval)
+     //.setInterval(interval)
      .setMode(ControlP5.MULTIPLES)
      .setColorBackground(color(120))
      .setBackground(color(40))
      //.setVisible(mFlag);
+     .stop()
      ;
      
      instVals = new boolean[numInsts][numSteps];
@@ -37,6 +38,7 @@ class Matricks {
      time = new Timer(interval*(numSteps+1)-1);
  }
   void update(){
+    
     for(int i = 0; i < numInsts;  i++){
       for( int j = 0; j < numSteps; j++){
        instVals[i][j] =  cp5.get(Matrix.class, matrixName).get(j, i);
@@ -44,8 +46,8 @@ class Matricks {
     }
     //println("current: " + time.current + "   " + (millis()-time.current) + "   delay: " + time.delayTime);
     if(time.isFinished()){
-      println("truth");
-      sendMatrixOsc();
+     // println("truth");
+     // sendMatrixOsc();
     }
     
   }

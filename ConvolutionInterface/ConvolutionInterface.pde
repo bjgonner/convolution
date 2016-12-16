@@ -23,8 +23,8 @@ int BAUD = 1843200; // baud rate of the serial device
 
 // the OSC server to talk to
 String HOST = "127.0.0.1";
-int PORT = 57120;
-
+int PORT = 57121;
+float cnt = 0;
 
 Serial port;
 OscP5 osc;
@@ -97,6 +97,7 @@ JSONObject json;
 //========Setup=================================
 void setup() {
   size(800, 480, P2D);
+  frameRate(30);
   //smooth(2);
   //==========Serial/OSC setup==============
   arduino = new HardwareInput(6,128,2,0);
@@ -197,6 +198,11 @@ void draw() {
 // double total = (double)((Runtime.getRuntime().totalMemory()/1024)/1024);
 //double used  = (double)((Runtime.getRuntime().totalMemory()/1024 - Runtime.getRuntime().freeMemory()/1024)/1024);
 //println("total: " + total + " Used: " + used); 
+
+rectMode(CENTER);
+    float spacing  = width/seq.numSteps*(cnt+1);
+    rect(spacing-(width/seq.numSteps)/2,height-mHeight-(gap), width/seq.numSteps-gap*2, 20); 
+    rectMode(CORNER);
 }
 
 
@@ -521,15 +527,24 @@ void serialEvent(Serial port)
   arduino.recordValues(vals);
   
 }
-
 void oscEvent(OscMessage msg)
 {
-  print("<");
-  for (int i = 0; i < msg.arguments().length; i++) {
-    print("\t" + msg.arguments()[i].toString());
-    port.write(msg.arguments()[i].toString());
-    if (i < msg.arguments().length - 1) port.write("\t");
-  }
-  println();
-  port.write("\n");
+  //print("<");
+  if(msg.addrPattern().equals("/tick")) cnt = (float)msg.arguments()[0];
+  //println(msg.arguments()[0]);
+  if(cnt == 31) seq.sendMatrixOsc();
+  //println(cnt);
+  
 }
+//void oscEvent(OscMessage msg)
+//{
+//  print("<");
+//  print(msg.addrPattern());
+//  for (int i = 0; i < msg.arguments().length; i++) {
+//    print("\t" + msg.arguments()[i].toString());
+//    port.write(msg.arguments()[i].toString());
+//    if (i < msg.arguments().length - 1) port.write("\t");
+//  }
+//  println();
+//  port.write("\n");
+//}
