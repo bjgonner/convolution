@@ -133,45 +133,105 @@ void readTouchInputs(int irq, byte addr){
     
     uint16_t touched = ((MSB << 8) | LSB); //16bits that make up the touch states
 
-    
-    for (int i=0; i < 12; i++){  // Check what electrodes were pressed
-      if(touched & (1<<i)){
-      
-        if(touchStates[i] == 0){
-          //pin i was just touched
-          int note = i+octave*12;
-          if(note <= 0x7F){
-            noteOn(0x90, note, volume);  //herer
-            
-          }
-//          Serial.print("pin ");
-//          Serial.print(i);
-//          Serial.print(": note: ");
-//          Serial.println(i+octave*12);
+    if(addr == 0x5B){
+      for (int i=0; i < 12; i++){  // Check what electrodes were pressed
+        if(touched & (1<<i)){
         
-        }else if(touchStates[i] == 1){
-          //pin i is still being touched
-        }  
-      
-        touchStates[i] = 1;      
-      }else{
-        if(touchStates[i] == 1){
-          int note = i+octave*12;
-          if(note <= 0x7F){
-          noteOff(0x80, i+octave*12, 0x00);
-          }
-//          Serial.print("pin ");
-//          Serial.print(i);
-//          Serial.print(": note: ");
-//          Serial.println(i+octave*12);
+          if(touchStates[i] == 0){
+            //pin i was just touched
+            int note = i+octave*12;
+            if(note <= 0x7F){
+              noteOn(0x90, note, volume);  //herer
+              
+            }
+  //          Serial.print("pin ");
+  //          Serial.print(i);
+  //          Serial.print(": note: ");
+  //          Serial.println(i+octave*12);
           
-          //pin i is no longer being touched
-       }
+          }else if(touchStates[i] == 1){
+            //pin i is still being touched
+          }  
         
-        touchStates[i] = 0;
-      }
+          touchStates[i] = 1;      
+        }else{
+          if(touchStates[i] == 1){
+            int note = i+octave*12;
+            if(note <= 0x7F){
+            noteOff(0x80, i+octave*12, 0x00);
+            }
+  //          Serial.print("pin ");
+  //          Serial.print(i);
+  //          Serial.print(": note: ");
+  //          Serial.println(i+octave*12);
+            
+            //pin i is no longer being touched
+         }
+          
+          touchStates[i] = 0;
+        }
+        
       
-    
+      }
+    }else{
+      //remaining big buttons
+      for (int i=0; i < 4; i++){  // Check what electrodes were pressed
+        if(touched & (1<<i)){
+        
+          if(touch2States[i] == 0){
+            //pin i was just touched
+            int note = i+(octave+1)*12;
+            if(note <= 0x7F){
+              noteOn(0x90, note, volume);  //herer
+              
+            }
+  //          Serial.print("pin ");
+  //          Serial.print(i);
+  //          Serial.print(": note: ");
+  //          Serial.println(i+octave*12);
+          
+          }else if(touch2States[i] == 1){
+            //pin i is still being touched
+          }  
+        
+          touch2States[i] = 1;      
+        }else{
+          if(touch2States[i] == 1){
+            int note = i+(octave+1)*12;
+            if(note <= 0x7F){
+            noteOff(0x80, i+(octave+1)*12, 0x00);
+            }
+  //          Serial.print("pin ");
+  //          Serial.print(i);
+  //          Serial.print(": note: ");
+  //          Serial.println(i+octave*12);
+            
+            //pin i is no longer being touched
+         }
+          
+          touch2States[i] = 0;
+        }
+        
+      
+      }
+      // quad small buttons
+      for(int i = 4; i < 8; i++){
+        if(touched & (1<<i)){
+          if(quadStates[i-4] == 0){
+            //pin i just touched
+          }else if(quadStates[i-4] == 1){
+            //pin i still being touched
+          }
+          quadStates[i-4] = 1;
+          
+        }else{
+          if(quadStates[i-4] == 1){
+            //if pin i was just released
+          }
+          quadStates[i-4] = 0;
+          
+        }
+      }
     }
     
   }

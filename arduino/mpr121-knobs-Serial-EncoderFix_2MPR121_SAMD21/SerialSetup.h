@@ -5,6 +5,7 @@ String noteOffData;
 String encoderData;
 String encButtData;
 String rawEncData;
+String quadData;
 
 int timerLength = 100;
 int knobTimer=0;
@@ -41,6 +42,17 @@ void sendModeState(EnCode e){
     Serial.print(encButtData);
   }
 }
+void sendQuadStates(boolean q[], int theSize){
+  quadData = "/buttons";
+  int dataBit;
+  for(int i=0; i <theSize; i++){
+    if(q[i]) dataBit =1;
+    else dataBit = 0;
+    quadData += String(dataBit) + " ";
+  }
+  quadData += "\n";
+  Serial.print(quadData);
+}
 void readKnobs(int k[], int theSize){
   knobData = "/knobs ";
   for(int i = 0; i < theSize; i++){
@@ -55,6 +67,7 @@ void readKnobs(int k[], int theSize){
     sendRawEnc(enc1.getPos(), enc2.getPos());
     sendModeState(enc1);
     sendModeState(enc2);
+    sendQuadStates(quadStates, 4);
     knobTimer = millis();
   }
     

@@ -26,6 +26,8 @@ const int irqpin = 2;  // Digital 2
 const int irqpin2 = 3; 
 int octave = 3;
 boolean touchStates[12]; //to keep track of the previous touch states
+boolean touch2States[4];
+boolean quadStates[4];
 const int vMode = 1;
 const int oMode = 0;
 int mode = 0;
