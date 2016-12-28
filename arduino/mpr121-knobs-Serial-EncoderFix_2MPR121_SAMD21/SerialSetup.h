@@ -43,7 +43,7 @@ void sendModeState(EnCode e){
   }
 }
 void sendQuadStates(boolean q[], int theSize){
-  quadData = "/buttons";
+  quadData = "/buttons ";
   int dataBit;
   for(int i=0; i <theSize; i++){
     if(q[i]) dataBit =1;

@@ -10,10 +10,12 @@ class HardwareInput{
   float[] rawEncode = {0,0};
   float[][] smoothing;
   float[] smoothKnobs;
+  float[] quadPad;
   int smoothSteps;
   
  HardwareInput(int numKnobs, int numNotes, int numEncoders, float initMode){
    smoothSteps = 10;
+   quadPad = new float[4];
    knobs = new float[numKnobs];
    smoothKnobs = new float[numKnobs];
    smoothing = new float[smoothSteps][numKnobs];
@@ -147,8 +149,14 @@ class HardwareInput{
     rawEncode[1] = rawEncode[0];
     rawEncode[0] = float(trim(v[1]));
         //println(v[0] + ": " + int(trim(v[1])));
+  }else if(v[0].equals("/buttons")){
+   // print(v[0] + " : ");
+    for(int z = 1; z < v.length; z++){
+      quadPad[z-1] = float(trim(v[z]));
+     // print(quadPad[z-1] + " | " );
+    }
+   // println();
   }
-  
 }
   
 }

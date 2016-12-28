@@ -170,8 +170,8 @@ void setup() {
   }
   
   setupInstSliders();
-  efg = new EffectsGroup("test", sliderNames, 100,100,500, 300);
-  efg.setupSliders();
+ // efg = new EffectsGroup("test", sliderNames, 100,100,500, 300);
+ // efg.setupSliders();
 }
 
 
