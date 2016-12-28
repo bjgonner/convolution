@@ -92,39 +92,44 @@ b.free
 (
 ~degree = PatternProxy(Pn(Pseries(0, 1, 12), inf));
 
-~dur = PatternProxy(Pn(0.25, inf));
+//~dur = PatternProxy(Pn(0.125, inf));
 
 p = Pbind(
-	\instrument, \help_sawgrain,
+	\instrument, \beeu,
     \degree, ~degree,
 	\scale, Pfunc{~scale},
     \dur, ~dur,
 	\strum, 10
 
-).play(quant: 1);
-)
+).play(u, quant: 1);
 
+
+)
+a = [1,1,1, Rest,1,Rest,1, Rest];
+~degree.source = Pseq([11,12,13, Rest,1,Rest,24, Rest,Rest,1,Rest, 1, Rest,1,1,Rest], inf);
+~dur.source = Pn(1, inf);//PatternProxy(Pn(1, inf));
 ~degree.source = Pseq(Array.fill(16, {rrand(-3,7)}), inf);
 (
-~degrees = PatternProxy(Pn(Pseries(12,-1, 12), inf));
+//~degrees = PatternProxy(Pn(Pseries(12,-1, 12), inf));
 
 ~durs = PatternProxy(Pn(1, inf));
 
 g = Pbind(
-	\instrument, \help_sinegrain,
+	\instrument, \ueeb,
     \degree, ~degrees,
 	\scale, Pfunc{~scales},
     \dur, 0.125,
 	\strum, 0.1
-).play(quant: 1);
+).play(t, quant: 1);
 )
 ~scale = Scale.minorPentatonic;
-~scales = Scale.locrian;
+~scales = Scale.minor;
 
-Pbind(\note, [[1, 3, 5],[5,3,1],[1,5,3]].choose, \strum, 0.25).play
+Pbind(\note, [1, 3, 5, 7, 9], \strum, 0.1).play
 ~degrees.source = (Pseq(~instArray, inf));
-~degrees.source = Pseq(Array.fill(64, {rrand(-3,7)}), inf);
-~durs.source = Pwrand(#[0.25, 0.5, 0.75], #[0.5, 0.3, 0.2], inf);
+~degrees.source = Pseq(Array.fill(64, {[-5,-3,0,3,5,Rest,Rest,Rest, Rest, Rest].choose}), inf);
+
+~dur.source = Pwrand(#[0.25, 0.5, 0.75], #[0.5, 0.3, 0.2], inf);
 ~durs.source = Pn(0.2, inf);
 Scale.directory
 g.stop;
@@ -205,3 +210,4 @@ Ppar([p,g], inf).play(quant: 1);
 )
 ~scale = Scale.minorPentatonic;
 ~scales = Scale.locrian;
+

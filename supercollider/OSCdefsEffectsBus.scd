@@ -3,12 +3,15 @@
 ~fxGroup = Group.after(~srcGroup);
 ~ampOscGroup = Group.after(~fxGroup);
 )
+
+~srcGroup = Group.before(~fxGroup);
 s.killAll
 s.freeAll
 s.reboot
 Scale.directory
 s.plotTree;
-~scale = Scale.prometheus;
+s.meter;
+~scale = Scale.minor;
 ~coreNote = 58;
 ~coreNote = 60;
 440.midinote
@@ -36,7 +39,7 @@ on = OSCdef(\testNoteOn, { |msg|
 	//notes[~noteOn[2]] = Synth(\ay1, [\freqa, frqa, \freqb, frqb, \freqc, frqc,\trig, ~noteOn[3]/128, \out, ~reverbBus], ~srcGroup);
 	//~scale.degreeToFreq(~degree, ~coreNote.midicps, ~root).postln;
 	//~noteOn[2].midicps.postln;
-	notes[~noteOn[2]] = Synth(\oscnotes, [\pitch, ~noteOn[2].midicps, \trig, ~noteOn[3]/128, \out, ~reverbBus], ~srcGroup);
+	notes[~noteOn[2]] = Synth(\Moog,[\freq, frqa],/* [\pitch, ~noteOn[2].midicps, \trig, ~noteOn[3]/128, \out, ~reverbBus],*/ ~srcGroup);
 	//x.set("pitch", ~noteOn[2].midicps);
 	//x.set("trig", ~noteOn[3]/128);
 
@@ -56,17 +59,19 @@ off = OSCdef(\testNoteOff, { |msg|
 
  OSCdef(\testKnobs, { |msg|
 	~knobs = msg;
-	~srcGroup.set(\pitchMod, g.unmap(msg[1])*2);
-	~srcGroup.set(\atk, g.unmap(msg[2]));
+	~srcGroup.set(\pitchMod, g.unmap(msg[1])*10);
+	~srcGroup.set(\atk, g.unmap(msg[2]*3));
 	~srcGroup.set(\releaseTime, g.unmap(msg[3])*2+0.01);
 	/*~srcGroup.set(\dens, g.unmap(msg[1])*10);
 	~srcGroup.set(\decay, g.unmap(msg[2])+0.01);*/
 
-	//~fxGroup.set(\mix, g.unmap(msg[3]));
-	~srcGroup.set(\vola, 15*g.unmap(msg[4]));
-	~srcGroup.set(\volb, 15*g.unmap(msg[5]));
+	~fxGroup.set(\mix, g.unmap(msg[4]));
+	~fxGroup.set(\room, g.unmap(msg[5]));
+	~fxGroup.set(\damp, g.unmap(msg[6]));
+	//~srcGroup.set(\vola, 15*g.unmap(msg[4]));
+	//~srcGroup.set(\volb, 15*g.unmap(msg[5]));
 
-	~srcGroup.set(\volc, 15*g.unmap(msg[6]));
+	//~srcGroup.set(\volc, 15*g.unmap(msg[6]));
 	//y.set(\damp, g.unmap(msg[3])*2);
 	//a.set("dens",
 	//~noteOn.postln;
@@ -100,7 +105,7 @@ sound = SinOsc.ar(pitch+pitchMod);
 Out.ar(out, sound*env*amp);
 }).add;
 
-
+s.plotTree
 )
 g = ControlSpec(0, 4096, step:0);
 ~reverbBus = Bus.audio(s, 1);
@@ -197,3 +202,18 @@ Pbind(
 
 s.killAll
 s.quit
+
+(
+// used to lag pitch
+c ={
+    SinOsc.ar(                              // sine wave
+        Lag.kr(                             // lag the modulator
+            LFPulse.kr(4, 0, 0.5, 50, 400), // frequency modulator
+            Line.kr(0, 1, 15)               // modulate lag time
+        ),
+        0,                                  // phase
+        0.3                                 // sine amplitude
+    )
+}.play
+)
+c.free
