@@ -2,24 +2,36 @@ class HardwareInput{
   float[] knobs;
   boolean knobFlag;
   int[] notes;
+  boolean[] pads;
+  boolean[] lastPads;
+  boolean[] padChange;
   float[] encoders;
   float mode;
   int enc1Mode = 0;
   int enc2Mode = 0;
   float[] lastEncode;
-  float[] rawEncode = {0,0};
+  int[] rawEnc1 = {0,0};
+  int[] rawEnc2 = {0,0};
   float[][] smoothing;
   float[] smoothKnobs;
   float[] quadPad;
   int smoothSteps;
+  boolean encChangeFlag =false;
+  
+  
   
  HardwareInput(int numKnobs, int numNotes, int numEncoders, float initMode){
    smoothSteps = 10;
    quadPad = new float[4];
+   pads = new boolean[16];
+   lastPads = new boolean[16];
    knobs = new float[numKnobs];
    smoothKnobs = new float[numKnobs];
    smoothing = new float[smoothSteps][numKnobs];
-   
+   for(int i=0; i < pads.length; i++){
+      pads[i] = false;
+      lastPads[i] = false;
+    }
    for(int i=0; i < numKnobs; i++) knobs[i] = 0;
    
    notes = new int[numNotes];
@@ -131,7 +143,15 @@ class HardwareInput{
    //println(v[0] + v[1] + v[2]);
    
   }else if(v[0].equals("/noteOn")){
-    notes[int(trim(v[2]))] = 1;
+    int note = int(trim(v[2]));
+    int encPos = (int)encoders[0];
+    notes[note] = 1;
+    if (enc1Mode == SEQUENCER){
+      println("note on: " + note + " | oct: " + encPos + " | note%enc: " + ((note-encPos*12)+(16*(encPos%2))));
+      note -= encPos*12;
+      lastPads[note] = pads[note];
+      pads[note] = true;
+    }
           //for(int i=0; i < notes.length; i++){
           //  print(notes[i] + " ");
           //  if(i%12 == 0 ) println();
@@ -139,16 +159,29 @@ class HardwareInput{
           //println();
   //set note to off
   }else if(v[0].equals("/noteOff")){
-    notes[int(trim(v[2]))] = 0;
+    int note = int(trim(v[2]));
+    int encPos = (int)encoders[0];
+    notes[note] = 0;
+     if (enc1Mode == SEQUENCER){
+      println("note off: " + note + " | oct: " + encPos + " | note%enc: " + ((note-encPos*12)+(16*(encPos%2))));
+      note -= encPos*12;
+      lastPads[note] = pads[note];
+      pads[note] = false;
+    }
           //for(int i=0; i < notes.length; i++){
           //  print(notes[i] + " ");
           //  if(i%12 == 0 ) println();
           //}
           //println();
   }else if(v[0].equals("/rawEnc")){
-    rawEncode[1] = rawEncode[0];
-    rawEncode[0] = float(trim(v[1]));
-        //println(v[0] + ": " + int(trim(v[1])));
+    rawEnc1[1] = rawEnc1[0];
+    rawEnc1[0] = int(trim(v[1]));
+    
+    rawEnc2[1] = rawEnc2[0];
+    rawEnc2[0] = int(trim(v[2]));
+    //updateCurrInst();
+    if(rawEnc2[0] != rawEnc2[1]) encChangeFlag = true;
+       // println(v[0] + ": " + rawEnc1[0] + " | " + rawEnc1[1]);
   }else if(v[0].equals("/buttons")){
    // print(v[0] + " : ");
     for(int z = 1; z < v.length; z++){
@@ -158,5 +191,29 @@ class HardwareInput{
    // println();
   }
 }
+
+void updateCurrInst(){
+  //lastListIndex = listIndex;
+  if(rawEnc1[0] != rawEnc1[1]){
+     if( rawEnc1[0] > rawEnc1[1]){
+       listIndex = (listIndex+1) % instNames.length;
+     }else if(rawEnc1[0] < rawEnc1[1]){
+       
+       listIndex -= 1;
+       //if(listIndex < 0) listIndex = instNames.length-1;
+     }
+     println(listIndex);
+    // cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);  //change inst name display
+    // cp5.get(Textlabel.class, "instName2").setText("Instrument: " + instNames[listIndex]);  //change inst name display
+    // sup.copyEnvPointsTo(insts[lastListIndex]);  //copy the existing envelop from the shaper to the last insturment
+
+    // sup.copyEnvPointsFrom(insts[listIndex]);  //copy the envelop from current instrument to shaper
+   // sup.updateVertices();  //update vertices on envelop display
+  
+  //   unPlugSliders(lastListIndex);  //unplug the effects sliders from the previos instrument
+  //   plugSliders(listIndex, lastListIndex);  //plug the sliders to the current instrument
+  }
+}
+
   
 }

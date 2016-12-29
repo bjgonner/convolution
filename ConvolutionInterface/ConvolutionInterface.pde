@@ -26,6 +26,9 @@ String HOST = "127.0.0.1";
 int PORT = 57121;
 float cnt = 0;
 
+int LEAD = 1;
+int SEQUENCER = 0;
+
 Serial port;
 OscP5 osc;
 NetAddress address;
@@ -145,6 +148,16 @@ void setup() {
       .setLineHeight(25)
       
       ;
+     cp5.addTextlabel("current")
+      .setText("---------------------------------------------------")
+      .setPosition(0,height-mHeight-25)
+      .setSize(tWidth,5)
+      .setColorValue(0xffff00ff)
+      .setFont(createFont("AvenirNext-DemiBold",50))
+      //.setMultiline(true)
+      .setLineHeight(0)
+      
+      ;
       
      cp5.addKnob("bpm")
        .setSize(50, 50)
@@ -176,6 +189,23 @@ void setup() {
 
 
 void draw() {
+  
+  if(arduino.enc1Mode == LEAD){
+     background(0);
+    fill(255,0,255);
+    cp5.getController("seq").setVisible(false);
+    cp5.get(Group.class, "Effects Controls").setVisible(false);
+    cp5.get(Group.class, "Global Controls").setVisible(true);
+     sup.updateEnvPoints();
+     sup.disp();
+    if(arduino.knobFlag){
+      setGlobalEffects(arduino.smoothKnobs());
+      arduino.knobFlag  = false;
+     }
+  }else if(arduino.enc1Mode == SEQUENCER){
+    cp5.get(Group.class, "Effects Controls").setVisible(true);
+    cp5.get(Group.class, "Global Controls").setVisible(false);
+    cp5.getController("seq").setVisible(true);
   if(instDisplay){
     if(instDsplyTime.isFinished()){
       instDisplay = false;
@@ -186,6 +216,7 @@ void draw() {
   fill(255,0,255);
   rect(0,height-mHeight-100,mWidth, 2);
   fill(255, 100);
+  seq.setInstSteps(arduino, listIndex);
    seq.update();
    //seq.sendMatrixOsc();
    sup.updateEnvPoints();
@@ -198,11 +229,16 @@ void draw() {
 // double total = (double)((Runtime.getRuntime().totalMemory()/1024)/1024);
 //double used  = (double)((Runtime.getRuntime().totalMemory()/1024 - Runtime.getRuntime().freeMemory()/1024)/1024);
 //println("total: " + total + " Used: " + used); 
-
-rectMode(CENTER);
-    float spacing  = width/seq.numSteps*(cnt+1);
-    rect(spacing-(width/seq.numSteps)/2,height-mHeight-(gap), width/seq.numSteps-gap*2, 20); 
-    rectMode(CORNER);
+  seq.drawExtras();
+    
+  }else{
+    cp5.getController("seq").setVisible(false);
+    cp5.get(Group.class, "Effects Controls").setVisible(false);
+    cp5.get(Group.class, "Global Controls").setVisible(false);
+    background(0);
+    fill(255,0,255);
+  }
+  updateInsturment();
 }
 
 
@@ -270,6 +306,7 @@ void keyPressed() {
     }
 //-----------Code to be moved into function called on keyup/down and rotary encoder change
    cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);  //change inst name display
+   cp5.get(Textlabel.class, "instName2").setText("Instrument: " + instNames[listIndex]);  //change inst name display
    sup.copyEnvPointsTo(insts[lastListIndex]);  //copy the existing envelop from the shaper to the last insturment
 
    sup.copyEnvPointsFrom(insts[listIndex]);  //copy the envelop from current instrument to shaper
@@ -281,30 +318,31 @@ void keyPressed() {
   }
 }
 
-void controlEvent(ControlEvent theEvent) {
+void updateInsturment(){
+  if(arduino.encChangeFlag == true){
+    lastListIndex = listIndex;
+    arduino.encChangeFlag = false;
+    if( arduino.rawEnc2[0] > arduino.rawEnc2[1]){
+       listIndex = (listIndex+1) % instNames.length;
+     }else if(arduino.rawEnc2[0] < arduino.rawEnc2[1]){
+       
+       listIndex -= 1;
+       if(listIndex < 0) listIndex = instNames.length-1;
+     }
+     cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);  //change inst name display
+     cp5.get(Textlabel.class, "instName2").setText("Instrument: " + instNames[listIndex]);  //change inst name display
+     sup.copyEnvPointsTo(insts[lastListIndex]);  //copy the existing envelop from the shaper to the last insturment
+  
+     sup.copyEnvPointsFrom(insts[listIndex]);  //copy the envelop from current instrument to shaper
+     sup.updateVertices();  //update vertices on envelop display
+    
+     unPlugSliders(lastListIndex);  //unplug the effects sliders from the previos instrument
+     plugSliders(listIndex, lastListIndex);  //plug the sliders to the current instrument
+     //println(listIndex + " | " + lastListIndex);
+  }
 }
 
 
-class Dong {
-  float x, y;
-  float s0, s1;
-
-  Dong() {
-    float f= random(-PI, PI);
-    x = cos(f)*random(100, 150);
-    y = sin(f)*random(100, 150);
-    s0 = random(2, 10);
-  }
-
-  void display() {
-    s1 += (s0-s1)*0.1;
-    ellipse(x, y, s1, s1);
-  }
-
-  void update() {
-    s1 = 50;
-  }
-}
 
 void plugSliders(int active, int last){
  unPlugSliders(last);
@@ -323,12 +361,12 @@ void unPlugSliders(int last){
 
 void setupInstSliders(){
   Group g2 = cp5.addGroup("Global Controls")
-                 .setPosition(10,80)
+                 .setPosition(10,40)
                  .setBarHeight(40)
                  .setBackgroundHeight(200)
                  .setSize(400,220)
                  .setBackgroundColor(0xff1111ff)
-                 .close()
+                 //.close()
                  ;
                  
   Group g1 = cp5.addGroup("Effects Controls")
@@ -411,6 +449,8 @@ void setupInstSliders(){
        .setLineHeight(30)
        .setGroup(g1)
        ;
+       
+      
   cp5.getController("attack").getValueLabel().alignX(ControlP5.CENTER);
   cp5.getController("decay").getValueLabel().alignX(ControlP5.CENTER);
   cp5.getController("sustain").getValueLabel().alignX(ControlP5.CENTER);
@@ -478,7 +518,18 @@ void setupInstSliders(){
        .setPosition(310,10)
        .setSize(50, 180)
        .setGroup(g2)
-       ;     
+       ;   
+       
+  cp5.addTextlabel("instName2")
+       .setText("Instrument: " + instNames[listIndex])
+       .setPosition(10,210)
+       .setSize(50, 300)
+       .setColorValue(0xffffff00)
+       .setFont(createFont("AvenirNext-DemiBold",24))
+       //.setMultiline(true)
+       .setLineHeight(30)
+       .setGroup(g2)
+       ;
  cp5.getController("Global FX1").getValueLabel().alignX(ControlP5.CENTER);
   cp5.getController("Global FX2").getValueLabel().alignX(ControlP5.CENTER);
   cp5.getController("Global FX3").getValueLabel().alignX(ControlP5.CENTER);
@@ -505,6 +556,7 @@ void mouseWheel(MouseEvent event) {
   if(listIndex < 0) listIndex = instNames.length-1;
   listIndex = (listIndex+1) % instNames.length;
   cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);
+  cp5.get(Textlabel.class, "instName2").setText("Instrument: " + instNames[listIndex]);
    unPlugSliders(lastListIndex);
    plugSliders(listIndex, lastListIndex);
   println(e + " " +listIndex);
