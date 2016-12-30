@@ -11,6 +11,7 @@ class Instrument{
  float[] sliderValues = {0.1,0.5,0.3,0.2,0.0,0.0};
  float[] envArray;
  FloatList envPoints;
+// int root = 60;
  //EnvShaper env;
  
  

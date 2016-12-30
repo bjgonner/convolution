@@ -28,6 +28,7 @@ float cnt = 0;
 
 int LEAD = 1;
 int SEQUENCER = 0;
+int root = 60;
 
 Serial port;
 OscP5 osc;
@@ -189,48 +190,11 @@ void setup() {
 
 
 void draw() {
-  
+  transpose();
   if(arduino.enc1Mode == LEAD){
-     background(0);
-    fill(255,0,255);
-    cp5.getController("seq").setVisible(false);
-    cp5.get(Group.class, "Effects Controls").setVisible(false);
-    cp5.get(Group.class, "Global Controls").setVisible(true);
-     sup.updateEnvPoints();
-     sup.disp();
-    if(arduino.knobFlag){
-      setGlobalEffects(arduino.smoothKnobs());
-      arduino.knobFlag  = false;
-     }
+    leadMode();
   }else if(arduino.enc1Mode == SEQUENCER){
-    cp5.get(Group.class, "Effects Controls").setVisible(true);
-    cp5.get(Group.class, "Global Controls").setVisible(false);
-    cp5.getController("seq").setVisible(true);
-  if(instDisplay){
-    if(instDsplyTime.isFinished()){
-      instDisplay = false;
-      cp5.getController("label").setVisible(instDisplay);
-     }
-   }
-  background(0);
-  fill(255,0,255);
-  rect(0,height-mHeight-100,mWidth, 2);
-  fill(255, 100);
-  seq.setInstSteps(arduino, listIndex);
-   seq.update();
-   //seq.sendMatrixOsc();
-   sup.updateEnvPoints();
-  sup.disp();
-  if(arduino.knobFlag){
-    setGlobalEffects(arduino.smoothKnobs());
-    
-    arduino.knobFlag  = false;
-  }
-// double total = (double)((Runtime.getRuntime().totalMemory()/1024)/1024);
-//double used  = (double)((Runtime.getRuntime().totalMemory()/1024 - Runtime.getRuntime().freeMemory()/1024)/1024);
-//println("total: " + total + " Used: " + used); 
-  seq.drawExtras();
-    
+    seqMode();
   }else{
     cp5.getController("seq").setVisible(false);
     cp5.get(Group.class, "Effects Controls").setVisible(false);
@@ -242,11 +206,24 @@ void draw() {
 }
 
 
-void myMatrix(int theX, int theY) {
-  println("got it: "+theX+", "+theY);
- 
+void transpose(){
+  OscMessage scaleRoot = new OscMessage( "/root" );
+  //change scale root note
+  //currently holding down produces many ticks add timer
+  if(arduino.quadPad[2] == true){
+    arduino.quadPad[2] = false;
+    scaleRoot.add(root++);
+    osc.send(scaleRoot, address);
+    println(root);
+  }else if(arduino.quadPad[0] == true){
+    arduino.quadPad[0] = false;
+    scaleRoot.add(root--);
+    osc.send(scaleRoot, address);
+    println(root);
+  }
+  
+  
 }
-
 void setBPM(float v){
     //bpm = v;
     float rate = 60/v/4;

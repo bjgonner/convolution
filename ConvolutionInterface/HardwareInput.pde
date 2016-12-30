@@ -14,7 +14,7 @@ class HardwareInput{
   int[] rawEnc2 = {0,0};
   float[][] smoothing;
   float[] smoothKnobs;
-  float[] quadPad;
+  boolean[] quadPad;
   int smoothSteps;
   boolean encChangeFlag =false;
   
@@ -22,7 +22,7 @@ class HardwareInput{
   
  HardwareInput(int numKnobs, int numNotes, int numEncoders, float initMode){
    smoothSteps = 10;
-   quadPad = new float[4];
+   quadPad = new boolean[4];
    pads = new boolean[16];
    lastPads = new boolean[16];
    knobs = new float[numKnobs];
@@ -147,7 +147,7 @@ class HardwareInput{
     int encPos = (int)encoders[0];
     notes[note] = 1;
     if (enc1Mode == SEQUENCER){
-      println("note on: " + note + " | oct: " + encPos + " | note%enc: " + ((note-encPos*12)+(16*(encPos%2))));
+     // println("note on: " + note + " | oct: " + encPos + " | note%enc: " + ((note-encPos*12)+(16*(encPos%2))));
       note -= encPos*12;
       lastPads[note] = pads[note];
       pads[note] = true;
@@ -163,7 +163,7 @@ class HardwareInput{
     int encPos = (int)encoders[0];
     notes[note] = 0;
      if (enc1Mode == SEQUENCER){
-      println("note off: " + note + " | oct: " + encPos + " | note%enc: " + ((note-encPos*12)+(16*(encPos%2))));
+     // println("note off: " + note + " | oct: " + encPos + " | note%enc: " + ((note-encPos*12)+(16*(encPos%2))));
       note -= encPos*12;
       lastPads[note] = pads[note];
       pads[note] = false;
@@ -185,7 +185,8 @@ class HardwareInput{
   }else if(v[0].equals("/buttons")){
    // print(v[0] + " : ");
     for(int z = 1; z < v.length; z++){
-      quadPad[z-1] = float(trim(v[z]));
+      if(int(trim(v[z])) ==1) quadPad[z-1] = true;
+      else quadPad[z-1] = false;
      // print(quadPad[z-1] + " | " );
     }
    // println();
