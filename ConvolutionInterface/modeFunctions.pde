@@ -2,6 +2,8 @@ void leadMode(){
  background(0);
     fill(255,0,255);
     cp5.getController("seq").setVisible(false);
+    cp5.get(Textlabel.class, "bpm").setVisible(false);
+    cp5.get(Textlabel.class, "current").setVisible(false);
     cp5.get(Group.class, "Effects Controls").setVisible(false);
     cp5.get(Group.class, "Global Controls").setVisible(true);
      sup.updateEnvPoints();
@@ -14,6 +16,8 @@ void leadMode(){
 }
 
 void seqMode(){
+  cp5.get(Textlabel.class, "bpm").setVisible(true);
+  cp5.get(Textlabel.class, "current").setVisible(true);
   cp5.get(Group.class, "Effects Controls").setVisible(true);
     cp5.get(Group.class, "Global Controls").setVisible(false);
     cp5.getController("seq").setVisible(true);
@@ -24,8 +28,7 @@ void seqMode(){
      }
    }
   background(0);
-  fill(255,0,255);
-  rect(0,height-mHeight-100,mWidth, 2);
+
   fill(255, 100);
   seq.setInstSteps(arduino, listIndex);
    seq.update();
@@ -41,5 +44,6 @@ void seqMode(){
 //double used  = (double)((Runtime.getRuntime().totalMemory()/1024 - Runtime.getRuntime().freeMemory()/1024)/1024);
 //println("total: " + total + " Used: " + used); 
   seq.drawExtras();
+  setBPM();
   
 }

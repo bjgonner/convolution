@@ -151,12 +151,15 @@ t.play({
 	arg beats, time, clock;
 	[beats, time, clock].postln;
 });
-)
 
+//Setup OSC messages to Processing and setup tempoClock.  Below is OSCdef to set tempo
+)
+//Send OSC tick to processing
 (
+b = NetAddr.new("127.0.0.1", 12001);    // create the NetAddr
 // get elapsed time, round up to next second
 v = Main.elapsedTime.ceil;
-~mainTempo = 1;
+~mainTempo = 1;  //bpm = num * 60  bpm/60 = num
 (1000/125*60).postln;
 // create two clocks, starting at time v.
 t = TempoClock(1, 0, v);
@@ -165,16 +168,28 @@ u = TempoClock(t.tempo*8, 0, v);
 // start two functions at beat zero in each clock.
 // t controls u's tempo. They should stay in sync.
 t.schedAbs(0, { arg beat, sec; /* [\t, beat, sec].postln;*/ 1 });
-u.schedAbs(0, { arg beat, sec;/* [\u, beat, sec].postln;*/b.sendMsg("/tick", beat%32, "hrlp","more");  1 });
+u.schedAbs(0, { arg beat, sec; /*["/tick", beat%32, "hrlp","more"].postln;*/b.sendMsg("/tick", beat%32, "hrlp","more");  1 });
 )
-
+(
+OSCdef(\getbpm, {|msg|
+	~mainTempo = msg[1]/60;
+	t.tempo = ~mainTempo;
+	u.tempo = t.tempo*8;
+	//msg.postln;
+}, "/bpm");
+)
+(
+~mainTempo = 60/60;
+t.tempo = ~mainTempo;
+u.tempo = t.tempo*8;
+)
 (
 u.tempo = u.tempo * 1/4;
 t.tempo = t.tempo * 1/4;
 )
 
-b = NetAddr.new("127.0.0.1", 12000);    // create the NetAddr
-b.sendMsg("/tick", "now", "hrlp","more");    // send the application the message "hello" with the parameter "there"o
+b = NetAddr.new("127.0.0.1", 12001);    // create the NetAddr
+b.sendMsg("/tick", 31, "hrlp","more");    // send the application the message "hello" with the parameter "there"o
 OSCFunc.trace(true);
 OSCFunc.trace(false);
 

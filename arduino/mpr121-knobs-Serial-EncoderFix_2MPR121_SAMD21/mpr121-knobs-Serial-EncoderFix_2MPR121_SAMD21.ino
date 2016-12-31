@@ -83,9 +83,9 @@ void loop(){
   enc2.readPins();
   if(encoderPos%2 == 0) digitalWrite(13, HIGH);
   else digitalWrite(13,LOW);
-  if(mode == oMode){
+  //if(mode == oMode){
     octCheck = checkOctave(octCheck, numOctaves, encoderPos, oldEncPos);
-  }else volume = checkVolume(volume, encoderPos, oldEncPos);
+  //}else volume = checkVolume(volume, encoderPos, oldEncPos);
   if(octCheck != octave) octave = octCheck;
   readTouchInputs(irqpin, mpr121_A);
   readTouchInputs(irqpin2, mpr121_B);

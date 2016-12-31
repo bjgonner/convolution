@@ -23,17 +23,18 @@ int BAUD = 1843200; // baud rate of the serial device
 
 // the OSC server to talk to
 String HOST = "127.0.0.1";
-int PORT = 57121;
+int PORT = 57120;
 float cnt = 0;
 
 int LEAD = 1;
 int SEQUENCER = 0;
-int root = 60;
+int root = 0;
 
 Serial port;
 OscP5 osc;
 NetAddress address;
 HardwareInput arduino;
+
 Matricks seq;
 //---------------------------
 //--------Interface---------------
@@ -45,8 +46,10 @@ Instrument bass;
 Instrument[] insts;
 EffectsGroup efg;
 
+Timer[] debounce;
 Timer instDsplyTime;
 boolean instDisplay = true;
+String[] noteNames = {"C", "C#", "D", "D#", "E","F","F#", "G" , "G#" , "A" , "A#" , "B"};
 String[] instNames = {"bass",
                       "conga",
                       "hi-hat",
@@ -103,10 +106,12 @@ void setup() {
   size(800, 480, P2D);
   frameRate(30);
   //smooth(2);
+    debounce = new Timer[4];
+  for(int i = 0; i < debounce.length; i++) debounce[i] = new Timer(500);
   //==========Serial/OSC setup==============
   arduino = new HardwareInput(6,128,2,0);
   printArray(Serial.list());
-  osc = new OscP5(this, 12000);
+  osc = new OscP5(this, 12001);
   address = new NetAddress(HOST, PORT);
  // port = new Serial(this, Serial.list()[SERIAL_PORT], BAUD);
   port = new Serial(this, Serial.list()[2], BAUD);
@@ -126,18 +131,7 @@ void setup() {
   //check about changing matrix buttons from toggles
   // Matricks(String _matrixName, int _nx, int _ny, int _mWidth, int _mHeight, String[] _instNames){
     seq = new Matricks("seq", nx, ny, mWidth, mHeight, instNames, 125);
- /* cp5.addMatrix("myMatrix", nx,ny,0,height-mHeight,mWidth, mHeight)//704,176)
-     //.setPosition(100, height-200)
-    // .setSize(750, 200)
-     //.setGrid(nx, ny)
-     .setGap(gap, gap)
-     .setInterval(125)
-     .setMode(ControlP5.MULTIPLES)
-     .setColorBackground(color(120))
-     .setBackground(color(40))
-     .setVisible(mFlag);
-     ;
-     */
+
     int tWidth = 100; 
     cp5.addTextlabel("label")
       .setText(instText)
@@ -157,15 +151,35 @@ void setup() {
       .setFont(createFont("AvenirNext-DemiBold",50))
       //.setMultiline(true)
       .setLineHeight(0)
-      
       ;
       
-     cp5.addKnob("bpm")
-       .setSize(50, 50)
-       .setPosition(width-75, 10)
-       .setRange(30,240)
-       .plugTo(this,"setBPM")
-       ;
+     cp5.addTextlabel("root")
+      .setText("Scale Root: " + noteNames[root%12] + (int)arduino.encoders[0])
+      .setPosition(width-150, 255)
+      .setSize(tWidth,5)
+      .setColorValue(0xffff00ff)
+      .setFont(createFont("AvenirNext-DemiBold",20))
+      //.setMultiline(true)
+      .setLineHeight(0)
+      ;
+      
+    cp5.addTextlabel("bpm")
+      .setText("BPM: " + bpm)
+      .setPosition(width-300, 255)
+      .setSize(tWidth,5)
+      .setColorValue(0xffff00ff)
+      .setFont(createFont("AvenirNext-DemiBold",20))
+      //.setMultiline(true)
+      .setLineHeight(0)
+      .setVisible(false)
+      ;
+      
+     //cp5.addKnob("bpm")
+     //  .setSize(50, 50)
+     //  .setPosition(width-75, 10)
+     //  .setRange(30,240)
+     //  .plugTo(this,"setBPM")
+     //  ;
         
 
 //  cp5.getController("myMatrix").getCaptionLabel().alignX(CENTER);
@@ -175,7 +189,7 @@ void setup() {
   noStroke();
   smooth();
   instDsplyTime = new Timer(2000);
-  
+
   bass = new Instrument("bass", 0);
   insts = new Instrument[instNames.length];
   for(int i=0; i < instNames.length; i++){
@@ -190,7 +204,9 @@ void setup() {
 
 
 void draw() {
-  transpose();
+  shiftRoot();
+  if(arduino.encoders[0] != arduino.lastEncode[0]) updateRootText();
+    
   if(arduino.enc1Mode == LEAD){
     leadMode();
   }else if(arduino.enc1Mode == SEQUENCER){
@@ -199,38 +215,62 @@ void draw() {
     cp5.getController("seq").setVisible(false);
     cp5.get(Group.class, "Effects Controls").setVisible(false);
     cp5.get(Group.class, "Global Controls").setVisible(false);
+    cp5.get(Textlabel.class, "bpm").setVisible(false);
     background(0);
     fill(255,0,255);
   }
   updateInsturment();
 }
+void updateRootText(){
+   cp5.get(Textlabel.class,"root").setText("Scale Root: " + noteNames[root%12] + (int)arduino.encoders[0]);
+}
 
-
-void transpose(){
+void shiftRoot(){
   OscMessage scaleRoot = new OscMessage( "/root" );
   //change scale root note
   //currently holding down produces many ticks add timer
-  if(arduino.quadPad[2] == true){
-    arduino.quadPad[2] = false;
-    scaleRoot.add(root++);
+  if(arduino.quadPad[2] == true && debounce[2].isFinished()){
+   // arduino.quadPad[2] = false;
+   root = (root+1)%noteNames.length;
+   
+    scaleRoot.add(root*(int)arduino.encoders[0]);
     osc.send(scaleRoot, address);
-    println(root);
-  }else if(arduino.quadPad[0] == true){
-    arduino.quadPad[0] = false;
-    scaleRoot.add(root--);
+    //println(root);
+    updateRootText();
+  }else if(arduino.quadPad[0] == true && debounce[0].isFinished() ){
+    //arduino.quadPad[0] = false;
+    root--;
+    if(root < 0) root = noteNames.length-1;
+    scaleRoot.add(root*(int)arduino.encoders[0]);
     osc.send(scaleRoot, address);
-    println(root);
+   // println(root);
+    updateRootText();
   }
   
   
 }
-void setBPM(float v){
-    //bpm = v;
-    float rate = 60/v/4;
-    println("BPM: " +rate);  
-    cp5.get(Matrix.class,"myMatrix").setInterval(int(rate*1000));
+void setBPM(){
+  OscMessage bpmMsg = new OscMessage( "/bpm" );
+  //change BPM
+  if(arduino.quadPad[1] == true && debounce[1].isFinished()){
+       bpm++;
+   
+       bpmMsg.add(bpm);
+       osc.send(bpmMsg, address);
+       cp5.get(Textlabel.class,"bpm").setText("BPM: " + bpm);
+    
+       
+  }else if(arduino.quadPad[3] == true && debounce[3].isFinished() ){
+    
+    bpm--;
+    if(root < 0) bpm = 0;
+    bpmMsg.add(bpm);
+    osc.send(bpmMsg, address);
+    cp5.get(Textlabel.class,"bpm").setText("BPM: " + bpm);
+    
+    
   }
-
+}
 
 void keyPressed() {
   if (key=='1') {
@@ -560,7 +600,7 @@ void oscEvent(OscMessage msg)
 {
   //print("<");
   if(msg.addrPattern().equals("/tick")) cnt = (float)msg.arguments()[0];
-  //println(msg.arguments()[0]);
+ // println(msg.arguments()[0]);
   if(cnt == 31) seq.sendMatrixOsc();
   //println(cnt);
   

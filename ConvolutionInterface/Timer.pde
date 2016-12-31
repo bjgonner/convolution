@@ -22,4 +22,7 @@ class Timer{
   void reset(){
     current = millis();
   }
+  void finish(){
+    current = delayTime;
+  }
 }

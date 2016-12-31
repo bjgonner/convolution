@@ -185,8 +185,12 @@ class HardwareInput{
   }else if(v[0].equals("/buttons")){
    // print(v[0] + " : ");
     for(int z = 1; z < v.length; z++){
+      
       if(int(trim(v[z])) ==1) quadPad[z-1] = true;
-      else quadPad[z-1] = false;
+      else{ 
+        quadPad[z-1] = false;
+        debounce[z-1].finish();
+      }
      // print(quadPad[z-1] + " | " );
     }
    // println();

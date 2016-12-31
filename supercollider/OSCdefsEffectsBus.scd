@@ -217,3 +217,4 @@ c ={
 }.play
 )
 c.free
+s.quit
