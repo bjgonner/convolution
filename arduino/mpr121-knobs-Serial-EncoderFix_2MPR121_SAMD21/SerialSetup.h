@@ -3,9 +3,10 @@ String knobData;
 String noteOnData;
 String noteOffData;
 String encoderData;
+String encButtData;
 String rawEncData;
 
-int timerLength = 500;
+int timerLength = 100;
 int knobTimer=0;
 int inByte = 0;         // incoming serial byte
 int knobs[6];
@@ -20,9 +21,10 @@ void establishContact() {
     delay(300);
   }
 }
-void sendRawEnc(int e){
+void sendRawEnc(int e1, int e2){
   rawEncData = "/rawEnc ";
-  rawEncData += String(e) + "\n";
+  rawEncData += String(e1) + " ";
+  rawEncData += String(e2) + "\n";
   Serial.print(rawEncData);
 }
 
@@ -30,6 +32,14 @@ void sendEncoder(int e){
   encoderData = "/encoder ";
   encoderData += String(e) + "\n";
   Serial.print(encoderData);
+}
+void sendModeState(EnCode e){
+  if(e.getSendFlag()){
+    e.setSendFlag(false);
+    encButtData = "/mode ";
+    encButtData += String(e.getID()) + " " + String(e.getMode()) + "\n"; 
+    Serial.print(encButtData);
+  }
 }
 void readKnobs(int k[], int theSize){
   knobData = "/knobs ";
@@ -42,7 +52,9 @@ void readKnobs(int k[], int theSize){
    if (millis() - knobTimer >= timerLength) {
     Serial.print(knobData);
     sendEncoder(octave);
-    sendRawEnc(encoderPos);
+    sendRawEnc(enc1.getPos(), enc2.getPos());
+    sendModeState(enc1);
+    sendModeState(enc2);
     knobTimer = millis();
   }
     

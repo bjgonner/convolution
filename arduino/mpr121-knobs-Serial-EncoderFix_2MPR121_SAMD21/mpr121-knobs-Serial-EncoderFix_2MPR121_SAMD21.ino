@@ -1,4 +1,4 @@
-
+//Test buttonstate code
 
 /*Copyright (c) 2010 bildr community
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -42,18 +42,14 @@
 
  */
 
-#include "interface.h"
-#include "mpr121.h"
-#include "SerialSetup.h"
 #include <Wire.h>
+#include "mpr121.h"
+
+
 #include "EnCode.h"
+#include "interface.h"
+#include "SerialSetup.h"
 
-EnCode enc1(5,6,7);
-EnCode enc2(8,9,10);
-
-
-const byte mpr121_A = 0x5A;
-const byte mpr121_B = 0x5B;
 
 
 
@@ -61,13 +57,7 @@ const byte mpr121_B = 0x5B;
 void setup(){
   pinMode(irqpin, INPUT_PULLUP);
   pinMode(irqpin2, INPUT_PULLUP);
-  
- 
 
- // pinMode(pinA, INPUT_PULLUP); // set pinA as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
- // pinMode(pinB, INPUT_PULLUP); // set pinB as an input, pulled HIGH to the logic voltage (5V or 3.3V for most cases)
-
-  pinMode(rotButt, INPUT_PULLUP);
   
   pinMode(13, OUTPUT);
   
@@ -82,14 +72,15 @@ void setup(){
   mpr121_setup(mpr121_A);
   mpr121_setup(mpr121_B);
 
-    establishContact();  // send a byte to establish contact until receiver responds
+   // establishContact();  // send a byte to establish contact until receiver responds
    analogReadResolution(12);
 }
 
 
 
 void loop(){
-  encoderPos = readPins(pinA, pinB, encoderPos);
+  encoderPos = enc1.readPins();
+  enc2.readPins();
   if(encoderPos%2 == 0) digitalWrite(13, HIGH);
   else digitalWrite(13,LOW);
   if(mode == oMode){
@@ -99,6 +90,8 @@ void loop(){
   readTouchInputs(irqpin, mpr121_A);
   readTouchInputs(irqpin2, mpr121_B);
   readRotButt();
+  enc1.getButtonState(3);
+  enc2.getButtonState(10);
   readKnobs(knobs, sizeof(knobs)/sizeof(int));
   
   //serialComm();
