@@ -3,7 +3,7 @@
 //tempoClock
 //oscDefs
 //~scales and
-
+s.boot;
 (
 SynthDef(\beeu, { |freq = 1000|
 	var sig, env;
@@ -99,6 +99,17 @@ x.free;
 ~synth1Array = Array.fill(32, {rrand(-2,2)});
 ~synth2Array = Array.fill(32, {rrand(-2,2)});
 )
+
+(
+OSCdef(\scaleGetter, { |msg|
+
+	~scale = Scale.at(Scale.names[msg[1]]);
+
+	~scale.postln;
+}, "/scale");
+)
+
+
 (
 
 Synth(\funSynth, [pitch:50.rrand(600)]);
@@ -135,7 +146,7 @@ OSCdef(\bass, { |msg|
 	});
 
 	~bassDegrees.source = (Pseq(~bassArray, inf));
-	msg[0].postln;
+	//msg[0].postln;
 	//~bassArray.postln;
 
 	//~knobsArray = msg[34..39];
@@ -153,7 +164,7 @@ OSCdef(\conga, { |msg|
 		);
 	});
 	~congaDegrees.source = (Pseq(~congaArray, inf));
-	msg[0].postln;
+	//msg[0].postln;
 	//~congaArray.postln;
 
 	//~knobsArray = msg[34..39];
@@ -173,7 +184,7 @@ OSCdef(\hihat, { |msg|
 	});
 
 	~hihatDegrees.source = (Pseq(~hihatArray, inf));
-	msg[0].postln;
+	//msg[0].postln;
 	//~hihatArray.postln;
 
 	//~knobsArray = msg[34..39];
@@ -192,7 +203,7 @@ OSCdef(\kick, { |msg|
 	});
 
 	~kickDegrees.source = (Pseq(~kickArray, inf));
-	msg[0].postln;
+	//msg[0].postln;
 	//~kickArray.postln;
 
 	//~knobsArray = msg[34..39];
@@ -211,7 +222,7 @@ OSCdef(\flute, { |msg|
 	});
 
 	~fluteDegrees.source = (Pseq(~fluteArray, inf));
-	msg[0].postln;
+	//msg[0].postln;
 	//~fluteArray.postln;
 
 	//~knobsArray = msg[34..39];
@@ -230,7 +241,7 @@ OSCdef(\snare, { |msg|
 	});
 
 	~snareDegrees.source = (Pseq(~snareArray, inf));
-	msg[0].postln;
+	//msg[0].postln;
 	//~snareArray.postln;
 
 	//~knobsArray = msg[34..39];
@@ -249,7 +260,7 @@ OSCdef(\synth1, { |msg|
 	});
 
 	~synth1Degrees.source = (Pseq(~synth1Array, inf));
-	msg[0].postln;
+	//msg[0].postln;
 	//~synth1Array.postln;
 
 	//~knobsArray = msg[34..39];
@@ -268,8 +279,8 @@ OSCdef(\synth2, { |msg|
 	});
 
 	~synth2Degrees.source = (Pseq(~synth2Array, inf));
-	msg[0].postln;
-	~synth2Array.postln;
+	//msg[0].postln;
+	//~synth2Array.postln;
 
 	//~knobsArray = msg[34..39];
 	//~knobsArray.postln;
