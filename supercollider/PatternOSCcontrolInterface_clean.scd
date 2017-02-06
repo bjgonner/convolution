@@ -1,3 +1,9 @@
+//what needs to be initialized first?
+//synth defs
+//tempoClock
+//oscDefs
+//~scales and
+
 (
 SynthDef(\beeu, { |freq = 1000|
 	var sig, env;
@@ -48,11 +54,31 @@ SynthDef(\funSynth, {
 }).add;
 )
 
+(
+SynthDef("Moog",{
+
+arg oscType =0, oscType2 = 1, pan = 0, level = 0.5, cutoff = 500, gain = 3.3, attack = 0.1, decay = 0.1, sust = 0.7, rel = 0.2, attackf = 0.1, decayf = 0.1, sustf = 0.9, relf = 0.2, gate = 1, freq =440;
+
+
+var oscArray = [Saw.ar(freq ), SinOsc.ar(freq), Pulse.ar(freq)];
+var oscArray2 = [Saw.ar(freq), SinOsc.ar(freq), Pulse.ar(freq)];
+var ampEnv = EnvGen.ar(Env.adsr(attack, decay, sust, rel), gate, doneAction:2);
+var filterEnv = EnvGen.ar(Env.adsr(attackf, decayf, sustf, relf), gate, doneAction:2);
+var osc1 = Select.ar(oscType, oscArray);
+var osc2 = Select.ar(oscType2, oscArray2);
+var fade = XFade2.ar(osc1, osc2, pan , level * ampEnv);
+var filter = MoogFF.ar(fade, cutoff * filterEnv, gain);
+Out.ar(0,filter)
+
+}).add;
+)
+
 //audio test
 s.plotTree;
 x =Synth(\funSynth, [pitch:50.rrand(600)]);
 x.free;
 (
+~scales = Scale.minor;
 ~bassDegrees = PatternProxy(Pn(Pseries(0, 2, 12), inf));
 ~congaDegrees = PatternProxy(Pn(Pseries(0, 4, 12), inf));
 ~hihatDegrees = PatternProxy(Pn(Pseries(0, 1, 12), inf));
@@ -62,7 +88,7 @@ x.free;
 ~synth1Degrees = PatternProxy(Pn(Pseries(0, 1, 12), inf));
 ~synth2Degrees = PatternProxy(Pn(Pseries(0, 1, 12), inf));
 )
-~scales = Scale.minor;
+
 (
 ~bassArray = Array.fill(32, {rrand(-2,2)});
 ~congaArray = Array.fill(32, {rrand(-2,2)});
@@ -74,6 +100,28 @@ x.free;
 ~synth2Array = Array.fill(32, {rrand(-2,2)});
 )
 (
+
+Synth(\funSynth, [pitch:50.rrand(600)]);
+
+OSCdef(\lead, { |msg|
+
+	~bassArray = msg[1..32];
+	 for(0, ~bassArray.size-1, {|i|
+		if(~bassArray[i] == 0,
+			{~bassArray[i] = Rest},
+			{~bassArray[i] = [1,3,5,7].choose}//~scales.degrees.choose}
+		);
+	});
+
+	~bassDegrees.source = (Pseq(~bassArray, inf));
+	msg[0].postln;
+	//~bassArray.postln;
+
+	//~knobsArray = msg[34..39];
+	//~knobsArray.postln;
+
+}, "/lead");
+
 Synth(\funSynth, [pitch:50.rrand(600)]);
 
 OSCdef(\bass, { |msg|
@@ -297,7 +345,7 @@ a = [1,1,1, Rest,1,Rest,1, Rest];
 ~congaDegrees.source = Pseq([11,12,13, Rest,1,Rest,12, Rest,Rest,1,Rest, 1, Rest,1,1,Rest], inf);
 ~hihatDegrees.source = Pseq([11,12,13, Rest,1,Rest,24, Rest,Rest,1,Rest, 1, Rest,1,1,Rest], inf);
 
-~scales = Scale.minor;
+~scales = Scale.kurd;
 
 (
 ~flute.stop;
@@ -309,13 +357,14 @@ a = [1,1,1, Rest,1,Rest,1, Rest];
 ~bass.stop;
 ~kick.stop;
 )
-
+~rootNote = -5;
 (
 ~bass = Pbind(
 	\instrument, \ueeb,
     \degree, ~bassDegrees,
 	\scale, Pfunc{~scales},
     \dur, 0.125,
+	\root, Pfunc{~rootNote},
 	//\strum, 0.1
 ).play(t, quant: 1);
 
@@ -323,6 +372,7 @@ a = [1,1,1, Rest,1,Rest,1, Rest];
 	\instrument, \beeu,
     \degree, ~congaDegrees,
 	\scale, Pfunc{~scales},
+	\root, Pfunc{~rootNote},
     \dur, 0.125,
 	//\strum, 0.1
 ).play(t, quant: 1);
@@ -332,6 +382,7 @@ a = [1,1,1, Rest,1,Rest,1, Rest];
     \degree, ~hihatDegrees,
 	\scale, Pfunc{~scales},
     \dur, 0.125,
+	\root, Pfunc{~rootNote},
 	//\strum, 0.1
 ).play(t, quant: 1);
 
@@ -339,6 +390,7 @@ a = [1,1,1, Rest,1,Rest,1, Rest];
 	\instrument, \help_sawgrain,
     \degree, ~kickDegrees,
 	\scale, Pfunc{~scales},
+	\root, Pfunc{~rootNote},
     \dur, 0.125,
 	//\strum, 0.1
 ).play(t, quant: 1);

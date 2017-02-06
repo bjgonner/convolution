@@ -99,12 +99,19 @@ int mHeight = ny*padSize + ny*gap;
 int gWidth = (800-64)/32;//32*20+32*2; //int(700/float(nx));
 int gHeight = 8*23 + 8*2;
 
+String[] scales;
+int scaleIndex = 0;
+int lastScaleIndex = 0;
 JSONObject json;
 //================================================
 //========Setup=================================
 void setup() {
   size(800, 480, P2D);
   frameRate(30);
+  
+  String[] scalesFile = loadStrings("scales.txt");
+  scales = split(scalesFile[0], ",");
+  
   //smooth(2);
     debounce = new Timer[4];
   for(int i = 0; i < debounce.length; i++) debounce[i] = new Timer(500);
@@ -174,6 +181,28 @@ void setup() {
       .setVisible(false)
       ;
       
+   cp5.addTextlabel("inputMode")
+      .setText("InputMode: " + arduino.getMode(1))
+      .setPosition(width-300, 155)
+      .setSize(tWidth,5)
+      .setColorValue(0xffff00ff)
+      .setFont(createFont("AvenirNext-DemiBold",20))
+      //.setMultiline(true)
+      .setLineHeight(0)
+      .setVisible(true)
+      ;
+      
+   cp5.addTextlabel("scale")
+      .setText("scale: " + scales[scaleIndex])
+      .setPosition(width-500, 255)
+      .setSize(tWidth,5)
+      .setColorValue(0xffff00ff)
+      .setFont(createFont("AvenirNext-DemiBold",20))
+      //.setMultiline(true)
+      .setLineHeight(0)
+      .setVisible(true)
+      ;
+      
      //cp5.addKnob("bpm")
      //  .setSize(50, 50)
      //  .setPosition(width-75, 10)
@@ -204,8 +233,12 @@ void setup() {
 
 
 void draw() {
+  updateInputMode();
   shiftRoot();
-  if(arduino.encoders[0] != arduino.lastEncode[0]) updateRootText();
+  if(arduino.encoders[0] != arduino.lastEncode[0]){
+    updateRootText();
+    sendRoot();
+  }
     
   if(arduino.enc1Mode == LEAD){
     leadMode();
@@ -219,33 +252,77 @@ void draw() {
     background(0);
     fill(255,0,255);
   }
-  updateInsturment();
+  //updateInsturment();
 }
 void updateRootText(){
    cp5.get(Textlabel.class,"root").setText("Scale Root: " + noteNames[root%12] + (int)arduino.encoders[0]);
+   
+}
+void updateInputMode(){
+  if(arduino.enc2ModeFlg == true){
+   cp5.get(Textlabel.class,"inputMode").setText("InputMode: " + arduino.getMode(1));
+   arduino.enc2ModeFlg = false;
+  }
+   switch(arduino.getMode(1)){
+     case 0:
+     updateInsturment();
+     break;
+     
+     case 1:
+     updateScale();
+     break;
+     
+     default:
+     break;
+   }
 }
 
-void shiftRoot(){
+void updateScale(){
+  if(arduino.encChangeFlag == true){
+    lastScaleIndex = scaleIndex;
+    arduino.encChangeFlag = false;
+    if( arduino.rawEnc2[0] > arduino.rawEnc2[1]){
+       scaleIndex = (scaleIndex+1) % scales.length;
+     }else if(arduino.rawEnc2[0] < arduino.rawEnc2[1]){
+       
+       scaleIndex -= 1;
+       if(scaleIndex < 0) scaleIndex = scales.length-1;
+     }
+     sendScale(scaleIndex);
+    cp5.get(Textlabel.class,"scale").setText("Scale: " + scales[scaleIndex]);
+  }
+}
+
+void sendScale(int scaleNum){
+  OscMessage scaleName = new OscMessage( "/scale" );
+  scaleName.add(scaleNum);
+  osc.send(scaleName, address);
+}
+void sendRoot(){
   OscMessage scaleRoot = new OscMessage( "/root" );
+  scaleRoot.add(12*(int)arduino.encoders[0]+root);
+  osc.send(scaleRoot, address);
+}
+  
+void shiftRoot(){
+  //OscMessage scaleRoot = new OscMessage( "/root" );
   //change scale root note
   //currently holding down produces many ticks add timer
   if(arduino.quadPad[2] == true && debounce[2].isFinished()){
    // arduino.quadPad[2] = false;
    root = (root+1)%noteNames.length;
    
-    scaleRoot.add(root*(int)arduino.encoders[0]);
-    osc.send(scaleRoot, address);
-    //println(root);
+    sendRoot();
     updateRootText();
   }else if(arduino.quadPad[0] == true && debounce[0].isFinished() ){
     //arduino.quadPad[0] = false;
     root--;
     if(root < 0) root = noteNames.length-1;
-    scaleRoot.add(root*(int)arduino.encoders[0]);
-    osc.send(scaleRoot, address);
+    sendRoot();
    // println(root);
     updateRootText();
   }
+    
   
   
 }
@@ -272,68 +349,7 @@ void setBPM(){
   }
 }
 
-void keyPressed() {
-  if (key=='1') {
-    cp5.get(Matrix.class, "myMatrix").set(0, 0, true);
-    cp5.getGroup("Effects Controls").setVisible(true);
-    sup.opacity = 255;
-  } 
-  else if (key=='2') {
-    cp5.get(Matrix.class, "myMatrix").set(0, 1, true);
-  }  
-  else if (key=='3') {
-   // cp5.get(Matrix.class, "myMatrix").trigger(0);
-  }
-  else if (key=='p') {
-    if (cp5.get(Matrix.class, "myMatrix").isPlaying()) {
-      cp5.get(Matrix.class, "myMatrix").pause();
-    } 
-    else {
-      cp5.get(Matrix.class, "myMatrix").play();
-    }
-  }  
-  else if (key=='0') {
-    cp5.get(Matrix.class, "myMatrix").clear();
-    cp5.getGroup("Effects Controls").setVisible(false);
-    sup.opacity = 0;
-  }
-   else if (key=='7') {
-     mFlag = !mFlag;
-    cp5.get(Matrix.class, "myMatrix").setVisible(mFlag);
-  }
-  else if (key=='8') {
-     instDisplay = true;
-    cp5.get(Textlabel.class, "label").setVisible(instDisplay);
-    instDsplyTime.reset();
-  }
-  else if (key=='8') {
-     instDisplay = true;
-    cp5.get(Textlabel.class, "label").setVisible(instDisplay);
-    instDsplyTime.reset();
-    
-  }
-  //cannot use left/right without error!
-  if(key == CODED){
-    lastListIndex = listIndex;
-    if (keyCode == UP) {
-      listIndex -= 1;
-      if(listIndex < 0) listIndex = instNames.length-1;
-    } else if (keyCode == DOWN) {
-     listIndex = (listIndex+1) % instNames.length;
-    }
-//-----------Code to be moved into function called on keyup/down and rotary encoder change
-   cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);  //change inst name display
-   cp5.get(Textlabel.class, "instName2").setText("Instrument: " + instNames[listIndex]);  //change inst name display
-   sup.copyEnvPointsTo(insts[lastListIndex]);  //copy the existing envelop from the shaper to the last insturment
 
-   sup.copyEnvPointsFrom(insts[listIndex]);  //copy the envelop from current instrument to shaper
-   sup.updateVertices();  //update vertices on envelop display
-  
-   unPlugSliders(lastListIndex);  //unplug the effects sliders from the previos instrument
-   plugSliders(listIndex, lastListIndex);  //plug the sliders to the current instrument
-//-------------------------------------------------
-  }
-}
 
 void updateInsturment(){
   if(arduino.encChangeFlag == true){
@@ -585,14 +601,18 @@ void serialEvent(Serial port)
   if (line == null) return;
   String[] vals = splitTokens(line);
   OscMessage msg = new OscMessage(trim(vals[0]));
-  
   for (int i = 1; i < vals.length; i++) {
     float val = float(trim(vals[i]));
   //  print("\t" + val);
     msg.add(val);
   }
+ // if(vals[0].equals("/noteOn") ) println(vals[0] + " : " + vals[2]);
   //println();
-  osc.send(msg, address);
+  if(arduino.enc1Mode == SEQUENCER && (vals[0].equals("/noteOff") || vals[0].equals("/noteOn"))){
+   // println(" no send");
+  }else{
+    osc.send(msg, address);
+  }
   arduino.recordValues(vals);
   
 }
@@ -603,6 +623,7 @@ void oscEvent(OscMessage msg)
  // println(msg.arguments()[0]);
   if(cnt == 31) seq.sendMatrixOsc();
   //println(cnt);
+  
   
 }
 //void oscEvent(OscMessage msg)

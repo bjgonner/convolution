@@ -120,9 +120,15 @@ var osc1 = Select.ar(oscType, oscArray);
 var osc2 = Select.ar(oscType2, oscArray2);
 var fade = XFade2.ar(osc1, osc2, pan , level * ampEnv);
 var filter = MoogFF.ar(fade, cutoff * filterEnv, gain);
-Out.ar(0,filter)
+	Out.ar(0, Pan2.ar(filter))
 
 }).add;
 )
 c = Synth(\Moog);
 c.free;
+
+Scale.minor.degrees
+
+Scale.kurd.degrees
+
+Scale.

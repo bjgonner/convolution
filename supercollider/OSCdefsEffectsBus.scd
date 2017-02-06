@@ -3,9 +3,10 @@
 ~fxGroup = Group.after(~srcGroup);
 ~ampOscGroup = Group.after(~fxGroup);
 )
-
+~srcGroup.freeAll;
 ~srcGroup = Group.before(~fxGroup);
 s.killAll
+s.quit;
 s.freeAll
 s.reboot
 Scale.directory
@@ -13,12 +14,19 @@ s.plotTree;
 s.meter;
 ~scale = Scale.minor;
 ~coreNote = 58;
-~coreNote = 60;
+~coreNote = 50;
 440.midinote
 Scale.major.degrees[6]
 (
+a = {|a,b|
+	if(a > b, {(a-b).postln} , {(b-a).postln});
+};
+)
+a.value(15,10);
+(
 
 var notes, on, off;
+~coreNote = 60;
 ~noteOn;
 ~noteOff;
 ~knobs;
@@ -28,10 +36,37 @@ var notes, on, off;
 
 notes = Array.newClear(128);
 on = OSCdef(\testNoteOn, { |msg|
-	var frqa, frqb, frqc;
+	var frqa, frqb, frqc, steps, padNum, index;
 	~noteOn = msg;
-	//~noteOn.postln;
-	~degree = ~noteOn[2] % 12;
+	steps = ~scale.stepsPerOctave;
+	//(~degree%16).postln;
+	index = (~coreNote-~noteOn[2]).abs;
+	(~coreNote-(trunc(~coreNote, 12))).postln;
+	"index:".post;
+	index.postln;
+	"index test".post;
+	(index%~scale.size).postln;
+	~root = 1;
+
+
+	if(~noteOn[2] >=( ~coreNote+~scale.size),
+		{ if(~noteOn[2] >=( ~coreNote+ (~scale.size*2)),
+			{~root=3}, {~root = 2})},
+		{~root =1});
+
+
+	~degree = ~scale.degrees[(index%~scale.size)];
+	"note : ".post;
+	~noteOn[2].postln;
+	"core : ".post;
+	~coreNote.postln;
+	"index : ".post;
+	(index%~scale.size).postln;
+	"degree :".post;
+	~degree.postln;
+	"root :".post;
+	~root.postln;
+	//if(~degree > ~scale.stepsPerOctave, {
 	//notes[~noteOn[2]] = Synth(\oscnotes, [\pitch, ~scale.degreeToFreq(~degree, ~coreNote.midicps, ~root), \trig, ~noteOn[3]/128, \out, ~reverbBus], ~srcGroup);
 	frqa = ~scale.degreeToFreq(~degree, ~coreNote.midicps, ~root);
 	frqb = ~scale.degreeToFreq(~degree-12, ~coreNote.midicps, ~root);
@@ -50,14 +85,14 @@ on = OSCdef(\testNoteOn, { |msg|
 
 off = OSCdef(\testNoteOff, { |msg|
 	~noteOff = msg;
-	~noteOff.postln;
+	//~noteOff.postln;
 	notes[~noteOff[2]].set(\trig, 0);
 	notes[~noteOff[2]].release;
 	//x.set("trig", 0);
 
 }, "/noteOff");
 
- OSCdef(\testKnobs, { |msg|
+/* OSCdef(\testKnobs, { |msg|
 	~knobs = msg;
 	~srcGroup.set(\pitchMod, g.unmap(msg[1])*10);
 	~srcGroup.set(\atk, g.unmap(msg[2]*3));
@@ -78,6 +113,8 @@ off = OSCdef(\testNoteOff, { |msg|
 
 		//g.unmap(msg[3])*10.postln;
 }, "/knobs");
+
+*/
 ~oldmsg = 0;
 OSCdef(\encoder, { |msg|
 	~root = msg[1]-4;
@@ -89,6 +126,19 @@ OSCdef(\encoder, { |msg|
 
 q = { on.free; off.free};
 )
+trunc(72,12)/12;
+(
+OSCdef(\setRoot, { | msg |
+	~coreNote = msg[1];
+	~rootNote = ~coreNote-60;
+	"root :".post;
+	~rootNote.postln;
+}, "/root");
+)
+notes[0..127].release;
+
+OSCdef(\testKnobs).free;
+
 ~srcGroup.freeAll;
 ~fxGroup.freeAll;
 ~ampOscGroup.freeAll;
@@ -218,3 +268,4 @@ c ={
 )
 c.free
 s.quit
+Scale.superLocrian.degrees

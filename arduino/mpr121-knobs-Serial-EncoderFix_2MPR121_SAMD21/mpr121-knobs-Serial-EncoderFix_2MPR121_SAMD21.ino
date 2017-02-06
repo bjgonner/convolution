@@ -1,5 +1,5 @@
 //Test buttonstate code
-
+//for Sparkfun board defs: SAMD21 1.2.2 Arduino: 1.6.5
 /*Copyright (c) 2010 bildr community
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal

@@ -56,7 +56,8 @@ class Matricks {
     
   }
  void drawExtras(){
-  rectMode(CENTER);
+    rectMode(CENTER);
+    fill(255,0,255);
     float spacing  = width/numSteps*(cnt+1);
     rect(spacing-(width/numSteps)/2,height-mHeight-(gap), width/numSteps-gap*2, 20); 
     rectMode(CORNER); 
@@ -73,7 +74,7 @@ class Matricks {
       for( int j = 0; j < numSteps; j++){
        instSteps[j] = int(instVals[i][j]); // =  cp5.get(Matrix.class, matrixName).get(j, i);
       }
-      println(instNames[i] + " : " + instSteps[0]);
+      //println(instNames[i] + " : " + instSteps[0]);
       mMessage.add(instSteps);
       mBundle.add(mMessage);
       

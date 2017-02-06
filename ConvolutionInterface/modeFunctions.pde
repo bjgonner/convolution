@@ -34,7 +34,7 @@ void seqMode(){
    seq.update();
    //seq.sendMatrixOsc();
    sup.updateEnvPoints();
-  sup.disp();
+ // sup.disp();
   if(arduino.knobFlag){
     setGlobalEffects(arduino.smoothKnobs());
     
