@@ -7,6 +7,16 @@
 */
 
 class StepSequencer {
+  
+/**
+*A constant that defines the screen size in the X (horizontal) direction.
+*/
+ static final int SCREEN_SIZE_X = 800;
+
+/**
+*A constant that defines the screen size in the Y (vertical) direction.
+*/
+ static final int SCREEN_SIZE_Y = 480;
   /**
   *Defines the name of the Matrix that controls the Step Sequencer.
   */ 
@@ -88,11 +98,6 @@ class StepSequencer {
  int posButton_Y;
  
  /**
- *Radio button for changing the key of the Step Sequencer.
- */
- RadioButton keySelector;
- 
- /**
  *A random number generator to randomize the beat on the sequencer.
  */
  Random rand = new Random();
@@ -101,15 +106,17 @@ class StepSequencer {
  *A random number generator to randomize the beat on the sequencer.
  */
  Random rando = new Random();
+ 
+ List activeCells = new ArrayList();
+ List lastActiveCells = new ArrayList();
 
-static final int SCREEN_SIZE_X = 800;
-static final int SCREEN_SIZE_Y = 480;
+
 
 
 /**
 *Constructs a new Step Sequencer with a Matrix with given Name, given rows, given columns, given x-position, given y-position, given x-size, and given y-size;
-* a Radio Button with given x-position and given y-position; a Slider with given x-position and given y-position; and a Button at given x-position and given
-* y-position.
+* a Radio Button with given x-position and given y-position; a Slider with given x-position and given y-position; and a set of Buttons at given x-position and given
+* y-position; The given position of the set of buttons directly corresponds to the right-most button; All other buttons are in line (vertically) with that one.
 *@param _matrixName
 *@param _xSteps
 *@param _yNotes
@@ -159,7 +166,7 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
          .setBackground(color(40))
        ;
                 
-       keySelector = cp5.addRadioButton("radioButton")
+       cp5.addRadioButton("keySelector")
          .setPosition(posKeySelector_X, posKeySelector_Y)
          .setSize(40,20)
          .setColorForeground(color(170))
@@ -183,16 +190,36 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
          
      cp5.addSlider("stepCounter")
       .setPosition(posStepSlider_X,posStepSlider_Y)
-      .setSize(20,200)
+      .setSize(35,200)
       .setRange(1,5)
+      .setValueSelf(5.00)
       .setNumberOfTickMarks(5)
       .setSliderMode(Slider.FLEXIBLE)
+      .setDecimalPrecision(0)
       ;
       
     cp5.addButton("random")
        .setPosition(posButton_X,posButton_Y)
        ;
+                  
+  cp5.addToggle("slide_Mode")
+    .setPosition(posButton_X - 100, posButton_Y)
+    .setValue(false)
+    .setMode(ControlP5.SWITCH)
+    ;
+    
+  cp5.addToggle("mute")
+    .setPosition(posButton_X - 200, posButton_Y)
+    ;
+    
+  cp5.addToggle("loop")
+    .setPosition(posButton_X - 520, posButton_Y)
+    .setValue(false)
+    .setMode(ControlP5.SWITCH)
+    ;
   }
+  
+  
 /**
 *Constructs a new StepSequencer with given Name and other default values.
 *@param _matrixName
@@ -203,31 +230,35 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
     yNotes = 9;
     tempo = 200;
     stepCount = 5;
-    posMatrix_X = 150;
-    posMatrix_Y = 40;
-    sizeMatrix_X = 600;
-    sizeMatrix_Y = 345;
+    posMatrix_X = 90;
+    posMatrix_Y = 20;
+    sizeMatrix_X = 608; //safe values: 592, 608, 624 (add 16)
+    sizeMatrix_Y = 351; //safe Value: 342, 351, 360 (add 9)
   
-    posKeySelector_X = 30;
-    posKeySelector_Y = 50;
+    posKeySelector_X = 10;
+    posKeySelector_Y = 20;
 
-    posStepSlider_X = 760;
+    posStepSlider_X = 730;
     posStepSlider_Y = 40;
+    
+    posButton_X = 600;
+    posButton_Y = 385;
 
-  posMatrix_Y = SCREEN_SIZE_Y - sizeMatrix_Y + 3;
+  //posMatrix_Y = SCREEN_SIZE_Y - sizeMatrix_Y + 3;
+  //posMatrix_X = SCREEN_SIZE_X - sizeMatrix_X + 8;
 
    cp5.addMatrix(matrixName)
      .setPosition(posMatrix_X,posMatrix_Y)
      .setSize(sizeMatrix_X,sizeMatrix_Y)
      .setGrid(xSteps,yNotes)
-     .setGap(6, 1)
+     .setGap(sizeMatrix_X / (xSteps * 10), 1)
      .setInterval(tempo)
      .setMode(ControlP5.SINGLE_COLUMN)
      .setColorBackground(color(120))
      .setBackground(color(40))
      ;
 
-    keySelector = cp5.addRadioButton("radioButton")
+    cp5.addRadioButton("keySelector")
      .setPosition(posKeySelector_X,posKeySelector_Y)
      .setSize(40,20)
      .setColorForeground(color(170))
@@ -251,16 +282,33 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
 
   cp5.addSlider("stepCount")
     .setPosition(posStepSlider_X,posStepSlider_Y)
-    .setSize(20,200)
+    .setSize(35,200)
     .setRange(1,5)
+    .setValueSelf(5.00)
     .setNumberOfTickMarks(5)
     .setSliderMode(Slider.FLEXIBLE)
+    .setDecimalPrecision(0)
     ; 
     
-      cp5.addButton("random")
-     .setPosition(700,420)
-     ;
+  cp5.addButton("random")
+    .setPosition(posButton_X,posButton_Y)
+    ;
     
+  cp5.addToggle("mute")
+    .setPosition(posButton_X - 80, posButton_Y)
+    ;
+    
+  cp5.addToggle("slide_Mode")
+    .setPosition(posButton_X - 170, posButton_Y)
+    .setValue(false)
+    .setMode(ControlP5.SWITCH)
+    ;
+    
+  cp5.addToggle("loop")
+    .setPosition(posButton_X - 520, posButton_Y)
+    .setValue(false)
+    .setMode(ControlP5.SWITCH)
+    ;
     
   }
   
@@ -283,8 +331,12 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
       }
   }
   
+  /**
+  *Randomizes which buttons on the matrix are selected.
+  */
   void random(){
     int i;
+    cp5.get(Matrix.class,matrixName).clear();
     for (i = 0; i < xSteps; i++){
         if (rand.nextInt(2) == 1){
           cp5.get(Matrix.class,matrixName).set(i, rando.nextInt(yNotes), true);
@@ -294,27 +346,38 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
   }
   
   
-  
   //I don't know what the rest of this does.------------------------------
   
-  
-/*   void sendMatrixOsc(){
-   OscBundle mBundle = new OscBundle();
-   for(int i = 0; i < numInsts;  i++){
-      OscMessage mMessage = new OscMessage("/" + instNames[i]);
-      int[] instSteps = new int[numSteps];
-      for( int j = 0; j < numSteps; j++){
-       instSteps[j] = int(instVals[i][j]); // =  cp5.get(Matrix.class, matrixName).get(j, i);
-      }
-      println(instNames[i] + " : " + instSteps[0]);
-      mMessage.add(instSteps);
-      mBundle.add(mMessage);
+  /**
+  *Iterates through the matrix to make a list of which cell is active in each (vertical) column; Then compares the current active cells list to
+  * to the most recent list of active cells. If the lists are different, it makes a new OSC message and sends it.
+  */
+ /*  void sendMatrixOsc(){
+     
+     int i, j, k; //i and j iterate through the matrix. K counts the number of active cells in a row.
+     activeCells.clear();
+     for(i = 0; i < 16; i ++){
+       k = 0;
+       for (j = 0; j < 9; j++){
+         if (cp5.get(Matrix.class,"MatrixMusic").get(i,j)){
+            k++;
+            activeCells.add(7 - j);
+         }
+       }
+       if (k == 0) activeCells.add(-1);
+     }
+     if (!lastActiveCells.equals(activeCells)){
+     lastActiveCells.clear();
+     lastActiveCells.addAll(activeCells);
+     println(activeCells); // FIXME!!! change this line from print to send the message * * * * * * * *
+     }
+
+      OscMessage mMessage = new OscMessage("/StepSeq");
+     
+      mMessage.add(activeCells);
       
-    }
-    mBundle.setTimetag(mBundle.now() + 10000);
-    osc.send(mBundle, address);
+    osc.send(mMessage, address);
     
-    //println(mBundle);
     
  
   }
