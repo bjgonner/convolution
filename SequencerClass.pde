@@ -3,20 +3,21 @@
 */
 
 /**
-*Personalized class that combines a matrix, a radio button, and a slider, to be used for a Step Sequencer.
+*Personalized class that combines a matrix, a radio button, a slider, and a series of buttons and toggles to be used for a Step Sequencer.
 */
 
 class StepSequencer {
   
-/**
-*A constant that defines the screen size in the X (horizontal) direction.
-*/
+  /**
+  *A constant that defines the screen size in the X (horizontal) direction.
+  */
  static final int SCREEN_SIZE_X = 800;
 
-/**
-*A constant that defines the screen size in the Y (vertical) direction.
-*/
+  /**
+  *A constant that defines the screen size in the Y (vertical) direction.
+  */
  static final int SCREEN_SIZE_Y = 480;
+
   /**
   *Defines the name of the Matrix that controls the Step Sequencer.
   */ 
@@ -107,7 +108,17 @@ class StepSequencer {
  */
  Random rando = new Random();
  
+ /**
+ *A list to keep track of the active cells in the matrix; when filled, it holds one number for each (vertical) column; 
+ *negative one (-1) represents the bottom cell in that column; each cell up increases the count by one, so that the top
+ *cell is represented by seven (7).
+ */
  List activeCells = new ArrayList();
+ 
+ /**
+ *A list that follows the same conventions as activeCells, but keeps track of the most recent list of active cells, as
+ *opposed to the current list.
+ */
  List lastActiveCells = new ArrayList();
 
 
@@ -153,7 +164,24 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
       posButton_X = _posButton_X;
       posButton_Y = _posButton_Y;
       
-      posMatrix_Y = SCREEN_SIZE_Y - sizeMatrix_Y + 3;
+  //  I've added this as a safety net to avoid creating a matrix with an error zone on the side.
+  if (!(sizeMatrix_X % xSteps == 0)){
+     if (sizeMatrix_X % xSteps >= (xSteps / 2)){
+      sizeMatrix_X += xSteps - (sizeMatrix_X % xSteps);  
+     }
+     else {
+      sizeMatrix_X -= (sizeMatrix_X % xSteps); 
+     }
+  }
+  if(!(sizeMatrix_Y % yNotes == 0)){
+    if (sizeMatrix_Y % yNotes >= (yNotes / 2)){
+       sizeMatrix_Y += yNotes - (sizeMatrix_Y % yNotes); 
+    }
+  }
+    else {
+      sizeMatrix_Y -= (sizeMatrix_Y % yNotes);
+    }
+    
       
         cp5.addMatrix(matrixName)
          .setPosition(posMatrix_X,posMatrix_Y)
@@ -232,7 +260,7 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
     stepCount = 5;
     posMatrix_X = 90;
     posMatrix_Y = 20;
-    sizeMatrix_X = 608; //safe values: 592, 608, 624 (add 16)
+    sizeMatrix_X = 608; //safe: 592, 608, 624 (add 16). Turns out, the size of the matrix needs to be evenly divisible by the number of cells in each direction.
     sizeMatrix_Y = 351; //safe Value: 342, 351, 360 (add 9)
   
     posKeySelector_X = 10;
@@ -306,8 +334,6 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
     
   cp5.addToggle("loop")
     .setPosition(posButton_X - 520, posButton_Y)
-    .setValue(false)
-    .setMode(ControlP5.SWITCH)
     ;
     
   }
@@ -352,7 +378,7 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
   *Iterates through the matrix to make a list of which cell is active in each (vertical) column; Then compares the current active cells list to
   * to the most recent list of active cells. If the lists are different, it makes a new OSC message and sends it.
   */
- /*  void sendMatrixOsc(){
+  /* void sendMatrixOsc(){
      
      int i, j, k; //i and j iterate through the matrix. K counts the number of active cells in a row.
      activeCells.clear();
@@ -366,7 +392,7 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
        }
        if (k == 0) activeCells.add(-1);
      }
-     if (!lastActiveCells.equals(activeCells)){
+     if (!lastActiveCells.equals(activeCells) && !(cp5.get(Toggle.class,"loop").getBooleanValue())){
      lastActiveCells.clear();
      lastActiveCells.addAll(activeCells);
      println(activeCells); // FIXME!!! change this line from print to send the message * * * * * * * *
