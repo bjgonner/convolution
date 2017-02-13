@@ -113,13 +113,13 @@ class StepSequencer {
  *negative one (-1) represents the bottom cell in that column; each cell up increases the count by one, so that the top
  *cell is represented by seven (7).
  */
- List activeCells = new ArrayList();
+ IntList activeCells = new IntList();
  
  /**
  *A list that follows the same conventions as activeCells, but keeps track of the most recent list of active cells, as
  *opposed to the current list.
  */
- List lastActiveCells = new ArrayList();
+ IntList lastActiveCells = new IntList();
 
 
 
@@ -378,36 +378,48 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
   *Iterates through the matrix to make a list of which cell is active in each (vertical) column; Then compares the current active cells list to
   * to the most recent list of active cells. If the lists are different, it makes a new OSC message and sends it.
   */
-  /* void sendMatrixOsc(){
+   void sendMatrixOsc(){
      
      int i, j, k; //i and j iterate through the matrix. K counts the number of active cells in a row.
      activeCells.clear();
-     for(i = 0; i < 16; i ++){
+     for(i = 0; i < xSteps; i ++){
        k = 0;
-       for (j = 0; j < 9; j++){
+       for (j = 0; j < yNotes; j++){
          if (cp5.get(Matrix.class,"MatrixMusic").get(i,j)){
             k++;
-            activeCells.add(7 - j);
+            activeCells.append(7 - j);
          }
        }
-       if (k == 0) activeCells.add(-1);
+       if (k == 0) activeCells.append(-1);
      }
-     if (!lastActiveCells.equals(activeCells) && !(cp5.get(Toggle.class,"loop").getBooleanValue())){
+      if (!(activeCells.size() == lastActiveCells.size())){
+            k = 1;
+        }
+        else {
+          k = activeCells.size();
+          for (i = 0; i < activeCells.size(); i ++){
+             if(activeCells.get(i) == lastActiveCells.get(i)){
+               k--;
+             }
+          }
+        }
+        println("k :" +k);
+     if (!(k == 0) && !(cp5.get(Toggle.class,"loop").getBooleanValue())){
      lastActiveCells.clear();
-     lastActiveCells.addAll(activeCells);
+     lastActiveCells = activeCells;
      println(activeCells); // FIXME!!! change this line from print to send the message * * * * * * * *
      }
 
-      OscMessage mMessage = new OscMessage("/StepSeq");
-     
-      mMessage.add(activeCells);
+     OscMessage mMessage = new OscMessage("/StepSeq");
+     int[] activeCellsOut = activeCells.array();
+      mMessage.add(activeCellsOut);
       
     osc.send(mMessage, address);
     
     
  
   }
-  
+  /*
     void setInstSteps(HardwareInput a, int index){
     int encPos = (int)a.encoders[0];
     int start  = encPos*12;
