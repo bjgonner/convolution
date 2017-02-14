@@ -406,7 +406,7 @@ StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatrix_X, in
         println("k :" +k);
      if (!(k == 0) && !(cp5.get(Toggle.class,"loop").getBooleanValue())){
      lastActiveCells.clear();
-     lastActiveCells = activeCells;
+     lastActiveCells = activeCells.copy();
      println(activeCells); // FIXME!!! change this line from print to send the message * * * * * * * *
      }
 
