@@ -8,6 +8,7 @@ ServerBoot.add { s.initTree };
 s.plotTree;
 s.meter(2,8);
 
-{SinOsc.ar(440)}.play
+x = {SinOsc.ar(440)}.play
+x.free;
 s.killAll
 s.quit
