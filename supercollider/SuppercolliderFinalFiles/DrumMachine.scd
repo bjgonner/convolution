@@ -34,9 +34,9 @@ d[\m].choose;
 SynthDef.new(\bufplay, {
 	arg buf=0, rate=1, loop=0, t_trig = 1, amp=1, da=2;
 	var sig;
-	sig = PlayBuf.ar(2, buf, BufRateScale.ir(buf) * rate, loop: loop, doneAction:da);
+	sig = PlayBuf.ar(1, buf, BufRateScale.ir(buf) * rate, loop: loop, doneAction:da);
 	sig = sig * amp;
-	Out.ar(0, sig);
+	Out.ar(0, sig!2);
 }).add;
 )
 
