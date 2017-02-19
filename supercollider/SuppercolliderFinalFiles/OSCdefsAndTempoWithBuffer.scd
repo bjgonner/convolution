@@ -218,18 +218,20 @@ OSCdef(\synth2, { |msg|
 
 (
 ~bass = Pbind(
-	\instrument, \ueeb,
+	\instrument, \bufplay,
     \degree, ~bassDegrees,
 	\scale, Pfunc{~scales},
+	\buf, d[\l][0].bufnum,
     \dur, 0.125,
 	\root, Pfunc{~rootNote},
 	//\strum, 0.1
 ).play(t, quant: 1);
 
 ~conga = Pbind(
-	\instrument, \beeu,
+	\instrument, \bufplay,
     \degree, ~congaDegrees,
 	\scale, Pfunc{~scales},
+	\buf, d[\l][1].bufnum,
 	\root, Pfunc{~rootNote},
     \dur, 0.125,
 	//\strum, 0.1
@@ -239,50 +241,108 @@ OSCdef(\synth2, { |msg|
 	\instrument, \bufplay,
     \degree, ~hihatDegrees,
 	\scale, Pfunc{~scales},
-	\buf, d[\m][3].bufnum,
+	\buf, d[\l][3].bufnum,
     \dur, 0.125,
 	\root, Pfunc{~rootNote},
 	//\strum, 0.1
 ).play(t, quant: 1);
 
 ~kick = Pbind(
-	\instrument, \help_sawgrain,
+	\instrument, \bufplay,
     \degree, ~kickDegrees,
 	\scale, Pfunc{~scales},
+	\buf, d[\m][0].bufnum,
 	\root, Pfunc{~rootNote},
     \dur, 0.125,
 	//\strum, 0.1
 ).play(t, quant: 1);
 
 ~flute = Pbind(
-	\instrument, \funSynth,
+	\instrument, \bufplay,
     \degree, ~fluteDegrees,
 	\scale, Pfunc{~scales},
+	\buf, d[\m][1].bufnum,
     \dur, 0.125,
 	//\strum, 0.1
 ).play(t, quant: 1);
 
 ~snare = Pbind(
-	\instrument, \beeu,
+	\instrument, \bufplay,
     \degree, ~snareDegrees,
 	\scale, Pfunc{~scales},
+	\buf, d[\m][0].bufnum,
     \dur, 0.125,
 	//\strum, 0.1
 ).play(t, quant: 1);
 
 ~synth1 = Pbind(
-	\instrument, \ueeb,
+	\instrument, \bufplay,
     \degree, ~synth1Degrees,
 	\scale, Pfunc{~scales},
+	\buf, d[\h][6].bufnum,
     \dur, 0.125,
 	//\strum, 0.1
 ).play(t, quant: 1);
 
 ~synth2 = Pbind(
-	\instrument, \funSynth,
+	\instrument, \bufplay,
     \degree, ~synth2Degrees,
+	\buf, d[\h][7].bufnum,
 	\scale, Pfunc{~scales},
     \dur, 0.125,
 
 ).play(t, quant: 1);
+)
+
+(
+~bass.stop;
+~conga.stop;
+~hihat.stop;
+~kick.stop;
+~flute.stop;
+~snare.stop;
+~synth1.stop;
+~synth2.stop;
+)
+~flute.stop;
+(
+~testes= Pbind(
+	\instrument, \bufplay,
+    \degree, ~bassDegrees,
+	\buf, d[\h][6].bufnum,
+	\rate, ~setRate,
+	\amp, ~testesamp,
+    \dur, 0.125,  //maybe change rythms based on 0.125,0.250,0.5, 0.75, 1?
+).play(t, quant: 1);
+)
+
+//feed rate, amp, etc into samples have button to adjust or lock settings for each insturment
+//create osc defs for amp and rate
+~testes.stop;
+~setRate.free;
+~testesamp = PatternProxy(Pn(Pseq([1], inf),inf));
+~testesamp.source = (Pseq([0.7], inf));
+~setRate = PatternProxy(Pn(Pseries(0, 2, 12), inf));
+~setRate.source = (Pseq([0.2], inf));//PSeq(3, inf);
+~bassDegrees = PatternProxy(Pn(Pseries(0, 2, 12), inf));
+
+//initiatize amp and rate holders
+(
+~bassAmp = PatternProxy(Pseq([0.5], inf));
+~congaAmp = PatternProxy(Pseq([0.5], inf));
+~hihatAmp = PatternProxy(Pseq([0.5], inf));
+~kickAmp = PatternProxy(Pseq([0.5], inf));
+~fluteAmp = PatternProxy(Pseq([0.5], inf));
+~snareAmp = PatternProxy(Pseq([0.5], inf));
+~synth1Amp = PatternProxy(Pseq([0.5], inf));
+~synth2Amp = PatternProxy(Pseq([0.5], inf));
+
+~bassRate = PatternProxy(Pseq([1], inf));
+~congaRate = PatternProxy(Pseq([1], inf));
+~hihatRate = PatternProxy(Pseq([1], inf));
+~kickRate = PatternProxy(Pseq([1], inf));
+~fluteRate = PatternProxy(Pseq([1], inf));
+~snareRate = PatternProxy(Pseq([1], inf));
+~synth1Rate = PatternProxy(Pseq([1], inf));
+~synth2Rate= PatternProxy(Pseq([1], inf));
 )
