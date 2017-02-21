@@ -99,10 +99,14 @@ int mHeight = ny*padSize + ny*gap;
 int gWidth = (800-64)/32;//32*20+32*2; //int(700/float(nx));
 int gHeight = 8*23 + 8*2;
 
+boolean Clear_Matrix;
+
 String[] scales;
 int scaleIndex = 0;
 int lastScaleIndex = 0;
 JSONObject json;
+ButtonGroup bs;
+
 //================================================
 //========Setup=================================
 void setup() {
@@ -138,7 +142,7 @@ void setup() {
   //check about changing matrix buttons from toggles
   // Matricks(String _matrixName, int _nx, int _ny, int _mWidth, int _mHeight, String[] _instNames){
     seq = new Matricks("seq", nx, ny, mWidth, mHeight, instNames, 125);
-
+    
     int tWidth = 100; 
     cp5.addTextlabel("label")
       .setText(instText)
@@ -202,6 +206,32 @@ void setup() {
       .setLineHeight(0)
       .setVisible(true)
       ;
+      String[] toggles = {"Adjust_Lock","Mute_All", "Mute_Instrument"};
+    String[] buttons = {"Randomize", "Clear_Instrument", "Clear_Matrix"};
+      for(int i = 0; i < toggles.length; i++){ 
+      cp5.addToggle( toggles[i])
+       
+       //.setValue( 0.1 )
+       .setLabel(toggles[i])
+       .setPosition(430, 5+i*45)
+       .setSize(300, 30)
+       
+       ;
+       cp5.getController(toggles[i]).getValueLabel().alignX(ControlP5.CENTER);
+  
+      }
+      for(int i = 0; i < buttons.length; i++){ 
+      cp5.addButton( buttons[i])
+       
+       //.setValue( 0.1 )
+       .setLabel(buttons[i])
+       .setPosition(430, (toggles.length)*45 + i*45)
+       .setSize(300, 30)
+       
+       ;
+       cp5.getController(buttons[i]).getValueLabel().alignX(ControlP5.CENTER);
+  
+      }
       
      //cp5.addKnob("bpm")
      //  .setSize(50, 50)
@@ -229,6 +259,8 @@ void setup() {
   setupInstSliders();
  // efg = new EffectsGroup("test", sliderNames, 100,100,500, 300);
  // efg.setupSliders();
+// String[] buttons = {"Mute", "Adjust/Lock", "Clear Insturment", "Clear Matrix", "Save"};
+ bs = new ButtonGroup("Controls", buttons, 430, 5, 300,300);
 }
 
 
@@ -253,6 +285,25 @@ void draw() {
     fill(255,0,255);
   }
   //updateInsturment();
+  sendSlide();
+}
+
+void Clear_Matrix(){
+  seq.clearMatrix();
+}
+
+void Clear_Instrument(){
+  seq.clearInst(listIndex);
+  
+}
+void Adjust_Lock(boolean state){
+  insts[listIndex].lock = state;
+}
+void Randomize(){
+  seq.randomize();
+}
+void Mute_All(boolean state){
+  seq.mute = state;
 }
 void updateRootText(){
    cp5.get(Textlabel.class,"root").setText("Scale Root: " + noteNames[root%12] + (int)arduino.encoders[0]);
@@ -379,7 +430,7 @@ void updateInsturment(){
 
 void plugSliders(int active, int last){
  unPlugSliders(last);
-  
+  cp5.get(Toggle.class, "Adjust_Lock").setState(insts[active].lock);
   for(int i=0; i < sliderNames.length; i++){
   cp5.getController(sliderNames[i]).setValue(insts[active].sliderValues[i]); //.setSliderValue(insts[active], funcs[i]);
   cp5.getController(sliderNames[i]).plugTo(insts[active], funcs[i]);
@@ -398,7 +449,7 @@ void setupInstSliders(){
                  .setBarHeight(40)
                  .setBackgroundHeight(200)
                  .setSize(400,220)
-                 .setBackgroundColor(0xff1111ff)
+                 .setBackgroundColor(#585858)
                  //.close()
                  ;
                  
@@ -407,7 +458,7 @@ void setupInstSliders(){
                  .setBarHeight(40)
                  .setBackgroundHeight(200)
                  .setSize(400,220)
-                 .setBackgroundColor(0xff1111ff)
+                 .setBackgroundColor(#585858)
                  ;
                  
   
@@ -453,20 +504,20 @@ void setupInstSliders(){
        ;
        
   cp5.addSlider( "effect1" )
-       .setRange( 0.0, 100.0 )
+       .setRange( 0.0, 1.0 )
        //.plugTo( this, "setEffect1" )
        .setValue( 50 )
-       .setLabel("Effect1")
+       .setLabel("Amp")
        .setPosition(250,10)
        .setSize(50, 180)
        .setGroup(g1)
        ;
        
   cp5.addSlider( "effect2" )
-       .setRange( 0.0, 100.0 )
+       .setRange( 0.0, 10.0 )
        //.plugTo( this, "setEffect2" )
        .setValue( 50 )
-       .setLabel("Effect2")
+       .setLabel("Rate")
        .setPosition(310,10)
        .setSize(50, 180)
        .setGroup(g1)
@@ -573,7 +624,7 @@ void setupInstSliders(){
   plugSliders(listIndex, 0);
 }
 
-void setGlobalEffects(float[] input){
+void setGlobalEffects(float[] input){ //add flag for lock
   for(int i = 0; i < input.length; i++){
     float min = cp5.getController(globalSliders[i]).getMin();
     float max = cp5.getController(globalSliders[i]).getMax();
@@ -619,12 +670,25 @@ void serialEvent(Serial port)
 void oscEvent(OscMessage msg)
 {
   //print("<");
-  if(msg.addrPattern().equals("/tick")) cnt = (float)msg.arguments()[0];
+  //OscMessage outMsg = new OscMessage("/kStates");
+  if(msg.addrPattern().equals("/tick")){
+    cnt = (float)msg.arguments()[0];
+    //outMsg.add(instNames[listIndex]);
+    //outMsg.add(insts[listIndex].sliderValues);
+    //printArray(outMsg.arguments());
+  }
  // println(msg.arguments()[0]);
   if(cnt == 31) seq.sendMatrixOsc();
   //println(cnt);
   
   
+}
+
+void sendSlide(){
+  OscMessage outMsg = new OscMessage("/kStates");
+  outMsg.add(listIndex);
+    outMsg.add(insts[listIndex].sliderValues);
+    osc.send(outMsg, address);
 }
 //void oscEvent(OscMessage msg)
 //{

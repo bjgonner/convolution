@@ -27,6 +27,7 @@ void seqMode(){
       cp5.getController("label").setVisible(instDisplay);
      }
    }
+  // if(Clear_Matrix) seq.clearMatrix();
   background(0);
 
   fill(255, 100);

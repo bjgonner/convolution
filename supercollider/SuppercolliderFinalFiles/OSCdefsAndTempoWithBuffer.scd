@@ -60,6 +60,51 @@ OSCdef(\getbpm, {|msg|                /*GetBPM listens for BPM message from Proc
 )
 
 (
+OSCdef(\knobStates, {|msg|
+	//msg[1].postln;
+	switch (msg[1],
+		0, {~bassKnobs = msg[2..7];
+			~bassAmp.source = (Pseq([~bassKnobs[4]], inf));
+			~bassRate.source = (Pseq([~bassKnobs[5]], inf));
+		},
+		1, {~congaKnobs = msg[2..7];
+		~congaAmp.source = (Pseq([~congaKnobs[4]], inf));
+			~congaRate.source = (Pseq([~congaKnobs[5]], inf));
+		},
+		2, {~hihatKnobs = msg[2..7];
+			~hihatAmp.source = (Pseq([~hihatKnobs[4]], inf));
+			~hihatRate.source = (Pseq([~hihatKnobs[5]], inf));
+		},
+		3, {~kickKnobs = msg[2..7];
+			~kickAmp.source = (Pseq([~kickKnobs[4]], inf));
+			~kickRate.source = (Pseq([~kickKnobs[5]], inf));
+		},
+		4, {~fluteKnobs = msg[2..7];
+			~fluteAmp.source = (Pseq([~fluteKnobs[4]], inf));
+			~fluteRate.source = (Pseq([~fluteKnobs[5]], inf));
+		},
+		5, {~snareKnobs = msg[2..7];
+			~snareAmp.source = (Pseq([~snareKnobs[4]], inf));
+			~snareRate.source = (Pseq([~snareKnobs[5]], inf));
+		    },
+		6, {~synth1Knobs = msg[2..7];
+			~synth1Amp.source = (Pseq([~synth1Knobs[4]], inf));
+			~synth1Rate.source = (Pseq([~synth1Knobs[5]], inf));
+		},
+		7, {~synth2Knobs = msg[2..7];
+			~synth2Amp.source = (Pseq([~synth2Knobs[4]], inf));
+			~synth2Rate.source = (Pseq([~synth2Knobs[5]], inf));
+	});
+}, "/kStates");
+)
+~bassAmp.source = (Pseq([0.5], inf));
+~bassAmp.source = (Pseq([0.5], inf));
+~bassKnobs.postln;
+~snareKnobs.postln;
+~snareRate.source = (Pseq([~snareKnobs[5]], inf));
+~snareAmp.source = (Pseq([~snareKnobs[4]], inf));
+
+(
 OSCdef(\bass, { |msg|    /*OSCDefs to fill all array and create sequences for all instruments played via drum machine*/
 
 	~bassArray = msg[1..32];
@@ -222,6 +267,8 @@ OSCdef(\synth2, { |msg|
     \degree, ~bassDegrees,
 	\scale, Pfunc{~scales},
 	\buf, d[\l][0].bufnum,
+	\rate, ~bassRate,
+	\amp, ~bassAmp,
     \dur, 0.125,
 	\root, Pfunc{~rootNote},
 	//\strum, 0.1
@@ -232,6 +279,8 @@ OSCdef(\synth2, { |msg|
     \degree, ~congaDegrees,
 	\scale, Pfunc{~scales},
 	\buf, d[\l][1].bufnum,
+	\rate, ~congaRate,
+	\amp, ~congaAmp,
 	\root, Pfunc{~rootNote},
     \dur, 0.125,
 	//\strum, 0.1
@@ -242,6 +291,8 @@ OSCdef(\synth2, { |msg|
     \degree, ~hihatDegrees,
 	\scale, Pfunc{~scales},
 	\buf, d[\l][3].bufnum,
+	\rate, ~hihatRate,
+	\amp, ~hihatAmp,
     \dur, 0.125,
 	\root, Pfunc{~rootNote},
 	//\strum, 0.1
@@ -252,6 +303,8 @@ OSCdef(\synth2, { |msg|
     \degree, ~kickDegrees,
 	\scale, Pfunc{~scales},
 	\buf, d[\m][0].bufnum,
+	\rate, ~kickRate,
+	\amp, ~kickAmp,
 	\root, Pfunc{~rootNote},
     \dur, 0.125,
 	//\strum, 0.1
@@ -262,6 +315,8 @@ OSCdef(\synth2, { |msg|
     \degree, ~fluteDegrees,
 	\scale, Pfunc{~scales},
 	\buf, d[\m][1].bufnum,
+	\rate, ~fluteRate,
+	\amp, ~fluteAmp,
     \dur, 0.125,
 	//\strum, 0.1
 ).play(t, quant: 1);
@@ -271,6 +326,8 @@ OSCdef(\synth2, { |msg|
     \degree, ~snareDegrees,
 	\scale, Pfunc{~scales},
 	\buf, d[\m][0].bufnum,
+	\rate, ~snareRate,
+	\amp, ~snareAmp,
     \dur, 0.125,
 	//\strum, 0.1
 ).play(t, quant: 1);
@@ -280,6 +337,8 @@ OSCdef(\synth2, { |msg|
     \degree, ~synth1Degrees,
 	\scale, Pfunc{~scales},
 	\buf, d[\h][6].bufnum,
+	\rate, ~synth1Rate,
+	\amp, ~synth1Amp,
     \dur, 0.125,
 	//\strum, 0.1
 ).play(t, quant: 1);
@@ -288,6 +347,8 @@ OSCdef(\synth2, { |msg|
 	\instrument, \bufplay,
     \degree, ~synth2Degrees,
 	\buf, d[\h][7].bufnum,
+	\rate, ~synth2Rate,
+	\amp, ~synth2Amp,
 	\scale, Pfunc{~scales},
     \dur, 0.125,
 
@@ -305,6 +366,7 @@ OSCdef(\synth2, { |msg|
 ~synth2.stop;
 )
 ~flute.stop;
+~snare.stop;
 (
 ~testes= Pbind(
 	\instrument, \bufplay,
@@ -319,11 +381,12 @@ OSCdef(\synth2, { |msg|
 //feed rate, amp, etc into samples have button to adjust or lock settings for each insturment
 //create osc defs for amp and rate
 ~testes.stop;
+~bass.stop;
 ~setRate.free;
 ~testesamp = PatternProxy(Pn(Pseq([1], inf),inf));
 ~testesamp.source = (Pseq([0.7], inf));
 ~setRate = PatternProxy(Pn(Pseries(0, 2, 12), inf));
-~setRate.source = (Pseq([0.2], inf));//PSeq(3, inf);
+~setRate.source = (Pseq([1], inf));//PSeq(3, inf);
 ~bassDegrees = PatternProxy(Pn(Pseries(0, 2, 12), inf));
 
 //initiatize amp and rate holders

@@ -1,7 +1,9 @@
 class Matricks {
- 
+ //add array for controls for each instrument rate and amp also lock state for each
   String matrixName;
   boolean instVals[][];
+  boolean mute = false;
+  boolean muteInst = false;
   int interval;
   int numInsts;
   int numSteps;
@@ -9,6 +11,8 @@ class Matricks {
   Timer time;
   int mHeight;
   int mWidth;
+  String[] buttons = {"Mute", "Adjust/Lock", "Clear Insturment", "Clear Matrix", "Save"};
+  ButtonGroup b;
   
   
  Matricks(String _matrixName, int _nx, int _ny, int _mWidth, int _mHeight, String[] _instNames, int _interval){
@@ -40,6 +44,30 @@ class Matricks {
      instNames = _instNames;
      
      time = new Timer(interval*(numSteps+1)-1);
+     //String _gName, String[] _names, float _gX, float _gY, int _w, int _h
+     b = new ButtonGroup("Controls", buttons, 5, 5, width/2,10);
+ }
+ void clearMatrix(){
+   cp5.get(Matrix.class, matrixName).clear();
+ }
+ 
+ void clearInst(int cur){
+   for(int i =0; i < numSteps; i++){
+     cp5.get(Matrix.class, matrixName).set(i, cur, false);
+   }
+ }
+ 
+ void randomize(){
+   for(int i = 0; i < numInsts;  i++){
+      for( int j = 0; j < numSteps; j++){
+        float rand = random(0,1);
+        boolean state;
+        if(rand <0.31) state = true;
+        else state = false;
+        
+       cp5.get(Matrix.class, matrixName).set(j, i, state);
+      }
+   }
  }
   void update(){
     
@@ -67,6 +95,7 @@ class Matricks {
    
  }
  void sendMatrixOsc(){
+   if(mute != true){
    OscBundle mBundle = new OscBundle();
    for(int i = 0; i < numInsts;  i++){
       OscMessage mMessage = new OscMessage("/" + instNames[i]);
@@ -81,7 +110,7 @@ class Matricks {
     }
     mBundle.setTimetag(mBundle.now() + 10000);
     osc.send(mBundle, address);
-    
+   }
     //println(mBundle);
     
  
