@@ -379,7 +379,7 @@ public StepSequencer(String _matrixName){
           stepCount.setValue(xRootNotes - 1);
           sequencerButtons.setGrid(xRootNotes,yNotes);
           for(int i = 0; i < Math.min(xRootNotes, selectedRootNotes.size()); i++){
-            sequencerButtons.set(i, (yNotes - 2) - selectedRootNotes.get(i), true);
+            sequencerButtons.set(i, (yNotes - 2) - (selectedRootNotes.get(i) -1), true);
           }
         }
         else{
@@ -498,7 +498,7 @@ private void saveRecentCells(){
       for (int j = 0; j < yNotes; j++){
         if (sequencerButtons.get(i,j)){
           k++;
-          selectedRootNotes.append((yNotes - 2) - j);
+          selectedRootNotes.append((yNotes - 1) - j);
         }
       }
       if (k == 0) selectedRootNotes.append(-1);
@@ -516,17 +516,7 @@ void sendMatrixOsc(){
   int k; //k counts the number of active cells in a row.
   saveActiveCells();
   if(!root_notes.getBooleanValue()){
-    //activeCells.clear();
-    //for(int i = 0; i < xSteps; i ++){
-    //  k = 0;
-    //  for (int j = 0; j < yNotes; j++){
-    //    if (sequencerButtons.get(i,j)){
-    //      k++;
-    //      activeCells.append((yNotes - 2) - j);
-    //    }
-    //  }
-    //  if (k == 0) activeCells.append(-1);
-    //}
+   
     if (!(activeCells.size() == lastActiveCells.size())){
       k = 1;
     }
@@ -545,24 +535,14 @@ void sendMatrixOsc(){
       println(activeCells); // FIXME!!! change this line from print to send the message * * * * * * * *
     }
   
-    //OscMessage mMessage = new OscMessage("/StepSeq");
-    //int[] activeCellsOut = activeCells.array();
-    //mMessage.add(activeCellsOut);
+    OscMessage mMessage = new OscMessage("/StepSeq");
+    int[] activeCellsOut = activeCells.array();
+    mMessage.add(activeCellsOut);
         
-    //osc.send(mMessage, address);
+    osc.send(mMessage, address);
   }
   else{
-    //selectedRootNotes.clear();
-    //for(int i = 0; i < xRootNotes; i ++){
-    //  k = 0;
-    //  for (int j = 0; j < yNotes; j++){
-    //    if (sequencerButtons.get(i,j)){
-    //      k++;
-    //      selectedRootNotes.append((yNotes - 2) - j);
-    //    }
-    //  }
-    //  if (k == 0) selectedRootNotes.append(-1);
-    //}
+   
     if (!(selectedRootNotes.size() == lastSelectedRootNotes.size())){
       k = 1;
     }
@@ -581,11 +561,11 @@ void sendMatrixOsc(){
       println(selectedRootNotes); // FIXME!!! change this line from print to send the message * * * * * * * *
     }
   
-    //OscMessage rootMessage = new OscMessage("/RootNotes"); //FIXME: I changed the name of the message in this end of the if statements.
-    //int[] rootNotesOut = selectedRootNotes.array();        //FIXME:  if we need it to be the same in both cases, don't forget to fix that.
-    //rootMessage.add(rootNotesOut);
+    OscMessage rootMessage = new OscMessage("/RootNotes"); //FIXME: I changed the name of the message in this end of the if statements.
+    int[] rootNotesOut = selectedRootNotes.array();        //FIXME:  if we need it to be the same in both cases, don't forget to fix that.
+    rootMessage.add(rootNotesOut);
         
-    //osc.send(rootMessage, address);
+    osc.send(rootMessage, address);
   }
 }
   
@@ -642,4 +622,28 @@ void sendMatrixOsc(){
   
   */
   
+  
+   //activeCells.clear();
+    //for(int i = 0; i < xSteps; i ++){
+    //  k = 0;
+    //  for (int j = 0; j < yNotes; j++){
+    //    if (sequencerButtons.get(i,j)){
+    //      k++;
+    //      activeCells.append((yNotes - 2) - j);
+    //    }
+    //  }
+    //  if (k == 0) activeCells.append(-1);
+    //}
+  
+   //selectedRootNotes.clear();
+    //for(int i = 0; i < xRootNotes; i ++){
+    //  k = 0;
+    //  for (int j = 0; j < yNotes; j++){
+    //    if (sequencerButtons.get(i,j)){
+    //      k++;
+    //      selectedRootNotes.append((yNotes - 2) - j);
+    //    }
+    //  }
+    //  if (k == 0) selectedRootNotes.append(-1);
+    //}
 }
