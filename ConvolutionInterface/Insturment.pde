@@ -8,7 +8,7 @@ class Instrument{
  float effect1, effect2;
  boolean visible = false;
  int[] steps;
- float[] sliderValues = {0.1,0.5,0.3,0.2,0.0,0.0};
+ float[] sliderValues = {0.1,0.5,0.3,0.2,0.6,1.0};
  float[] envArray;
  FloatList envPoints;
  boolean lock = false;

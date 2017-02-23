@@ -214,10 +214,11 @@ void setup() {
        //.setValue( 0.1 )
        .setLabel(toggles[i])
        .setPosition(430, 5+i*45)
-       .setSize(300, 30)
+       .setSize(150, 30)
        
        ;
-       cp5.getController(toggles[i]).getValueLabel().alignX(ControlP5.CENTER);
+       cp5.getController(toggles[i]).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0); //getValueLabel().alignX(ControlP5.CENTER);
+      // cp5.getController(toggles[i]).getValueLabel().alignY(ControlP5.CENTER);
   
       }
       for(int i = 0; i < buttons.length; i++){ 
@@ -226,7 +227,7 @@ void setup() {
        //.setValue( 0.1 )
        .setLabel(buttons[i])
        .setPosition(430, (toggles.length)*45 + i*45)
-       .setSize(300, 30)
+       .setSize(150, 30)
        
        ;
        cp5.getController(buttons[i]).getValueLabel().alignX(ControlP5.CENTER);
@@ -506,7 +507,7 @@ void setupInstSliders(){
   cp5.addSlider( "effect1" )
        .setRange( 0.0, 1.0 )
        //.plugTo( this, "setEffect1" )
-       .setValue( 50 )
+       .setValue( 0.6 )
        .setLabel("Amp")
        .setPosition(250,10)
        .setSize(50, 180)
@@ -516,7 +517,7 @@ void setupInstSliders(){
   cp5.addSlider( "effect2" )
        .setRange( 0.0, 10.0 )
        //.plugTo( this, "setEffect2" )
-       .setValue( 50 )
+       .setValue( 1.0 )
        .setLabel("Rate")
        .setPosition(310,10)
        .setSize(50, 180)
