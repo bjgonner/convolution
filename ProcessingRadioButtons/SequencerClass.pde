@@ -140,11 +140,15 @@ class StepSequencer {
  
  private Toggle loop;
  
- private RadioButton keySelector;
+ private RadioButton keyRadioButton;
  
  private Slider stepCount;
  
  private Matrix sequencerButtons;
+ 
+ private Button Send;
+ 
+ CallbackListener cb;
  
 
 /**
@@ -187,6 +191,14 @@ public StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatri
     posButton_X = _posButton_X;
     posButton_Y = _posButton_Y;
       
+      
+      //New Bug  FOUND ===============================================================================================================================
+      //==============================================================================================================================================
+      //For Some reason the error Zone (accounted for below) shows up on the 3 step setting. This could be because that is the only odd-numbered setting.
+      //==============================================================================================================================================
+      //==============================================================================================================================================
+      
+      
   //  I've added this as a safety net to avoid creating a matrix with an error zone on the side.
   if (!(sizeMatrix_X % xSteps == 0)){
     if (sizeMatrix_X % xSteps >= (xSteps / 2)){
@@ -215,9 +227,10 @@ public StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatri
       .setMode(ControlP5.SINGLE_COLUMN)
       .setColorBackground(color(120))
       .setBackground(color(40))
+      .stop();
       ;
                 
-    keySelector = cp5.addRadioButton("keySelector")
+    keyRadioButton = cp5.addRadioButton("keySelector")
       .setPosition(posKeySelector_X, posKeySelector_Y)
       .setSize(40,20)
       .setColorForeground(color(170))
@@ -305,9 +318,10 @@ public StepSequencer(String _matrixName){
     .setMode(ControlP5.SINGLE_COLUMN)
     .setColorBackground(color(120))
     .setBackground(color(40))
+    .stop();
     ;
 
-  keySelector = cp5.addRadioButton("keySelector")
+  keyRadioButton = cp5.addRadioButton("keySelector")
     .setPosition(posKeySelector_X,posKeySelector_Y)
     .setSize(40,20)
     .setColorForeground(color(170))
@@ -359,7 +373,72 @@ public StepSequencer(String _matrixName){
     .setPosition(posButton_X - 430, posButton_Y)
     ;
     
+  Send = cp5.addButton("send")
+    .setPosition(posButton_X + 80, posButton_Y)
+    .setHeight(60);
+    ;
     
+  Send.addCallback(new CallbackListener() {
+    public void controlEvent(CallbackEvent tempEvent){
+      if (tempEvent.getAction() == ControlP5.ACTION_PRESS){
+      sendMatrixOsc();
+      }
+    }
+  }
+  );
+    
+  slide_mode.addCallback(new CallbackListener(){
+    public void controlEvent(CallbackEvent bEvent){
+      int value;
+      if (bEvent.getAction() == ControlP5.ACTION_PRESS){
+      if (slide_mode.getBooleanValue()) value = 1;
+      else value = 0;
+      OscMessage slideMessage = new OscMessage("/Slide");
+      slideMessage.add(value);
+        
+      osc.send(slideMessage, address);
+      println("I sent a slide message " + value);
+      }
+    }
+  }
+  );
+  
+  mute.addCallback(new CallbackListener() {
+    public void controlEvent(CallbackEvent eEvent){
+    OscMessage muteMessage = new OscMessage("/StepSeq");
+    IntList zeros = new IntList();
+    for (int i = 0; i < xSteps; i++){
+     zeros.append(-1); 
+    }
+    int [] sendThis = zeros.array();
+    muteMessage.add(sendThis);
+        
+    osc.send(muteMessage, address);
+    }
+  }
+  );
+  
+  cb = new CallbackListener() {
+    public void controlEvent(CallbackEvent vEvent) {
+      //println("I found an event: KeySelect");
+      if (vEvent.getAction() == ControlP5.ACTION_PRESS){
+        if(vEvent.getController() == keyRadioButton.getItem(0))selectKeys(0);
+        else if (vEvent.getController() == keyRadioButton.getItem(1)) selectKeys(1);
+        else if (vEvent.getController() == keyRadioButton.getItem(2)) selectKeys(2);
+        else if (vEvent.getController() == keyRadioButton.getItem(3)) selectKeys(3);
+        else if (vEvent.getController() == keyRadioButton.getItem(4)) selectKeys(4);
+        else if (vEvent.getController() == keyRadioButton.getItem(5)) selectKeys(5);
+        else if (vEvent.getController() == keyRadioButton.getItem(6)) selectKeys(6);
+        else if (vEvent.getController() == keyRadioButton.getItem(7)) selectKeys(7);
+        else if (vEvent.getController() == keyRadioButton.getItem(8)) selectKeys(8);
+        else if (vEvent.getController() == keyRadioButton.getItem(9)) selectKeys(9);
+        else if (vEvent.getController() == keyRadioButton.getItem(10)) selectKeys(10);
+        else if (vEvent.getController() == keyRadioButton.getItem(11)) selectKeys(11);
+      }
+    }
+   };
+   cp5.addCallback(cb);
+
     
   random.addCallback(new CallbackListener() {
     public void controlEvent(CallbackEvent anEvent){
@@ -379,7 +458,7 @@ public StepSequencer(String _matrixName){
           stepCount.setValue(xRootNotes - 1);
           sequencerButtons.setGrid(xRootNotes,yNotes);
           for(int i = 0; i < Math.min(xRootNotes, selectedRootNotes.size()); i++){
-            sequencerButtons.set(i, (yNotes - 2) - (selectedRootNotes.get(i) -1), true);
+            sequencerButtons.set(i, (yNotes - 2) - selectedRootNotes.get(i), true);
           }
         }
         else{
@@ -403,7 +482,18 @@ public StepSequencer(String _matrixName){
   /**
   *Changes the number of (horizontal) rows in the Matrix based on the setting of the slider.
   */
+  
+  
+private void selectKeys(int button){
+  OscMessage keyMessage = new OscMessage("/keySel");
+  keyMessage.add(button - 1);
+  osc.send(keyMessage, address);
+  println("I sent a message " + (button));
+}
 
+/**
+*Changes the number of horizontal rows available in the matrix. Uses the slider to decide the value.
+*/
 void stepCount(float count){
   if(!root_notes.getBooleanValue()){
     lastXSteps = xSteps;
@@ -439,9 +529,20 @@ void stepCount(float count){
   */
 void randomize(){
   sequencerButtons.clear();
-  for (int i = 0; i < xSteps; i++){
-    if (rand.nextInt(2) == 1){
-      sequencerButtons.set(i, rando.nextInt(yNotes), true);
+  if (root_notes.getBooleanValue()){
+    for (int i = 0; i < xRootNotes; i++){
+      if (rand.nextInt(3) > 0){
+        sequencerButtons.set(i, rando.nextInt(yNotes), true);
+      }
+      else sequencerButtons.set(i, yNotes - 1, true);
+    }
+  }
+  else{
+    for (int i = 0; i < xSteps; i++){
+      if (rand.nextInt(3) > 0){
+        sequencerButtons.set(i, rando.nextInt(yNotes), true);
+      }
+      else sequencerButtons.set(i, yNotes - 1, true);
     }
   }
 }
@@ -468,7 +569,7 @@ private void saveActiveCells(){
       for (int j = 0; j < yNotes; j++){
         if (sequencerButtons.get(i,j)){
           k++;
-          selectedRootNotes.append((yNotes - 2) - j);
+          selectedRootNotes.append((yNotes - 1) - j);
         }
       }
       if (k == 0) selectedRootNotes.append(-1);
@@ -498,7 +599,7 @@ private void saveRecentCells(){
       for (int j = 0; j < yNotes; j++){
         if (sequencerButtons.get(i,j)){
           k++;
-          selectedRootNotes.append((yNotes - 1) - j);
+          selectedRootNotes.append((yNotes - 2) - j);
         }
       }
       if (k == 0) selectedRootNotes.append(-1);
@@ -515,7 +616,7 @@ private void saveRecentCells(){
 void sendMatrixOsc(){
   int k; //k counts the number of active cells in a row.
   saveActiveCells();
-  if(!root_notes.getBooleanValue()){
+  if(!root_notes.getBooleanValue() && !mute.getBooleanValue()){
    
     if (!(activeCells.size() == lastActiveCells.size())){
       k = 1;
@@ -533,15 +634,15 @@ void sendMatrixOsc(){
       lastActiveCells.clear();
       lastActiveCells = activeCells.copy();
       println(activeCells); // FIXME!!! change this line from print to send the message * * * * * * * *
-    }
-  
+
     OscMessage mMessage = new OscMessage("/StepSeq");
     int[] activeCellsOut = activeCells.array();
     mMessage.add(activeCellsOut);
         
     osc.send(mMessage, address);
+    }
   }
-  else{
+  else if (root_notes.getBooleanValue() && !mute.getBooleanValue()){
    
     if (!(selectedRootNotes.size() == lastSelectedRootNotes.size())){
       k = 1;
@@ -555,17 +656,17 @@ void sendMatrixOsc(){
       }
     }
     println("k :" +k);
-    if (!(k == 0)){
+    if (!(k == 0) && !loop.getBooleanValue()){
       lastSelectedRootNotes.clear();
       lastSelectedRootNotes = selectedRootNotes.copy();
       println(selectedRootNotes); // FIXME!!! change this line from print to send the message * * * * * * * *
-    }
   
     OscMessage rootMessage = new OscMessage("/RootNotes"); //FIXME: I changed the name of the message in this end of the if statements.
     int[] rootNotesOut = selectedRootNotes.array();        //FIXME:  if we need it to be the same in both cases, don't forget to fix that.
     rootMessage.add(rootNotesOut);
         
     osc.send(rootMessage, address);
+    }
   }
 }
   
@@ -592,19 +693,23 @@ void sendMatrixOsc(){
     //  print(dex + " : " + boolean(a.notes[i]) +" | ");
     }
    // println();
-  } 
+  } */
   
+  /**
+  *Draws a rectangle at the top of the matrix to keep track of which row is being played by the synthesizer.
+  */
    void drawExtras(){
-  rectMode(CENTER);
-    float spacing  = width/xSteps*(cnt+1);
-    rect(spacing-(width/xSteps)/2,height-mHeight-(gap), width/xSteps-gap*2, 20); 
-    rectMode(CORNER); 
+     float matrixWidth = sequencerButtons.getWidth();
+     rectMode(CORNER);
+     fill(255,255,0);
+     float spacing  = ((matrixWidth/xSteps)*(cnt-1)) - 1;
+     rect(posMatrix_X + spacing, posMatrix_Y - 20, matrixWidth/(xSteps), 20); 
     
  //   cp5.getController("current").setPosition(0,(height-mHeight-25)+(25*listIndex)+10);
+   }
    
    
- }
-  
+  /*
     void update(){
     
     for(int i = 0; i < numInsts;  i++){
@@ -622,28 +727,5 @@ void sendMatrixOsc(){
   
   */
   
-  
-   //activeCells.clear();
-    //for(int i = 0; i < xSteps; i ++){
-    //  k = 0;
-    //  for (int j = 0; j < yNotes; j++){
-    //    if (sequencerButtons.get(i,j)){
-    //      k++;
-    //      activeCells.append((yNotes - 2) - j);
-    //    }
-    //  }
-    //  if (k == 0) activeCells.append(-1);
-    //}
-  
-   //selectedRootNotes.clear();
-    //for(int i = 0; i < xRootNotes; i ++){
-    //  k = 0;
-    //  for (int j = 0; j < yNotes; j++){
-    //    if (sequencerButtons.get(i,j)){
-    //      k++;
-    //      selectedRootNotes.append((yNotes - 2) - j);
-    //    }
-    //  }
-    //  if (k == 0) selectedRootNotes.append(-1);
-    //}
+
 }
