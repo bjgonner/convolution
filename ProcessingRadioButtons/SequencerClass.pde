@@ -200,7 +200,7 @@ public StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatri
       
       
   //  I've added this as a safety net to avoid creating a matrix with an error zone on the side.
-  if (!(sizeMatrix_X % xSteps == 0)){
+  if (sizeMatrix_X % xSteps != 0){
     if (sizeMatrix_X % xSteps >= (xSteps / 2)){
       sizeMatrix_X += xSteps - (sizeMatrix_X % xSteps);  
     }
@@ -506,6 +506,8 @@ void stepCount(float count){
     }
     if (lastXSteps != xSteps){
       println("Number of Steps: "+ xSteps + " : " + stepCount.getValue());
+      if(xSteps == 3) sequencerButtons.setSize(612,sizeMatrix_Y);
+      else sequencerButtons.setSize(sizeMatrix_X, sizeMatrix_Y);
       sequencerButtons.setGrid(xSteps,yNotes);
     }
   }
@@ -519,6 +521,9 @@ void stepCount(float count){
       case("5"):xRootNotes = 6; break;
     }
     if(lastXRootNotes != xRootNotes){
+      if(xRootNotes == 3 || xRootNotes == 6) sequencerButtons.setSize(612, sizeMatrix_Y);
+      else if(xRootNotes == 5) sequencerButtons.setSize(610,sizeMatrix_Y);
+      else sequencerButtons.setSize(sizeMatrix_X, sizeMatrix_Y);
       sequencerButtons.setGrid(xRootNotes,yNotes);
     }
   }
@@ -564,9 +569,11 @@ private void saveActiveCells(){
   }
   else{
     selectedRootNotes.clear();
+    println("xRootNotes: " + xRootNotes);
     for(int i = 0; i < xRootNotes; i ++){
       k = 0;
       for (int j = 0; j < yNotes; j++){
+        println("i,j: " + i,j);
         if (sequencerButtons.get(i,j)){
           k++;
           selectedRootNotes.append((yNotes - 1) - j);
@@ -664,6 +671,7 @@ void sendMatrixOsc(){
     OscMessage rootMessage = new OscMessage("/RootNotes"); //FIXME: I changed the name of the message in this end of the if statements.
     int[] rootNotesOut = selectedRootNotes.array();        //FIXME:  if we need it to be the same in both cases, don't forget to fix that.
     rootMessage.add(rootNotesOut);
+    println("length of message: " + rootNotesOut.length);
         
     osc.send(rootMessage, address);
     }
@@ -699,11 +707,21 @@ void sendMatrixOsc(){
   *Draws a rectangle at the top of the matrix to keep track of which row is being played by the synthesizer.
   */
    void drawExtras(){
+     float counts;
+     if(!root_notes.getBooleanValue()) counts = cnt % xSteps;
+     else counts = (cnt / xSteps) % (xRootNotes - 1);
+
+     
+     
+     int stepper;
+     if(!root_notes.getBooleanValue()) stepper = xSteps;
+     else stepper = xRootNotes;
+     
      float matrixWidth = sequencerButtons.getWidth();
      rectMode(CORNER);
      fill(255,255,0);
-     float spacing  = ((matrixWidth/xSteps)*(cnt-1)) - 1;
-     rect(posMatrix_X + spacing, posMatrix_Y - 20, matrixWidth/(xSteps), 20); 
+     float spacing  = ((matrixWidth/stepper)*(counts)) - 1;
+     rect(posMatrix_X + spacing, posMatrix_Y - 20, matrixWidth/(stepper), 20); 
     
  //   cp5.getController("current").setPosition(0,(height-mHeight-25)+(25*listIndex)+10);
    }
