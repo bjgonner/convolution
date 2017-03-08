@@ -1,5 +1,5 @@
-~scales = Scale.spanish;
-Scale.directory;
+//~scales = Scale.spanish;
+//Scale.directory;
 //variable definitions
 (
 ~scales = Scale.minor;
@@ -15,9 +15,7 @@ Scale.directory;
 ~snareDegrees = PatternProxy(Pn(Pseries(0, 1, 12), inf));
 ~synth1Degrees = PatternProxy(Pn(Pseries(0, 1, 12), inf));
 ~synth2Degrees = PatternProxy(Pn(Pseries(0, 1, 12), inf));
-)
 
-(
 ~stepSeqArray = Array.fill(16, {rrand(-2,2)});
 ~bassArray = Array.fill(32, {rrand(-2,2)});
 ~congaArray = Array.fill(32, {rrand(-2,2)});
@@ -27,14 +25,33 @@ Scale.directory;
 ~snareArray = Array.fill(32, {rrand(-2,2)});
 ~synth1Array = Array.fill(32, {rrand(-2,2)});
 ~synth2Array = Array.fill(32, {rrand(-2,2)});
-)
+
+//initiatize amp and rate holders
+
+~bassAmp = PatternProxy(Pseq([0.5], inf));
+~congaAmp = PatternProxy(Pseq([0.5], inf));
+~hihatAmp = PatternProxy(Pseq([0.5], inf));
+~kickAmp = PatternProxy(Pseq([0.5], inf));
+~fluteAmp = PatternProxy(Pseq([0.5], inf));
+~snareAmp = PatternProxy(Pseq([0.5], inf));
+~synth1Amp = PatternProxy(Pseq([0.5], inf));
+~synth2Amp = PatternProxy(Pseq([0.5], inf));
+
+~bassRate = PatternProxy(Pseq([1], inf));
+~congaRate = PatternProxy(Pseq([1], inf));
+~hihatRate = PatternProxy(Pseq([1], inf));
+~kickRate = PatternProxy(Pseq([1], inf));
+~fluteRate = PatternProxy(Pseq([1], inf));
+~snareRate = PatternProxy(Pseq([1], inf));
+~synth1Rate = PatternProxy(Pseq([1], inf));
+~synth2Rate= PatternProxy(Pseq([1], inf));
 
 //start tempoClock
 
 //Setup OSC messages to Processing and setup tempoClock.  Below is OSCdef to set tempo
-)
+
 //Send OSC tick to processing
-(
+
 b = NetAddr.new("127.0.0.1", 12001);    // create the NetAddr
 // get elapsed time, round up to next second
 v = Main.elapsedTime.ceil;
@@ -48,21 +65,21 @@ u = TempoClock(t.tempo*8, 0, v);
 // t controls u's tempo. They should stay in sync.
 t.schedAbs(0, { arg beat, sec; /* [\t, beat, sec].postln;*/ 1 });
 u.schedAbs(0, { arg beat, sec; /*["/tick", beat%32, "hrlp","more"].postln;*/b.sendMsg("/tick", beat%32, "hrlp","more");  1 });
-)
 
+//here I stopped removing parenthesis
 
 //OSCdefs
 
-(
+
 OSCdef(\getbpm, {|msg|                /*GetBPM listens for BPM message from Processing*/
 	~mainTempo = msg[1]/60;
 	t.tempo = ~mainTempo;
 	u.tempo = t.tempo*8;
 	//msg.postln;
 }, "/bpm");
-)
 
-(
+
+
 OSCdef(\knobStates, {|msg|
 	//msg[1].postln;
 	switch (msg[1],
@@ -99,15 +116,15 @@ OSCdef(\knobStates, {|msg|
 			~synth2Rate.source = (Pseq([~synth2Knobs[5]], inf));
 	});
 }, "/kStates");
-)
-~bassAmp.source = (Pseq([0.5], inf));
+
+/*~bassAmp.source = (Pseq([0.5], inf));
 ~bassAmp.source = (Pseq([0.5], inf));
 ~bassKnobs.postln;
 ~snareKnobs.postln;
 ~snareRate.source = (Pseq([~snareKnobs[5]], inf));
-~snareAmp.source = (Pseq([~snareKnobs[4]], inf));
+~snareAmp.source = (Pseq([~snareKnobs[4]], inf));*/
 
-(
+
 OSCdef(\StepSeq, { |msg|    /*OSCDefs to fill all array and create sequences for all instruments played via drum machine*/
 
 	~stepSeqArray = msg[1..(msg.size-1)];
@@ -126,9 +143,9 @@ OSCdef(\StepSeq, { |msg|    /*OSCDefs to fill all array and create sequences for
 	//~knobsArray.postln;
 
 }, "/StepSeq");
-)
-~stepSeqArray.size;
-(
+
+//~stepSeqArray.size;
+
 OSCdef(\RootNotes, { |msg|    /*OSCDefs to fill all array and create sequences for all instruments played via drum machine*/
 
 	~rootNotesArray = msg[1..(msg.size-1)];
@@ -147,11 +164,11 @@ OSCdef(\RootNotes, { |msg|    /*OSCDefs to fill all array and create sequences f
 	//~knobsArray.postln;
 
 }, "/RootNotes");
-)
 
-~rootNotesArray.postln;
-~stepSeqArray.postln;
-(
+
+/*~rootNotesArray.postln;
+~stepSeqArray.postln;*/
+
 OSCdef(\bass, { |msg|    /*OSCDefs to fill all array and create sequences for all instruments played via drum machine*/
 
 	~bassArray = msg[1..32];
@@ -304,11 +321,11 @@ OSCdef(\synth2, { |msg|
 
 }, "/synth2");
 
-)
+
 
 //PBinds for drum machine
 
-(
+
 ~bass = Pbind(
 	\instrument, \bufplay,
     \degree, ~bassDegrees,
@@ -400,9 +417,9 @@ OSCdef(\synth2, { |msg|
     \dur, 0.125,
 
 ).play(t, quant: 1);
-)
 
-(
+
+/*(
 ~bass.stop;
 ~conga.stop;
 ~hihat.stop;
@@ -413,8 +430,8 @@ OSCdef(\synth2, { |msg|
 ~synth2.stop;
 )
 ~flute.stop;
-~snare.stop;
-(
+~snare.stop;*/
+/*(
 ~testes= Pbind(
 	\instrument, \bufplay,
     \degree, ~bassDegrees,
@@ -423,19 +440,19 @@ OSCdef(\synth2, { |msg|
 	\amp, ~testesamp,
     \dur, 0.125,  //maybe change rythms based on 0.125,0.250,0.5, 0.75, 1?
 ).play(t, quant: 1);
-)
+)*/
 
 
-(
+
 ~stepSequence= Pbind(
 	\instrument, \help_sinegrain,
     \degree, ~stepSeqDegrees,
 	\scale, Pfunc{~scales},
     \dur, 0.125,  //maybe change rythms based on 0.125,0.250,0.5, 0.75, 1?
 ).play(t, quant: 1);
-)
 
-(
+
+
 ~stepSequenceRoot= Pbind(
 	\instrument, \help_sinegrain,
     \degree, ~stepSeqDegrees,
@@ -444,39 +461,19 @@ OSCdef(\synth2, { |msg|
     \dur, 0.125,  //maybe change rythms based on 0.125,0.250,0.5, 0.75, 1?
 ).play(t, quant: 1);
 )
-~rootNotesDegrees.postln;
-~stepSequenceRoot.stop;
-~stepSequence.free;
-~stepSequence.stop;
+// ~rootNotesDegrees.postln;
+// ~stepSequenceRoot.stop;
+// ~stepSequence.free;
+// ~stepSequence.stop;
+//
+// //feed rate, amp, etc into samples have button to adjust or lock settings for each insturment
+// //create osc defs for amp and rate
+// ~testes.stop;
+// ~bass.stop;
+// ~setRate.free;
+// ~testesamp = PatternProxy(Pn(Pseq([1], inf),inf));
+// ~testesamp.source = (Pseq([0.7], inf));
+// ~setRate = PatternProxy(Pn(Pseries(0, 2, 12), inf));
+// ~setRate.source = (Pseq([1], inf));//PSeq(3, inf);
+// ~bassDegrees = PatternProxy(Pn(Pseries(0, 2, 12), inf));
 
-//feed rate, amp, etc into samples have button to adjust or lock settings for each insturment
-//create osc defs for amp and rate
-~testes.stop;
-~bass.stop;
-~setRate.free;
-~testesamp = PatternProxy(Pn(Pseq([1], inf),inf));
-~testesamp.source = (Pseq([0.7], inf));
-~setRate = PatternProxy(Pn(Pseries(0, 2, 12), inf));
-~setRate.source = (Pseq([1], inf));//PSeq(3, inf);
-~bassDegrees = PatternProxy(Pn(Pseries(0, 2, 12), inf));
-
-//initiatize amp and rate holders
-(
-~bassAmp = PatternProxy(Pseq([0.5], inf));
-~congaAmp = PatternProxy(Pseq([0.5], inf));
-~hihatAmp = PatternProxy(Pseq([0.5], inf));
-~kickAmp = PatternProxy(Pseq([0.5], inf));
-~fluteAmp = PatternProxy(Pseq([0.5], inf));
-~snareAmp = PatternProxy(Pseq([0.5], inf));
-~synth1Amp = PatternProxy(Pseq([0.5], inf));
-~synth2Amp = PatternProxy(Pseq([0.5], inf));
-
-~bassRate = PatternProxy(Pseq([1], inf));
-~congaRate = PatternProxy(Pseq([1], inf));
-~hihatRate = PatternProxy(Pseq([1], inf));
-~kickRate = PatternProxy(Pseq([1], inf));
-~fluteRate = PatternProxy(Pseq([1], inf));
-~snareRate = PatternProxy(Pseq([1], inf));
-~synth1Rate = PatternProxy(Pseq([1], inf));
-~synth2Rate= PatternProxy(Pseq([1], inf));
-)

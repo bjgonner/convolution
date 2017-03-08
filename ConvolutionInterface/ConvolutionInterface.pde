@@ -25,7 +25,7 @@ int BAUD = 1843200; // baud rate of the serial device
 String HOST = "127.0.0.1";
 int PORT = 57120;
 float cnt = 0;
-
+int DRUM_MACHINE = 2;
 int LEAD = 1;
 int SEQUENCER = 0;
 int root = 0;
@@ -272,8 +272,10 @@ void draw() {
     updateRootText();
     sendRoot();
   }
-    
-  if(arduino.enc1Mode == LEAD){
+  if(arduino.enc1Mode == DRUM_MACHINE){
+    dmMode();
+  }
+  else if(arduino.enc1Mode == LEAD){
     leadMode();
   }else if(arduino.enc1Mode == SEQUENCER){
     seqMode();

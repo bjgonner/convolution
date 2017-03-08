@@ -1,10 +1,3 @@
-//Synth def examples for Convolution
-
-//just for testing
-
-
-
-
 (
 SynthDef(\beeu, { |freq = 1000|
 	var sig, env;
@@ -69,8 +62,3 @@ Out.ar(0,filter)
 
 }).add;
 )
-
-// x =Synth(\funSynth, [pitch:50.rrand(600)]);
-// x =Synth(\beeu, [freq:50.rrand(6000)]);
-// //x =Synth(\Moog, [freq:200.rrand(800), gate:1]);
-// x.free;

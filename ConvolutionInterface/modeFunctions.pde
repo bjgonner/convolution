@@ -1,3 +1,6 @@
+void seqMode(){
+}
+
 void leadMode(){
  background(0);
     fill(255,0,255);
@@ -15,7 +18,7 @@ void leadMode(){
   
 }
 
-void seqMode(){
+void dmMode(){
   cp5.get(Textlabel.class, "bpm").setVisible(true);
   cp5.get(Textlabel.class, "current").setVisible(true);
   cp5.get(Group.class, "Effects Controls").setVisible(true);

@@ -27,19 +27,43 @@ d.add(\h ->
 		Buffer.read(s, sf.fullPath);
 	});
 );
-)
-d[\m].choose;
 
-(
+
+
+
 SynthDef.new(\bufplay, {
-	arg buf=0, rate=1, loop=0, t_trig = 1, amp=1, da=2;
-	var sig;
-	sig = PlayBuf.ar(1, buf, BufRateScale.ir(buf) * rate, loop: loop, doneAction:da);
+	arg buf=0, rate= 1, loop=0, t_trig = 1, amp=1, da=2, sPos=0;
+	var sig, startFrame=0;
+	sig = PlayBuf.ar(1, buf, BufRateScale.kr(buf) * rate, startPos: sPos, loop: loop, doneAction:da);
 	sig = sig * amp;
 	Out.ar(0, sig!2);
 }).add;
-)
 
-y =Synth.new(\bufplay, [\buf, d[\m].choose.bufnum, \rate, 2]);
-y.free;
-y.set(\rate, 0.25);
+// (-1 < 0).postln;
+// ~tested = -0.5;
+// if(~tested < 0, {~posed1 = BufFrames.kr(d[\m][1].bufnum)-2}, {~posed1 = 0});
+// ~posed1.postln;
+// ~posed.value = 0;
+// y =Synth.new(\bufplay, [\buf, d[\m][1].bufnum, \rate, 1 ]);
+// y.free;
+// y.set(\rate, 0.25);
+//
+// b = Buffer.read(s, Platform.resourceDir +/+ "sounds/a11wlk01.wav");
+//
+// (
+// x = { arg rate= -0.5;
+// 	BufRd.ar( 1, d[\m][1].bufnum, Phasor.ar(0, BufRateScale.kr(d[\m][1].bufnum) * rate, 0, BufFrames.kr(d[\m][1].bufnum)))
+// }.play;
+// )
+// x.free
+
+
+ SynthDef(\playBufTest, {| out = 0, bufnum = 0, rate = 1 |
+  var scaledRate, player, duration, env;
+  scaledRate = rate * BufRateScale.kr(bufnum);
+	duration = BufDur.kr(bufnum);
+	env = Env([0,1], [0.5]);
+	player = PlayBuf.ar(1, bufnum, scaledRate, startPos: 0)*EnvGen.kr(env, doneAction: 2);
+  Out.ar(out, player)
+ }).play(s, [\out, 0, \bufnum, d[\m][0].bufnum, \rate, -0.1]);
+)
