@@ -7,16 +7,6 @@
 */
 
 class StepSequencer {
-  
-  /*
-  *A constant that defines the screen size in the X (horizontal) direction.
-  */
-// private static final int SCREEN_SIZE_X = 800;
-
-  /*
-  *A constant that defines the screen size in the Y (vertical) direction.
-  */
- //private static final int SCREEN_SIZE_Y = 480;
 
   /**
   *Defines the name of the Matrix that controls the Step Sequencer.
@@ -126,6 +116,11 @@ class StepSequencer {
 */
  private int lastXRootNotes;
  
+ /**
+ *Keeps track of which row the user is highlighting with keys.
+ */
+ private int highlightedRow;
+ 
  private IntList selectedRootNotes = new IntList();
  
  private IntList lastSelectedRootNotes = new IntList();
@@ -190,13 +185,9 @@ public StepSequencer(String _matrixName, int _xSteps, int _yNotes, int _posMatri
       
     posButton_X = _posButton_X;
     posButton_Y = _posButton_Y;
+    
+    highlightedRow = 0;
       
-      
-      //New Bug  FOUND ===============================================================================================================================
-      //==============================================================================================================================================
-      //For Some reason the error Zone (accounted for below) shows up on the 3 step setting. This could be because that is the only odd-numbered setting.
-      //==============================================================================================================================================
-      //==============================================================================================================================================
       
       
   //  I've added this as a safety net to avoid creating a matrix with an error zone on the side.
@@ -308,6 +299,8 @@ public StepSequencer(String _matrixName){
   posButton_Y = 385;
     
   xRootNotes = 4;
+  
+  highlightedRow = 0;
   
   sequencerButtons = cp5.addMatrix(matrixName)
     .setPosition(posMatrix_X,posMatrix_Y)
@@ -478,15 +471,15 @@ public StepSequencer(String _matrixName){
     }
   }
   );
-}    
+}   
+
+
   /**
   *Changes the number of (horizontal) rows in the Matrix based on the setting of the slider.
   */
-  
-  
 private void selectKeys(int button){
   OscMessage keyMessage = new OscMessage("/keySel");
-  keyMessage.add(button - 1);
+  keyMessage.add(button);
   osc.send(keyMessage, address);
   println("I sent a message " + (button));
 }
@@ -552,6 +545,56 @@ void randomize(){
   }
 }
 
+/**
+*Allows keyPresses to activate cells in the matrix.
+*/
+void keysPressed(){
+  if(key == '=' || key == '+')highlightedRow ++;
+  if(!root_notes.getBooleanValue())highlightedRow = highlightedRow % xSteps;
+  else highlightedRow = highlightedRow % xRootNotes;
+  if (key == '-' || key == '_')highlightedRow --;
+  if(!root_notes.getBooleanValue() && highlightedRow < 0) highlightedRow = xSteps - 1;
+  else if (root_notes.getBooleanValue() && highlightedRow < 0) highlightedRow = xRootNotes - 1;
+
+
+  if (key == '1'){
+    clearRow(highlightedRow);
+    sequencerButtons.set(highlightedRow, yNotes - 1, !sequencerButtons.get(highlightedRow, yNotes - 1));
+  }
+  else if (key == '2'){
+    clearRow(highlightedRow);
+    sequencerButtons.set(highlightedRow, yNotes - 2, !sequencerButtons.get(highlightedRow, yNotes - 2));
+  }
+  else if (key == '3'){
+    clearRow(highlightedRow);
+    sequencerButtons.set(highlightedRow, yNotes - 3, !sequencerButtons.get(highlightedRow, yNotes - 3));
+  }
+  else if (key == '4'){
+    clearRow(highlightedRow);
+    sequencerButtons.set(highlightedRow, yNotes - 4, !sequencerButtons.get(highlightedRow, yNotes - 4));
+  }
+  else if (key == '5'){
+    clearRow(highlightedRow);
+    sequencerButtons.set(highlightedRow, yNotes - 5, !sequencerButtons.get(highlightedRow, yNotes - 5));
+  }
+  else if (key == '6'){
+    clearRow(highlightedRow);
+    sequencerButtons.set(highlightedRow, yNotes - 6, !sequencerButtons.get(highlightedRow, yNotes - 6));
+  }
+  else if (key == '7'){
+    clearRow(highlightedRow);
+    sequencerButtons.set(highlightedRow, yNotes - 7, !sequencerButtons.get(highlightedRow, yNotes - 7));
+  }
+  else if (key == '8'){
+    clearRow(highlightedRow);
+    sequencerButtons.set(highlightedRow, yNotes - 8, !sequencerButtons.get(highlightedRow, yNotes - 8));
+  }
+  else if (key == '9'){
+    clearRow(highlightedRow);
+    sequencerButtons.set(highlightedRow, yNotes - 9, !sequencerButtons.get(highlightedRow, yNotes - 9));
+  }
+}
+
 private void saveActiveCells(){
   int k;
   if(!root_notes.getBooleanValue()){
@@ -581,6 +624,12 @@ private void saveActiveCells(){
       }
       if (k == 0) selectedRootNotes.append(-1);
     }
+  }
+}
+
+private void clearRow(int row){
+  for (int i = 0; i < yNotes; i ++){
+    sequencerButtons.set(row,i,false);
   }
 }
 
@@ -712,7 +761,6 @@ void sendMatrixOsc(){
      else counts = (cnt / xSteps) % (xRootNotes - 1);
 
      
-     
      int stepper;
      if(!root_notes.getBooleanValue()) stepper = xSteps;
      else stepper = xRootNotes;
@@ -724,6 +772,11 @@ void sendMatrixOsc(){
      rect(posMatrix_X + spacing, posMatrix_Y - 20, matrixWidth/(stepper), 20); 
     
  //   cp5.getController("current").setPosition(0,(height-mHeight-25)+(25*listIndex)+10);
+ 
+      float buttonSpacing = ((matrixWidth/stepper)*(highlightedRow)) - 1;
+      rectMode(CORNER);
+      fill(225, 225, 0);
+      rect(posMatrix_X + buttonSpacing, posMatrix_Y + sizeMatrix_Y + 20, matrixWidth/(stepper), 20);
    }
    
    

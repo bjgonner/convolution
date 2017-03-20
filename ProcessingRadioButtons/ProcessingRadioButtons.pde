@@ -62,3 +62,7 @@ void draw(){
    if(cnt%musicMaker.xSteps == musicMaker.xSteps - 1) musicMaker.sendMatrixOsc();
    println(cnt%16);
 }
+
+void keyPressed(){
+musicMaker.keysPressed();
+}
