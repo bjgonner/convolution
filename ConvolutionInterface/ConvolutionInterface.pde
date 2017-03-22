@@ -40,8 +40,12 @@ Matricks seq;
 //--------Interface---------------
 import controlP5.*;
 import java.util.*;
+
 EnvShaper sup;
 ControlP5 cp5;
+
+StepSequencer musicMaker;
+
 Instrument bass;
 Instrument[] insts;
 EffectsGroup efg;
@@ -84,6 +88,13 @@ String[] funcs = {"setAtk",
                   
 int listIndex = 5;
 int lastListIndex = 4;
+
+//Input mode defaults and total for control via keyboard input.  
+int theMode = 0;
+int lastMode = 0;
+int tModes = 3;
+
+//
 int mode = 1;  //sequencer mode
 int bpm = 30;
 boolean mFlag = true;
@@ -130,6 +141,7 @@ void setup() {
   //==============================================
   
   sup = new EnvShaper(5,425,15,350,233, 20);
+   
   String instText = join(instNames, "\n");
   String dynText = "Insturment: " + instNames[0];
   cp5 = new ControlP5(this);
@@ -142,7 +154,7 @@ void setup() {
   //check about changing matrix buttons from toggles
   // Matricks(String _matrixName, int _nx, int _ny, int _mWidth, int _mHeight, String[] _instNames){
     seq = new Matricks("seq", nx, ny, mWidth, mHeight, instNames, 125);
-    
+   musicMaker = new StepSequencer("MatrixMusic"); 
     int tWidth = 100; 
     cp5.addTextlabel("label")
       .setText(instText)
@@ -206,31 +218,31 @@ void setup() {
       .setLineHeight(0)
       .setVisible(true)
       ;
-      String[] toggles = {"Adjust_Lock","Mute_All", "Mute_Instrument"};
-    String[] buttons = {"Randomize", "Clear_Instrument", "Clear_Matrix"};
-      for(int i = 0; i < toggles.length; i++){ 
-      cp5.addToggle( toggles[i])
+      String[] toggleNames = {"Adjust_Lock","Mute_All", "Mute_Instrument"};
+    String[] buttonNames = {"Randomize", "Clear_Instrument", "Clear_Matrix"};
+      for(int i = 0; i < toggleNames.length; i++){ 
+      cp5.addToggle( toggleNames[i])
        
        //.setValue( 0.1 )
-       .setLabel(toggles[i])
-       .setPosition(430, 5+i*45)
+       .setLabel(toggleNames[i])
+       .setPosition(0, 5+i*45)
        .setSize(150, 30)
        
        ;
-       cp5.getController(toggles[i]).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0); //getValueLabel().alignX(ControlP5.CENTER);
+       cp5.getController(toggleNames[i]).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0); //getValueLabel().alignX(ControlP5.CENTER);
       // cp5.getController(toggles[i]).getValueLabel().alignY(ControlP5.CENTER);
   
       }
-      for(int i = 0; i < buttons.length; i++){ 
-      cp5.addButton( buttons[i])
+      for(int i = 0; i < buttonNames.length; i++){ 
+      cp5.addButton( buttonNames[i])
        
        //.setValue( 0.1 )
-       .setLabel(buttons[i])
-       .setPosition(430, (toggles.length)*45 + i*45)
+       .setLabel(buttonNames[i])
+       .setPosition(0, (toggleNames.length)*45 + i*45)
        .setSize(150, 30)
        
        ;
-       cp5.getController(buttons[i]).getValueLabel().alignX(ControlP5.CENTER);
+       cp5.getController(buttonNames[i]).getValueLabel().alignX(ControlP5.CENTER);
   
       }
       
@@ -261,7 +273,7 @@ void setup() {
  // efg = new EffectsGroup("test", sliderNames, 100,100,500, 300);
  // efg.setupSliders();
 // String[] buttons = {"Mute", "Adjust/Lock", "Clear Insturment", "Clear Matrix", "Save"};
- bs = new ButtonGroup("Controls", buttons, 430, 5, 300,300);
+ bs = new ButtonGroup("Controls", buttonNames, 430, 5, 300,300);
 }
 
 
@@ -272,13 +284,18 @@ void draw() {
     updateRootText();
     sendRoot();
   }
-  if(arduino.enc1Mode == DRUM_MACHINE){
+  if(arduino.enc1Mode == SEQUENCER || theMode == SEQUENCER){
     dmMode();
+    
   }
-  else if(arduino.enc1Mode == LEAD){
+  else if(arduino.enc1Mode == LEAD || theMode == LEAD){
     leadMode();
-  }else if(arduino.enc1Mode == SEQUENCER){
+     
+  }
+  else if(arduino.enc1Mode == DRUM_MACHINE || theMode == DRUM_MACHINE){
     seqMode();
+    
+  
   }else{
     cp5.getController("seq").setVisible(false);
     cp5.get(Group.class, "Effects Controls").setVisible(false);
@@ -682,6 +699,7 @@ void oscEvent(OscMessage msg)
   }
  // println(msg.arguments()[0]);
   if(cnt == 31) seq.sendMatrixOsc();
+   if(cnt%musicMaker.xSteps == musicMaker.xSteps - 1) musicMaker.sendMatrixOsc();
   //println(cnt);
   
   

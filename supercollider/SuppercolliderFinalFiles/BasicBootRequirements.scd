@@ -1,30 +1,32 @@
-s.boot;
-s.reboot
+
+/*To Start Convolution audio server: 1) move cursor into code block below and hit cmd+enter in osx cntl + enter in windows
+*/
 (
 s.startAliveThread;
 ServerBoot.add { s.initTree };
+s.boot;
 )
-
+//extras PlotTree shows how many instances of each synth are playing.  Good for debugging
+//meter shows levels for inputs and outputs
 s.plotTree;
 s.meter(2,8);
 
-x = {SinOsc.ar(440)}.play
-x.free;
-s.killAll
-s.quit
+/* Setp 2: execute this block of code.  This loads the three required .scd files */
 (
-var foo = "defsTest.scd";
-var bar  = "defsTest2.scd";
-var files = #["defsTest.scd", "defsTest2.scd"];
+
+var files = #["SynthDefs.scd", "DrumMachine.scd", "OSCdefsTempoBuffer.scd"];
 Server.default.waitForBoot {
         var dir = thisProcess.nowExecutingPath.dirname;
 	files.do { |f| (dir +/+ f).load; s.sync; };
 }
 )
 
-	thisProcess.nowExecutingPath.dirname.postln;
+/*Step 3: Run the ConvolutionInterface.pde file in processing to open the interace*/
 
-x =Synth(\funSynth, [pitch:50.rrand(600)]);
-x =Synth(\beeu, [freq:50.rrand(6000)]);
-x =Synth(\Moog, [freq:200.rrand(800), gate:1]);
+//If things go haywire either reboot or quit.
+s.reboot;
+s.quit;
+
+//test play a sound if drum machine does not start
+x = {SinOsc.ar(440)}.play
 x.free;

@@ -11,9 +11,14 @@ class Matricks {
   Timer time;
   int mHeight;
   int mWidth;
-  String[] buttons = {"Mute", "Adjust/Lock", "Clear Insturment", "Clear Matrix", "Save"};
+ // String[] buttons = {"Mute", "Adjust/Lock", "Clear Insturment", "Clear Matrix", "Save"};
   ButtonGroup b;
   
+  
+   String[] toggleNames = {"Adjust_Lock1","Mute_All1", "Mute_Instrument1"};
+    String[] buttonNames = {"Randomize1", "Clear_Instrument1", "Clear_Matrix1"};
+     Toggle[] toggles = new Toggle[toggleNames.length]; 
+    Button[] buttons = new Button[buttonNames.length]; 
   
  Matricks(String _matrixName, int _nx, int _ny, int _mWidth, int _mHeight, String[] _instNames, int _interval){
    //make numSteps variable from 16 -128 while only displaying 32 steps
@@ -35,6 +40,33 @@ class Matricks {
      .stop()
      ;
      
+     for(int i = 0; i < toggleNames.length; i++){ 
+     toggles[i] = cp5.addToggle( toggleNames[i])
+       
+       //.setValue( 0.1 )
+       .setLabel(toggleNames[i])
+       .setPosition(430, 5+i*45)
+       .setSize(150, 30)
+       
+       ;
+       cp5.getController(toggleNames[i]).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0); //getValueLabel().alignX(ControlP5.CENTER);
+      // cp5.getController(toggles[i]).getValueLabel().alignY(ControlP5.CENTER);
+  
+      }
+      for(int i = 0; i < buttonNames.length; i++){ 
+       buttons[i] =  cp5.addButton( buttonNames[i])
+       
+       //.setValue( 0.1 )
+       .setLabel(buttonNames[i])
+       .setPosition(430, (toggleNames.length)*45 + i*45)
+       .setSize(150, 30)
+       
+       ;
+       cp5.getController(buttonNames[i]).getValueLabel().alignX(ControlP5.CENTER);
+  
+      }
+      
+     
      instVals = new boolean[numInsts][numSteps];
      for(int i = 0; i < numInsts;  i++){
       for( int j = 0; j < numSteps; j++){
@@ -44,9 +76,17 @@ class Matricks {
      instNames = _instNames;
      
      time = new Timer(interval*(numSteps+1)-1);
+     
+     
      //String _gName, String[] _names, float _gX, float _gY, int _w, int _h
-     b = new ButtonGroup("Controls", buttons, 5, 5, width/2,10);
+  //   b = new ButtonGroup("Controls", buttons, 5, 5, width/2,10);
  }
+ 
+ void setVisibility(boolean vis){
+   for (int i = 0; i < toggles.length; i++) toggles[i].setVisible(vis);
+   for (int i = 0; i < buttons.length; i++) buttons[i].setVisible(vis);
+ }
+ 
  void clearMatrix(){
    cp5.get(Matrix.class, matrixName).clear();
  }

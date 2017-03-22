@@ -1,9 +1,22 @@
 void seqMode(){
+  background(0);
+  fill(255,0,255);
+  musicMaker.setVisibility(true);
+  musicMaker.stepCount(cp5.get(Slider.class, "stepCount").getValue());
+  musicMaker.drawExtras();
+  seq.setVisibility(false);
+  cp5.getController("seq").setVisible(false);
+    cp5.get(Textlabel.class, "bpm").setVisible(false);
+    cp5.get(Textlabel.class, "current").setVisible(false);
+    cp5.get(Group.class, "Effects Controls").setVisible(false);
+    cp5.get(Group.class, "Global Controls").setVisible(false);
 }
 
 void leadMode(){
  background(0);
     fill(255,0,255);
+    musicMaker.setVisibility(false);
+    seq.setVisibility(false);
     cp5.getController("seq").setVisible(false);
     cp5.get(Textlabel.class, "bpm").setVisible(false);
     cp5.get(Textlabel.class, "current").setVisible(false);
@@ -19,6 +32,8 @@ void leadMode(){
 }
 
 void dmMode(){
+  musicMaker.setVisibility(false);
+  seq.setVisibility(true);
   cp5.get(Textlabel.class, "bpm").setVisible(true);
   cp5.get(Textlabel.class, "current").setVisible(true);
   cp5.get(Group.class, "Effects Controls").setVisible(true);

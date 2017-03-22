@@ -4,8 +4,10 @@
 
 (
 var filePath;
-filePath = PathName("/Users/astewart/Google\ Drive/2016_Fall/Convolution/InterfaceCode/supercollider/sounds/SplitSounds");
-
+//move sounds to suppercollider
+//filePath = PathName("/Users/astewart/Google\ Drive/2016_Fall/Convolution/InterfaceCode/supercollider/sounds/SplitSounds");
+filePath = PathName(thisProcess.nowExecutingPath.dirname);
+filePath = PathName(filePath.pathOnly +/+ "sounds/SplitSounds");
 d=Dictionary.new;
 d.add(\l ->
 	PathName(filePath.fullPath +/+ "/low").entries.collect({
