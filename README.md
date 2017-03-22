@@ -14,7 +14,7 @@ How To Run in current state:
 5) Follow the instructions in the comments to boot the server and load the required files.  The drum machine should begin playing an obnoxoius repetitive beat if it is working.
 6) Open Processing and open the ConvolutionInterface.pde file and run it.  
 
-Once the matrix has played through once the drum machine should go silent.  Now you can turn on and off different instruments.  The up and down arrow allow you to switch instuments and then use the last two sliders to control amplitude and playback rate.  The others are not connected to controls on the synth server yet.  The left and right arrows allow you to change from drum machine to step sequencer to lead synth, though lead synth needs the physical interface to work.  Also, occasionally you cannot click on any buttons until you cycle through the modes at least once more.  
+Once the matrix has played through once the drum machine should go silent.  Now you can turn on and off different instruments.  The up and down arrow allow you to switch instruments and then use the last two sliders to control amplitude and playback rate.  The others are not connected to controls on the synth server yet.  The left and right arrows allow you to change from drum machine to step sequencer to lead synth, though lead synth needs the physical interface to work.  Also, occasionally you cannot click on any buttons until you cycle through the modes at least once more.  
 
 
 
