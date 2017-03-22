@@ -1,5 +1,5 @@
 
-/*To Start Convolution audio server: 1) move cursor into code block below and hit cmd+enter in osx cntl + enter in windows
+/*To Start Convolution audio server: 1) move cursor into code block below and hit cmd+enter in osx ctrl + enter in windows
 */
 (
 s.startAliveThread;
@@ -23,7 +23,7 @@ Server.default.waitForBoot {
 
 /*Step 3: Run the ConvolutionInterface.pde file in processing to open the interace*/
 
-//If things go haywire either reboot or quit.
+//If things go haywire either reboot or quit server.  You also may need to reboot the Interpreter via Language-> Reboot Interpreter
 s.reboot;
 s.quit;
 
