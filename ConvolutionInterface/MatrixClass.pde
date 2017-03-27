@@ -126,7 +126,7 @@ class Matricks {
  void drawExtras(){
     rectMode(CENTER);
     fill(255,0,255);
-    float spacing  = width/numSteps*(cnt+1);
+    float spacing  = width/numSteps*(cnt%numSteps+1);
     rect(spacing-(width/numSteps)/2,height-mHeight-(gap), width/numSteps-gap*2, 20); 
     rectMode(CORNER); 
     

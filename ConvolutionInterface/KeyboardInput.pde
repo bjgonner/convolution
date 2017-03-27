@@ -1,43 +1,5 @@
 void keyPressed() {
-  if (key=='1') {
-    cp5.get(Matrix.class, "myMatrix").set(0, 0, true);
-    cp5.getGroup("Effects Controls").setVisible(true);
-    sup.opacity = 255;
-  } 
-  else if (key=='2') {
-    cp5.get(Matrix.class, "myMatrix").set(0, 1, true);
-  }  
-  else if (key=='3') {
-   // cp5.get(Matrix.class, "myMatrix").trigger(0);
-  }
-  else if (key=='p') {
-    if (cp5.get(Matrix.class, "myMatrix").isPlaying()) {
-      cp5.get(Matrix.class, "myMatrix").pause();
-    } 
-    else {
-      cp5.get(Matrix.class, "myMatrix").play();
-    }
-  }  
-  else if (key=='0') {
-    cp5.get(Matrix.class, "myMatrix").clear();
-    cp5.getGroup("Effects Controls").setVisible(false);
-    sup.opacity = 0;
-  }
-   else if (key=='7') {
-     mFlag = !mFlag;
-    cp5.get(Matrix.class, "myMatrix").setVisible(mFlag);
-  }
-  else if (key=='8') {
-     instDisplay = true;
-    cp5.get(Textlabel.class, "label").setVisible(instDisplay);
-    instDsplyTime.reset();
-  }
-  else if (key=='8') {
-     instDisplay = true;
-    cp5.get(Textlabel.class, "label").setVisible(instDisplay);
-    instDsplyTime.reset();
-    
-  }
+  musicMaker.keysPressed();
   //cannot use left/right without error!
   if(key == CODED){
     lastMode = theMode;

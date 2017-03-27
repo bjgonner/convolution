@@ -9,7 +9,7 @@ void oscEvent(OscMessage msg)
     //printArray(outMsg.arguments());
   }
  // println(msg.arguments()[0]);
-  if(cnt == 31) seq.sendMatrixOsc();
+  if(cnt%seq.numSteps == 0) seq.sendMatrixOsc();
    if(cnt%musicMaker.xSteps == musicMaker.xSteps - 1) musicMaker.sendMatrixOsc();
   //println(cnt);
 }

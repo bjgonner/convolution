@@ -703,7 +703,7 @@ void sendMatrixOsc(){
    void drawExtras(){
      float counts;
      if(!root_notes.getBooleanValue()) counts = cnt % xSteps;
-     else counts = (cnt / xSteps) % (xRootNotes - 1);
+     else counts = (cnt / xSteps) % (xRootNotes + 1);
      
      int stepper;
      if(!root_notes.getBooleanValue()) stepper = xSteps;
