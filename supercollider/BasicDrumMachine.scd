@@ -103,3 +103,5 @@ Pdef(\machine,
 );
 ).stop;
 )
+
+d[\m][3].bufnum

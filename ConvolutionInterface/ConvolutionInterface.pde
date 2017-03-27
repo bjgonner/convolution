@@ -25,7 +25,7 @@ int BAUD = 1843200; // baud rate of the serial device
 String HOST = "127.0.0.1";
 int PORT = 57120;
 float cnt = 0;
-
+int DRUM_MACHINE = 2;
 int LEAD = 1;
 int SEQUENCER = 0;
 int root = 0;
@@ -40,8 +40,12 @@ Matricks seq;
 //--------Interface---------------
 import controlP5.*;
 import java.util.*;
+
 EnvShaper sup;
 ControlP5 cp5;
+
+StepSequencer musicMaker;
+
 Instrument bass;
 Instrument[] insts;
 EffectsGroup efg;
@@ -84,6 +88,13 @@ String[] funcs = {"setAtk",
                   
 int listIndex = 5;
 int lastListIndex = 4;
+
+//Input mode defaults and total for control via keyboard input.  
+int theMode = 0;
+int lastMode = 0;
+int tModes = 3;
+
+//
 int mode = 1;  //sequencer mode
 int bpm = 30;
 boolean mFlag = true;
@@ -99,12 +110,23 @@ int mHeight = ny*padSize + ny*gap;
 int gWidth = (800-64)/32;//32*20+32*2; //int(700/float(nx));
 int gHeight = 8*23 + 8*2;
 
+boolean Clear_Matrix;
+
+String[] scales;
+int scaleIndex = 0;
+int lastScaleIndex = 0;
 JSONObject json;
+ButtonGroup bs;
+
 //================================================
 //========Setup=================================
 void setup() {
   size(800, 480, P2D);
   frameRate(30);
+  
+  String[] scalesFile = loadStrings("scales.txt");
+  scales = split(scalesFile[0], ",");
+  
   //smooth(2);
     debounce = new Timer[4];
   for(int i = 0; i < debounce.length; i++) debounce[i] = new Timer(500);
@@ -119,6 +141,7 @@ void setup() {
   //==============================================
   
   sup = new EnvShaper(5,425,15,350,233, 20);
+   
   String instText = join(instNames, "\n");
   String dynText = "Insturment: " + instNames[0];
   cp5 = new ControlP5(this);
@@ -131,7 +154,7 @@ void setup() {
   //check about changing matrix buttons from toggles
   // Matricks(String _matrixName, int _nx, int _ny, int _mWidth, int _mHeight, String[] _instNames){
     seq = new Matricks("seq", nx, ny, mWidth, mHeight, instNames, 125);
-
+   musicMaker = new StepSequencer("MatrixMusic"); 
     int tWidth = 100; 
     cp5.addTextlabel("label")
       .setText(instText)
@@ -174,6 +197,55 @@ void setup() {
       .setVisible(false)
       ;
       
+   cp5.addTextlabel("inputMode")
+      .setText("InputMode: " + arduino.getMode(1))
+      .setPosition(width-300, 155)
+      .setSize(tWidth,5)
+      .setColorValue(0xffff00ff)
+      .setFont(createFont("AvenirNext-DemiBold",20))
+      //.setMultiline(true)
+      .setLineHeight(0)
+      .setVisible(true)
+      ;
+      
+   cp5.addTextlabel("scale")
+      .setText("scale: " + scales[scaleIndex])
+      .setPosition(width-500, 255)
+      .setSize(tWidth,5)
+      .setColorValue(0xffff00ff)
+      .setFont(createFont("AvenirNext-DemiBold",20))
+      //.setMultiline(true)
+      .setLineHeight(0)
+      .setVisible(true)
+      ;
+      String[] toggleNames = {"Adjust_Lock","Mute_All", "Mute_Instrument"};
+    String[] buttonNames = {"Randomize", "Clear_Instrument", "Clear_Matrix"};
+      for(int i = 0; i < toggleNames.length; i++){ 
+      cp5.addToggle( toggleNames[i])
+       
+       //.setValue( 0.1 )
+       .setLabel(toggleNames[i])
+       .setPosition(0, 5+i*45)
+       .setSize(150, 30)
+       
+       ;
+       cp5.getController(toggleNames[i]).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0); //getValueLabel().alignX(ControlP5.CENTER);
+      // cp5.getController(toggles[i]).getValueLabel().alignY(ControlP5.CENTER);
+  
+      }
+      for(int i = 0; i < buttonNames.length; i++){ 
+      cp5.addButton( buttonNames[i])
+       
+       //.setValue( 0.1 )
+       .setLabel(buttonNames[i])
+       .setPosition(0, (toggleNames.length)*45 + i*45)
+       .setSize(150, 30)
+       
+       ;
+       cp5.getController(buttonNames[i]).getValueLabel().alignX(ControlP5.CENTER);
+  
+      }
+      
      //cp5.addKnob("bpm")
      //  .setSize(50, 50)
      //  .setPosition(width-75, 10)
@@ -200,17 +272,30 @@ void setup() {
   setupInstSliders();
  // efg = new EffectsGroup("test", sliderNames, 100,100,500, 300);
  // efg.setupSliders();
+// String[] buttons = {"Mute", "Adjust/Lock", "Clear Insturment", "Clear Matrix", "Save"};
+ bs = new ButtonGroup("Controls", buttonNames, 430, 5, 300,300);
 }
 
 
 void draw() {
+  updateInputMode();
   shiftRoot();
-  if(arduino.encoders[0] != arduino.lastEncode[0]) updateRootText();
+  if(arduino.encoders[0] != arduino.lastEncode[0]){
+    updateRootText();
+    sendRoot();
+  }
+  if(arduino.enc1Mode == SEQUENCER || theMode == SEQUENCER){
+    dmMode();
     
-  if(arduino.enc1Mode == LEAD){
+  }
+  else if(arduino.enc1Mode == LEAD || theMode == LEAD){
     leadMode();
-  }else if(arduino.enc1Mode == SEQUENCER){
+     
+  }
+  else if(arduino.enc1Mode == DRUM_MACHINE || theMode == DRUM_MACHINE){
     seqMode();
+    
+  
   }else{
     cp5.getController("seq").setVisible(false);
     cp5.get(Group.class, "Effects Controls").setVisible(false);
@@ -219,33 +304,96 @@ void draw() {
     background(0);
     fill(255,0,255);
   }
-  updateInsturment();
+  //updateInsturment();
+  sendSlide();
+}
+
+void Clear_Matrix(){
+  seq.clearMatrix();
+}
+
+void Clear_Instrument(){
+  seq.clearInst(listIndex);
+  
+}
+void Adjust_Lock(boolean state){
+  insts[listIndex].lock = state;
+}
+void Randomize(){
+  seq.randomize();
+}
+void Mute_All(boolean state){
+  seq.mute = state;
 }
 void updateRootText(){
    cp5.get(Textlabel.class,"root").setText("Scale Root: " + noteNames[root%12] + (int)arduino.encoders[0]);
+   
+}
+void updateInputMode(){
+  if(arduino.enc2ModeFlg == true){
+   cp5.get(Textlabel.class,"inputMode").setText("InputMode: " + arduino.getMode(1));
+   arduino.enc2ModeFlg = false;
+  }
+   switch(arduino.getMode(1)){
+     case 0:
+     updateInsturment();
+     break;
+     
+     case 1:
+     updateScale();
+     break;
+     
+     default:
+     break;
+   }
 }
 
-void shiftRoot(){
+void updateScale(){
+  if(arduino.encChangeFlag == true){
+    lastScaleIndex = scaleIndex;
+    arduino.encChangeFlag = false;
+    if( arduino.rawEnc2[0] > arduino.rawEnc2[1]){
+       scaleIndex = (scaleIndex+1) % scales.length;
+     }else if(arduino.rawEnc2[0] < arduino.rawEnc2[1]){
+       
+       scaleIndex -= 1;
+       if(scaleIndex < 0) scaleIndex = scales.length-1;
+     }
+     sendScale(scaleIndex);
+    cp5.get(Textlabel.class,"scale").setText("Scale: " + scales[scaleIndex]);
+  }
+}
+
+void sendScale(int scaleNum){
+  OscMessage scaleName = new OscMessage( "/scale" );
+  scaleName.add(scaleNum);
+  osc.send(scaleName, address);
+}
+void sendRoot(){
   OscMessage scaleRoot = new OscMessage( "/root" );
+  scaleRoot.add(12*(int)arduino.encoders[0]+root);
+  osc.send(scaleRoot, address);
+}
+  
+void shiftRoot(){
+  //OscMessage scaleRoot = new OscMessage( "/root" );
   //change scale root note
   //currently holding down produces many ticks add timer
   if(arduino.quadPad[2] == true && debounce[2].isFinished()){
    // arduino.quadPad[2] = false;
    root = (root+1)%noteNames.length;
    
-    scaleRoot.add(root*(int)arduino.encoders[0]);
-    osc.send(scaleRoot, address);
-    //println(root);
+    sendRoot();
     updateRootText();
   }else if(arduino.quadPad[0] == true && debounce[0].isFinished() ){
     //arduino.quadPad[0] = false;
     root--;
     if(root < 0) root = noteNames.length-1;
-    scaleRoot.add(root*(int)arduino.encoders[0]);
-    osc.send(scaleRoot, address);
+    sendRoot();
    // println(root);
     updateRootText();
   }
+    
   
   
 }
@@ -272,68 +420,7 @@ void setBPM(){
   }
 }
 
-void keyPressed() {
-  if (key=='1') {
-    cp5.get(Matrix.class, "myMatrix").set(0, 0, true);
-    cp5.getGroup("Effects Controls").setVisible(true);
-    sup.opacity = 255;
-  } 
-  else if (key=='2') {
-    cp5.get(Matrix.class, "myMatrix").set(0, 1, true);
-  }  
-  else if (key=='3') {
-   // cp5.get(Matrix.class, "myMatrix").trigger(0);
-  }
-  else if (key=='p') {
-    if (cp5.get(Matrix.class, "myMatrix").isPlaying()) {
-      cp5.get(Matrix.class, "myMatrix").pause();
-    } 
-    else {
-      cp5.get(Matrix.class, "myMatrix").play();
-    }
-  }  
-  else if (key=='0') {
-    cp5.get(Matrix.class, "myMatrix").clear();
-    cp5.getGroup("Effects Controls").setVisible(false);
-    sup.opacity = 0;
-  }
-   else if (key=='7') {
-     mFlag = !mFlag;
-    cp5.get(Matrix.class, "myMatrix").setVisible(mFlag);
-  }
-  else if (key=='8') {
-     instDisplay = true;
-    cp5.get(Textlabel.class, "label").setVisible(instDisplay);
-    instDsplyTime.reset();
-  }
-  else if (key=='8') {
-     instDisplay = true;
-    cp5.get(Textlabel.class, "label").setVisible(instDisplay);
-    instDsplyTime.reset();
-    
-  }
-  //cannot use left/right without error!
-  if(key == CODED){
-    lastListIndex = listIndex;
-    if (keyCode == UP) {
-      listIndex -= 1;
-      if(listIndex < 0) listIndex = instNames.length-1;
-    } else if (keyCode == DOWN) {
-     listIndex = (listIndex+1) % instNames.length;
-    }
-//-----------Code to be moved into function called on keyup/down and rotary encoder change
-   cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);  //change inst name display
-   cp5.get(Textlabel.class, "instName2").setText("Instrument: " + instNames[listIndex]);  //change inst name display
-   sup.copyEnvPointsTo(insts[lastListIndex]);  //copy the existing envelop from the shaper to the last insturment
 
-   sup.copyEnvPointsFrom(insts[listIndex]);  //copy the envelop from current instrument to shaper
-   sup.updateVertices();  //update vertices on envelop display
-  
-   unPlugSliders(lastListIndex);  //unplug the effects sliders from the previos instrument
-   plugSliders(listIndex, lastListIndex);  //plug the sliders to the current instrument
-//-------------------------------------------------
-  }
-}
 
 void updateInsturment(){
   if(arduino.encChangeFlag == true){
@@ -363,7 +450,7 @@ void updateInsturment(){
 
 void plugSliders(int active, int last){
  unPlugSliders(last);
-  
+  cp5.get(Toggle.class, "Adjust_Lock").setState(insts[active].lock);
   for(int i=0; i < sliderNames.length; i++){
   cp5.getController(sliderNames[i]).setValue(insts[active].sliderValues[i]); //.setSliderValue(insts[active], funcs[i]);
   cp5.getController(sliderNames[i]).plugTo(insts[active], funcs[i]);
@@ -382,7 +469,7 @@ void setupInstSliders(){
                  .setBarHeight(40)
                  .setBackgroundHeight(200)
                  .setSize(400,220)
-                 .setBackgroundColor(0xff1111ff)
+                 .setBackgroundColor(#585858)
                  //.close()
                  ;
                  
@@ -391,7 +478,7 @@ void setupInstSliders(){
                  .setBarHeight(40)
                  .setBackgroundHeight(200)
                  .setSize(400,220)
-                 .setBackgroundColor(0xff1111ff)
+                 .setBackgroundColor(#585858)
                  ;
                  
   
@@ -437,20 +524,20 @@ void setupInstSliders(){
        ;
        
   cp5.addSlider( "effect1" )
-       .setRange( 0.0, 100.0 )
+       .setRange( 0.0, 1.0 )
        //.plugTo( this, "setEffect1" )
-       .setValue( 50 )
-       .setLabel("Effect1")
+       .setValue( 0.6 )
+       .setLabel("Amp")
        .setPosition(250,10)
        .setSize(50, 180)
        .setGroup(g1)
        ;
        
   cp5.addSlider( "effect2" )
-       .setRange( 0.0, 100.0 )
+       .setRange( 0.0, 10.0 )
        //.plugTo( this, "setEffect2" )
-       .setValue( 50 )
-       .setLabel("Effect2")
+       .setValue( 1.0 )
+       .setLabel("Rate")
        .setPosition(310,10)
        .setSize(50, 180)
        .setGroup(g1)
@@ -557,7 +644,7 @@ void setupInstSliders(){
   plugSliders(listIndex, 0);
 }
 
-void setGlobalEffects(float[] input){
+void setGlobalEffects(float[] input){ //add flag for lock
   for(int i = 0; i < input.length; i++){
     float min = cp5.getController(globalSliders[i]).getMin();
     float max = cp5.getController(globalSliders[i]).getMax();
@@ -585,25 +672,44 @@ void serialEvent(Serial port)
   if (line == null) return;
   String[] vals = splitTokens(line);
   OscMessage msg = new OscMessage(trim(vals[0]));
-  
   for (int i = 1; i < vals.length; i++) {
     float val = float(trim(vals[i]));
   //  print("\t" + val);
     msg.add(val);
   }
+ // if(vals[0].equals("/noteOn") ) println(vals[0] + " : " + vals[2]);
   //println();
-  osc.send(msg, address);
+  if(arduino.enc1Mode == SEQUENCER && (vals[0].equals("/noteOff") || vals[0].equals("/noteOn"))){
+   // println(" no send");
+  }else{
+    osc.send(msg, address);
+  }
   arduino.recordValues(vals);
   
 }
 void oscEvent(OscMessage msg)
 {
   //print("<");
-  if(msg.addrPattern().equals("/tick")) cnt = (float)msg.arguments()[0];
+  //OscMessage outMsg = new OscMessage("/kStates");
+  if(msg.addrPattern().equals("/tick")){
+    cnt = (float)msg.arguments()[0];
+    //outMsg.add(instNames[listIndex]);
+    //outMsg.add(insts[listIndex].sliderValues);
+    //printArray(outMsg.arguments());
+  }
  // println(msg.arguments()[0]);
   if(cnt == 31) seq.sendMatrixOsc();
+   if(cnt%musicMaker.xSteps == musicMaker.xSteps - 1) musicMaker.sendMatrixOsc();
   //println(cnt);
   
+  
+}
+
+void sendSlide(){
+  OscMessage outMsg = new OscMessage("/kStates");
+  outMsg.add(listIndex);
+    outMsg.add(insts[listIndex].sliderValues);
+    osc.send(outMsg, address);
 }
 //void oscEvent(OscMessage msg)
 //{

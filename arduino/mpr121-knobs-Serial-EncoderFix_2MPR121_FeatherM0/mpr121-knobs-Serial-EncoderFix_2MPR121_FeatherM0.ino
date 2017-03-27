@@ -68,11 +68,12 @@ void setup(){
   
   //Serial.begin(9600);
   Wire.begin();
-
+  
+ establishContact();  // send a byte to establish contact until receiver responds
   mpr121_setup(mpr121_A);
   mpr121_setup(mpr121_B);
 
-   // establishContact();  // send a byte to establish contact until receiver responds
+   
    analogReadResolution(12);
 }
 
@@ -133,7 +134,7 @@ void readTouchInputs(int irq, byte addr){
     
     uint16_t touched = ((MSB << 8) | LSB); //16bits that make up the touch states
 
-    if(addr == 0x5B){
+    if(addr == 0x5A){
       for (int i=0; i < 12; i++){  // Check what electrodes were pressed
         if(touched & (1<<i)){
         

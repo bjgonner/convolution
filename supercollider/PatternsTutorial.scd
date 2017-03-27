@@ -37,7 +37,7 @@ p=Pbind(
 
 ).play;
 )
-
+p.stop;
 (
 Pdef(
 	\sinepat,
@@ -164,3 +164,17 @@ s.reboot;
 s.boot;
 
 Server.allRunningServers
+
+(
+var a, b, c;
+a=
+c=Pseq([0,1,2,3]*16, 4, 1);
+b = c.asStream;
+16.do({ b.next.postln; });
+a = Pseq.new([1, Pseq.new([100,200], 2), 3], 3);
+b = a.asStream;
+19.do({ b.next.postln; });
+)
+Array.series(5, [10,11,12], 2).postln;
+
+[1, 2, 3].stutter(16).postln;
