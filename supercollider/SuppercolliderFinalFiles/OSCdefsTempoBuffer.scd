@@ -64,7 +64,7 @@ u = TempoClock(t.tempo*8, 0, v);
 // start two functions at beat zero in each clock.
 // t controls u's tempo. They should stay in sync.
 t.schedAbs(0, { arg beat, sec; /* [\t, beat, sec].postln;*/ 1 });
-u.schedAbs(0, { arg beat, sec; /*["/tick", beat%32, "hrlp","more"].postln;*/b.sendMsg("/tick", beat%32, "hrlp","more");  1 });
+u.schedAbs(0, { arg beat, sec; /*["/tick", beat%32, "hrlp","more"].postln;*/b.sendMsg("/tick", beat, "hrlp","more");  1 });
 
 //here I stopped removing parenthesis
 
