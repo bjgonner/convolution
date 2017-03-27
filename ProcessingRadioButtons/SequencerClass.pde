@@ -478,15 +478,6 @@ void stepCount(float count){
     }
   }
 }
-
-/**
-*Sends a message between 1 and 0 to change the volume of the step sequencer with respect to the other parts.
-*/
-void volume(float count){
-  OscMessage vMessage = new OscMessage("/volume");
-  vMessage.add(count);
-  osc.send(vMessage, address);
-}
   
   /**
   *Randomizes which buttons on the matrix are selected.
@@ -577,30 +568,31 @@ private void saveActiveCells(){
   if(!root_notes.getBooleanValue()){
 //In this case, the matrix is in sequencer mode.
     activeCells.clear();
-    for(int i = 0; i < xSteps; i ++){ //iterates through the matrix, column by column.
+    for(int i = 0; i < xSteps; i ++){
       k = 0;
-      for (int j = 0; j < yNotes; j++){//iterates through the matrix, row, by row.
-        if (sequencerButtons.get(i,j)){ //if it finds an active cell, it increases k to count it
-          k++;                          // and adds the corresponding number to the list.
-          activeCells.append((yNotes - 2) - j); 
+      for (int j = 0; j < yNotes; j++){
+        if (sequencerButtons.get(i,j)){
+          k++;
+          activeCells.append((yNotes - 2) - j);
         }
       }
-      if (k == 0) activeCells.append(-1); //If k = 0, that means no cells are active in this column,
-    }                                     // so, we'll save the number corresponding to the bottom cell to signify a rest.
+      if (k == 0) activeCells.append(-1);
+    }
   }
   else{
 //In this case, the matrix is in root notes mode.
     selectedRootNotes.clear();
     println("xRootNotes: " + xRootNotes);
-    for(int i = 0; i < xRootNotes; i ++){//Iterates through the matrix column by column
+    for(int i = 0; i < xRootNotes; i ++){
       k = 0;
-      for (int j = 0; j < yNotes; j++){ //iterates through the matrix row by row
-        if (sequencerButtons.get(i,j)){ //if it finds an active cell, it increases k to count it
-          k++;                          // and adds the corresponding number to the list.
+      for (int j = 0; j < yNotes; j++){
+        println("i,j: " + i,j);
+        if (sequencerButtons.get(i,j)){
+          k++;
           selectedRootNotes.append((yNotes - 1) - j);
         }
       }
-      if (k == 0) selectedRootNotes.append(-1); //if k = 0, that means no cells are active in this column
+      if (k == 0) selectedRootNotes.append(-1);
     }
   }
 }
@@ -641,52 +633,7 @@ private void saveRecentCells(){
   }
 }
 
- /** Sts the visibility of all ControlP5 elements in the instance */
-void setVisibility(boolean vis){
-  if(vis == true){
-    sequencerButtons.show();
-  
-   keyRadioButton.show();
-   stepCount.show();
-   random.show();
-   mute.show();
-   loop.show();
-   slide_mode.show();
-   root_notes.show();
-   Send.show();
-  }else{
-    
-    
-    sequencerButtons.hide();
-  
-   keyRadioButton.hide();
-   stepCount.hide();
-   random.hide();
-   mute.hide();
-   loop.hide();
-   slide_mode.hide();
-   root_notes.hide();
-   Send.hide();
-    
-    
-  }
-  sequencerButtons.setVisible(vis);
-  
-   keyRadioButton.setVisible(vis);
-   stepCount.setVisible(vis);
-   random.setVisible(vis);
-   mute.setVisible(vis);
-   loop.setVisible(vis);
-   slide_mode.setVisible(vis);
-   root_notes.setVisible(vis);
-   Send.setVisible(vis);
-   if(vis == true){
-     cp5.getController(matrixName).bringToFront();
-      cp5.getController(matrixName).updateInternalEvents(appletRef);
-       loop.updateInternalEvents(appletRef);
-       loop.bringToFront();
-   }
-}
+
   
   /**
   *Iterates through the matrix to make a list of which cell is active in each (vertical) column; Then compares the current active cells list to
@@ -708,6 +655,7 @@ void sendMatrixOsc(){
         }
       }
     }
+    println("k :" +k);
     if (!(k == 0) && !(loop.getBooleanValue())){
       lastActiveCells.clear();
       lastActiveCells = activeCells.copy();
@@ -733,6 +681,7 @@ void sendMatrixOsc(){
         }
       }
     }
+    println("k :" +k);
     if (!(k == 0) && !loop.getBooleanValue()){
       lastSelectedRootNotes.clear();
       lastSelectedRootNotes = selectedRootNotes.copy();
@@ -751,25 +700,25 @@ void sendMatrixOsc(){
   /**
   *Draws a rectangle at the top of the matrix to keep track of which row is being played by the synthesizer.
   */
-void drawExtras(){
-  float counts;
-  if(!root_notes.getBooleanValue()) counts = cnt % xSteps;
-  else counts = (cnt / xSteps) % (xRootNotes - 1);
-  
-  int stepper;
-  if(!root_notes.getBooleanValue()) stepper = xSteps;
-  else stepper = xRootNotes;
-  
-  float matrixWidth = sequencerButtons.getWidth();
-  rectMode(CORNER);
-  fill(255,255,0);
-  float spacing  = ((matrixWidth/stepper)*(counts)) - 1;
-  rect(posMatrix_X + spacing, posMatrix_Y - 20, matrixWidth/(stepper), 20); 
-
-  float buttonSpacing = ((matrixWidth/stepper)*(highlightedRow)) - 1;
-  rectMode(CORNER);
-  fill(175, 215, 40);
-  rect(posMatrix_X + buttonSpacing, posMatrix_Y + sizeMatrix_Y, matrixWidth/(stepper), 20);
-}
+   void drawExtras(){
+     float counts;
+     if(!root_notes.getBooleanValue()) counts = cnt % xSteps;
+     else counts = (cnt / xSteps) % (xRootNotes + 1);
+     
+     int stepper;
+     if(!root_notes.getBooleanValue()) stepper = xSteps;
+     else stepper = xRootNotes;
+     
+     float matrixWidth = sequencerButtons.getWidth();
+     rectMode(CORNER);
+     fill(255,255,0);
+     float spacing  = ((matrixWidth/stepper)*(counts)) - 1;
+     rect(posMatrix_X + spacing, posMatrix_Y - 20, matrixWidth/(stepper), 20); 
+ 
+     float buttonSpacing = ((matrixWidth/stepper)*(highlightedRow)) - 1;
+     rectMode(CORNER);
+     fill(175, 215, 40);
+     rect(posMatrix_X + buttonSpacing, posMatrix_Y + sizeMatrix_Y, matrixWidth/(stepper), 20);
+   }
 
 }
