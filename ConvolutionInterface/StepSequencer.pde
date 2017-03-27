@@ -615,7 +615,35 @@ private void saveRecentCells(){
 }
  /** Sts the visibility of all ControlP5 elements in the instance */
 void setVisibility(boolean vis){
+  if(vis == true){
+    sequencerButtons.show();
+  
+   keyRadioButton.show();
+   stepCount.show();
+   random.show();
+   mute.show();
+   loop.show();
+   slide_mode.show();
+   root_notes.show();
+   Send.show();
+  }else{
+    
+    
+    sequencerButtons.hide();
+  
+   keyRadioButton.hide();
+   stepCount.hide();
+   random.hide();
+   mute.hide();
+   loop.hide();
+   slide_mode.hide();
+   root_notes.hide();
+   Send.hide();
+    
+    
+  }
   sequencerButtons.setVisible(vis);
+  
    keyRadioButton.setVisible(vis);
    stepCount.setVisible(vis);
    random.setVisible(vis);
@@ -624,6 +652,12 @@ void setVisibility(boolean vis){
    slide_mode.setVisible(vis);
    root_notes.setVisible(vis);
    Send.setVisible(vis);
+   if(vis == true){
+     cp5.getController(matrixName).bringToFront();
+      cp5.getController(matrixName).updateInternalEvents(appletRef);
+       loop.updateInternalEvents(appletRef);
+       loop.bringToFront();
+   }
 }
   
   

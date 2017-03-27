@@ -6,10 +6,7 @@ s.startAliveThread;
 ServerBoot.add { s.initTree };
 s.boot;
 )
-//extras PlotTree shows how many instances of each synth are playing.  Good for debugging
-//meter shows levels for inputs and outputs
-s.plotTree;
-s.meter(2,8);
+
 
 /* Setp 2: execute this block of code.  This loads the three required .scd files */
 (
@@ -22,6 +19,12 @@ Server.default.waitForBoot {
 )
 
 /*Step 3: Run the ConvolutionInterface.pde file in processing to open the interace*/
+
+
+//EXTRAS: PlotTree shows how many instances of each synth are playing.  Good for debugging
+//meter shows levels for inputs and outputs
+s.plotTree;
+s.meter(2,8);
 
 //If things go haywire either reboot or quit server.  You also may need to reboot the Interpreter via Language-> Reboot Interpreter
 s.reboot;

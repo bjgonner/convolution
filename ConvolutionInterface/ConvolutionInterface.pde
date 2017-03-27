@@ -16,6 +16,8 @@ import processing.serial.*;
 import netP5.*;
 import oscP5.*;
 
+PApplet appletRef;
+
 // which serial device to use. this is an index into the list
 // of serial devices printed when this program runs. 
 int SERIAL_PORT = 5;
@@ -123,6 +125,8 @@ ButtonGroup bs;
 void setup() {
   size(800, 480, P2D);
   frameRate(30);
+  
+  appletRef = this;
   
   String[] scalesFile = loadStrings("scales.txt");
   scales = split(scalesFile[0], ",");
@@ -297,6 +301,7 @@ void draw() {
     
   
   }else{
+    cp5.getController(musicMaker.matrixName).hide();
     cp5.getController("seq").setVisible(false);
     cp5.get(Group.class, "Effects Controls").setVisible(false);
     cp5.get(Group.class, "Global Controls").setVisible(false);
@@ -698,7 +703,7 @@ void oscEvent(OscMessage msg)
     //printArray(outMsg.arguments());
   }
  // println(msg.arguments()[0]);
-  if(cnt == 31) seq.sendMatrixOsc();
+  if(cnt%32 == 0) seq.sendMatrixOsc();
    if(cnt%musicMaker.xSteps == musicMaker.xSteps - 1) musicMaker.sendMatrixOsc();
   //println(cnt);
   
