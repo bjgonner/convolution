@@ -2,8 +2,6 @@ import netP5.*;
 import oscP5.*;
 
 //Ben Gonner
-//First attempt at controlP5
-//Making Radio buttons to control the scale, and a matrix to match the number of notes in the scale
 
 import controlP5.*;
 import java.util.*;
@@ -48,11 +46,7 @@ void draw(){
   }
   if (cnt%musicMaker.xSteps == 0) clockD = false;
 }
- 
-//void keySelector(int a) {
-//  println("a radio Button event: "+a);
-//  cnt = a;
-//}
+
   
   void oscEvent(OscMessage msg)
  {
