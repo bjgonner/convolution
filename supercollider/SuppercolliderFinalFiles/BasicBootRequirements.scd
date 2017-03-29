@@ -10,7 +10,7 @@ s.boot;
 
 /* Setp 2: execute this block of code.  This loads the three required .scd files */
 (
-
+//note currently need to load testsAndStops.scd by hand first
 var files = #["SynthDefs.scd", "DrumMachine.scd", "OSCdefsTempoBuffer.scd"];
 Server.default.waitForBoot {
         var dir = thisProcess.nowExecutingPath.dirname;

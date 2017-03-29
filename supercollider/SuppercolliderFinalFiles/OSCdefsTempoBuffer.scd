@@ -464,7 +464,7 @@ OSCdef(\synth2, { |msg|
 
 
 ~stepSequenceRoot= Pbind(
-	\instrument, \help_sinegrain,
+	\instrument, \sawpulse,
     \degree, ~stepSeqDegrees,
 	\scale, Pfunc{~scales},
 	\root, ~rootNotesDegrees,
@@ -478,7 +478,7 @@ OSCdef(\synth2, { |msg|
 // ~scales = Scale.yu;
 // Scale.directory
 // ~rootNotesDegrees.postln;
-// ~stepSequenceRoot.stop;
+
 // ~stepSequence.free;
 // ~stepSequence.stop;
 //
