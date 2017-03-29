@@ -15,9 +15,9 @@ class Matricks {
   ButtonGroup b;
   
   
-   String[] toggleNames = {"Adjust_Lock1","Mute_All1", "Mute_Instrument1"};
-    String[] buttonNames = {"Randomize1", "Clear_Instrument1", "Clear_Matrix1"};
-     Toggle[] toggles = new Toggle[toggleNames.length]; 
+   String[] toggleNames = {"Adjust_Lock","Mute_All", "Mute_Instrument"};
+   String[] buttonNames = {"Randomize", "Clear_Instrument", "Clear_Matrix"};
+    Toggle[] toggles = new Toggle[toggleNames.length]; 
     Button[] buttons = new Button[buttonNames.length]; 
   
  Matricks(String _matrixName, int _nx, int _ny, int _mWidth, int _mHeight, String[] _instNames, int _interval){
@@ -83,8 +83,19 @@ class Matricks {
  }
  
  void setVisibility(boolean vis){
-   for (int i = 0; i < toggles.length; i++) toggles[i].setVisible(vis);
-   for (int i = 0; i < buttons.length; i++) buttons[i].setVisible(vis);
+   if(vis==true){
+   for (int i = 0; i < toggles.length; i++) toggles[i].show();
+   for (int i = 0; i < buttons.length; i++) buttons[i].show();
+   cp5.get(Textlabel.class, "bpm").show();
+  cp5.get(Textlabel.class, "current").show();
+  cp5.get(Group.class, "Effects Controls").show();
+   }else{
+     for (int i = 0; i < toggles.length; i++) toggles[i].hide();
+   for (int i = 0; i < buttons.length; i++) buttons[i].hide();
+   cp5.get(Textlabel.class, "bpm").hide();
+  cp5.get(Textlabel.class, "current").hide();
+  cp5.get(Group.class, "Effects Controls").hide();
+   }
  }
  
  void clearMatrix(){

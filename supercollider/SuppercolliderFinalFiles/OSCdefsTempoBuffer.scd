@@ -36,6 +36,7 @@
 ~snareAmp = PatternProxy(Pseq([0.5], inf));
 ~synth1Amp = PatternProxy(Pseq([0.5], inf));
 ~synth2Amp = PatternProxy(Pseq([0.5], inf));
+~seqAmp = PatternProxy(Pseq([1.0]), inf);
 
 ~bassRate = PatternProxy(Pseq([1], inf));
 ~congaRate = PatternProxy(Pseq([1], inf));
@@ -56,6 +57,7 @@ b = NetAddr.new("127.0.0.1", 12001);    // create the NetAddr
 // get elapsed time, round up to next second
 v = Main.elapsedTime.ceil;
 ~mainTempo = 1;  //bpm = num * 60  bpm/60 = num
+
 (1000/125*60).postln;
 // create two clocks, starting at time v.
 t = TempoClock(1, 0, v);
@@ -78,7 +80,14 @@ OSCdef(\getbpm, {|msg|                /*GetBPM listens for BPM message from Proc
 	//msg.postln;
 }, "/bpm");
 
-
+OSCdef(\getSeqAmp, {|msg|                /*GetBPM listens for BPM message from Processing*/
+	   var temp;
+	temp = msg[1];
+	~seqAmp.source =(Pseq([1.0], inf));
+	~testSeqAmp = msg[1];
+	msg.postln;
+	//~seqAmp.source.postln;
+}, "/volume");
 
 OSCdef(\knobStates, {|msg|
 	//msg[1].postln;
@@ -444,12 +453,13 @@ OSCdef(\synth2, { |msg|
 
 
 
-~stepSequence= Pbind(
+/*~stepSequence= Pbind(
 	\instrument, \help_sinegrain,
     \degree, ~stepSeqDegrees,
 	\scale, Pfunc{~scales},
+	\amp, 1.0,
     \dur, 0.125,  //maybe change rythms based on 0.125,0.250,0.5, 0.75, 1?
-).play(t, quant: 1);
+).play(t, quant: 1);*/
 
 
 
@@ -458,9 +468,15 @@ OSCdef(\synth2, { |msg|
     \degree, ~stepSeqDegrees,
 	\scale, Pfunc{~scales},
 	\root, ~rootNotesDegrees,
+	\amp, Pfunc{~testSeqAmp},
     \dur, 0.125,  //maybe change rythms based on 0.125,0.250,0.5, 0.75, 1?
 ).play(t, quant: 1);
 )
+// ~stepSequenceRoot.stop;
+// ~testSeqAmp.postln;
+// ~stepSequence.stop;
+// ~scales = Scale.yu;
+// Scale.directory
 // ~rootNotesDegrees.postln;
 // ~stepSequenceRoot.stop;
 // ~stepSequence.free;

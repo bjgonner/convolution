@@ -485,6 +485,7 @@ void stepCount(float count){
 void volume(float count){
   OscMessage vMessage = new OscMessage("/volume");
   vMessage.add(count);
+  println("sending message");
   osc.send(vMessage, address);
 }
   
@@ -645,7 +646,7 @@ private void saveRecentCells(){
 void setVisibility(boolean vis){
   if(vis == true){
     sequencerButtons.show();
-  
+   volume.show();
    keyRadioButton.show();
    stepCount.show();
    random.show();
@@ -658,7 +659,7 @@ void setVisibility(boolean vis){
     
     
     sequencerButtons.hide();
-  
+   volume.hide();
    keyRadioButton.hide();
    stepCount.hide();
    random.hide();
@@ -670,16 +671,16 @@ void setVisibility(boolean vis){
     
     
   }
-  sequencerButtons.setVisible(vis);
+  //sequencerButtons.setVisible(vis);
   
-   keyRadioButton.setVisible(vis);
-   stepCount.setVisible(vis);
-   random.setVisible(vis);
-   mute.setVisible(vis);
-   loop.setVisible(vis);
-   slide_mode.setVisible(vis);
-   root_notes.setVisible(vis);
-   Send.setVisible(vis);
+  // keyRadioButton.setVisible(vis);
+  // stepCount.setVisible(vis);
+  // random.setVisible(vis);
+  // mute.setVisible(vis);
+  // loop.setVisible(vis);
+  // slide_mode.setVisible(vis);
+  // root_notes.setVisible(vis);
+  // Send.setVisible(vis);
    if(vis == true){
      cp5.getController(matrixName).bringToFront();
       cp5.getController(matrixName).updateInternalEvents(appletRef);

@@ -36,12 +36,10 @@ void dmMode(){
   
   seq.setVisibility(true);
    cp5.getController("seq").show();
-  cp5.getController("seq").bringToFront();
-  cp5.getController("seq").updateInternalEvents(this);
+  //cp5.getController("seq").bringToFront();
+ // cp5.getController("seq").updateInternalEvents(this);
   // cp5.getController(musicMaker.matrixName).bringToFront();
-  cp5.get(Textlabel.class, "bpm").setVisible(true);
-  cp5.get(Textlabel.class, "current").setVisible(true);
-  cp5.get(Group.class, "Effects Controls").setVisible(true);
+  
     cp5.get(Group.class, "Global Controls").setVisible(false);
 
   if(instDisplay){

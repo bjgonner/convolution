@@ -93,7 +93,7 @@ int lastListIndex = 4;
 int theMode = 0;
 int lastMode = 0;
 int tModes = 3;
-
+PApplet appletRef;
 //
 int mode = 1;  //sequencer mode
 int bpm = 30;
@@ -220,33 +220,33 @@ void setup() {
       .setLineHeight(0)
       .setVisible(true)
       ;
-      String[] toggleNames = {"Adjust_Lock","Mute_All", "Mute_Instrument"};
-    String[] buttonNames = {"Randomize", "Clear_Instrument", "Clear_Matrix"};
-      for(int i = 0; i < toggleNames.length; i++){ 
-      cp5.addToggle( toggleNames[i])
+    //String[] toggleNames = {"Adjust_Lock","Mute_All", "Mute_Instrument"};
+    //String[] buttonNames = {"Randomize", "Clear_Instrument", "Clear_Matrix"};
+    //  for(int i = 0; i < toggleNames.length; i++){ 
+    //  cp5.addToggle( toggleNames[i])
        
-       //.setValue( 0.1 )
-       .setLabel(toggleNames[i])
-       .setPosition(0, 5+i*45)
-       .setSize(150, 30)
+    //   //.setValue( 0.1 )
+    //   .setLabel(toggleNames[i])
+    //   .setPosition(0, 5+i*45)
+    //   .setSize(150, 30)
        
-       ;
-       cp5.getController(toggleNames[i]).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0); //getValueLabel().alignX(ControlP5.CENTER);
+    //   ;
+      // cp5.getController(toggleNames[i]).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0); //getValueLabel().alignX(ControlP5.CENTER);
       // cp5.getController(toggles[i]).getValueLabel().alignY(ControlP5.CENTER);
   
-      }
-      for(int i = 0; i < buttonNames.length; i++){ 
-      cp5.addButton( buttonNames[i])
+      //}
+      //for(int i = 0; i < buttonNames.length; i++){ 
+      //cp5.addButton( buttonNames[i])
        
-       //.setValue( 0.1 )
-       .setLabel(buttonNames[i])
-       .setPosition(0, (toggleNames.length)*45 + i*45)
-       .setSize(150, 30)
+      // //.setValue( 0.1 )
+      // .setLabel(buttonNames[i])
+      // .setPosition(0, (toggleNames.length)*45 + i*45)
+      // .setSize(150, 30)
        
-       ;
-       cp5.getController(buttonNames[i]).getValueLabel().alignX(ControlP5.CENTER);
+      // ;
+      // cp5.getController(buttonNames[i]).getValueLabel().alignX(ControlP5.CENTER);
   
-      }
+      //}
       
      //cp5.addKnob("bpm")
      //  .setSize(50, 50)
@@ -275,7 +275,7 @@ void setup() {
  // efg = new EffectsGroup("test", sliderNames, 100,100,500, 300);
  // efg.setupSliders();
 // String[] buttons = {"Mute", "Adjust/Lock", "Clear Insturment", "Clear Matrix", "Save"};
- bs = new ButtonGroup("Controls", buttonNames, 430, 5, 300,300);
+// bs = new ButtonGroup("Controls", buttonNames, 430, 5, 300,300);
 }
 
 
@@ -688,3 +688,13 @@ void sendSlide(){
 //  println();
 //  port.write("\n");
 //}
+
+/**
+*Sends a message between 1 and 0 to change the volume of the step sequencer with respect to the other parts.
+*/
+void volume(float count){
+  OscMessage vMessage = new OscMessage("/volume");
+  vMessage.add(count);
+ 
+  osc.send(vMessage, address);
+}
