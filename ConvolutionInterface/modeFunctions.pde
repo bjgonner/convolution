@@ -6,10 +6,10 @@ void seqMode(){
   musicMaker.drawExtras();
   seq.setVisibility(false);
   cp5.getController("seq").hide();
-    cp5.get(Textlabel.class, "bpm").setVisible(false);
-    cp5.get(Textlabel.class, "current").setVisible(false);
-    cp5.get(Group.class, "Effects Controls").setVisible(false);
-    cp5.get(Group.class, "Global Controls").setVisible(false);
+ cp5.get(Textlabel.class, "bpm").hide();
+    cp5.get(Textlabel.class, "current").hide();
+    cp5.get(Group.class, "Effects Controls").hide();
+    cp5.get(Group.class, "Global Controls").hide();
 }
 
 void leadMode(){
@@ -18,10 +18,10 @@ void leadMode(){
     musicMaker.setVisibility(false);
     seq.setVisibility(false);
     cp5.getController("seq").hide();
-    cp5.get(Textlabel.class, "bpm").setVisible(false);
-    cp5.get(Textlabel.class, "current").setVisible(false);
-    cp5.get(Group.class, "Effects Controls").setVisible(false);
-    cp5.get(Group.class, "Global Controls").setVisible(true);
+    cp5.get(Textlabel.class, "bpm").hide();
+    cp5.get(Textlabel.class, "current").hide();
+    cp5.get(Group.class, "Effects Controls").hide();
+    cp5.get(Group.class, "Global Controls").show();
      sup.updateEnvPoints();
      sup.disp();
     if(arduino.knobFlag){
@@ -40,7 +40,7 @@ void dmMode(){
  // cp5.getController("seq").updateInternalEvents(this);
   // cp5.getController(musicMaker.matrixName).bringToFront();
   
-    cp5.get(Group.class, "Global Controls").setVisible(false);
+    cp5.get(Group.class, "Global Controls").hide();
 
   if(instDisplay){
     if(instDsplyTime.isFinished()){

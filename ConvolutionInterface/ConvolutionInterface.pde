@@ -299,6 +299,7 @@ void draw() {
     
   
   }else{
+    //herein lay the problem
     cp5.getController(musicMaker.matrixName).hide();
     cp5.getController("seq").setVisible(false);
     cp5.get(Group.class, "Effects Controls").setVisible(false);
