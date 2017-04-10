@@ -138,7 +138,7 @@ void setup() {
   osc = new OscP5(this, 12001);
   address = new NetAddress(HOST, PORT);
  // port = new Serial(this, Serial.list()[SERIAL_PORT], BAUD);
-  port = new Serial(this, Serial.list()[0], BAUD);
+  port = new Serial(this, Serial.list()[SERIAL_PORT], BAUD);
   port.bufferUntil('\n');
   //==============================================
   
@@ -286,15 +286,15 @@ void draw() {
     updateRootText();
     sendRoot();
   }
-  if(arduino.enc1Mode == SEQUENCER || theMode == SEQUENCER){
+  if(arduino.enc1Mode == SEQUENCER){// || theMode == SEQUENCER){
     dmMode();
     
   }
-  else if(arduino.enc1Mode == LEAD || theMode == LEAD){
+  else if(arduino.enc1Mode == LEAD){// || theMode == LEAD){
     leadMode();
      
   }
-  else if(arduino.enc1Mode == DRUM_MACHINE || theMode == DRUM_MACHINE){
+  else if(arduino.enc1Mode == DRUM_MACHINE){// || theMode == DRUM_MACHINE){
     seqMode();
     
   
