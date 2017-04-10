@@ -284,15 +284,15 @@ void draw() {
     updateRootText();
     sendRoot();
   }
-  if(arduino.enc1Mode == SEQUENCER || theMode == SEQUENCER){
+  if(arduino.enc1Mode == SEQUENCER){// || theMode == SEQUENCER){
     dmMode();
     
   }
-  else if(arduino.enc1Mode == LEAD || theMode == LEAD){
+  else if(arduino.enc1Mode == LEAD){ // || theMode == LEAD){
     leadMode();
      
   }
-  else if(arduino.enc1Mode == DRUM_MACHINE || theMode == DRUM_MACHINE){
+  else if(arduino.enc1Mode == DRUM_MACHINE){ // || theMode == DRUM_MACHINE){
     seqMode();
     
   
