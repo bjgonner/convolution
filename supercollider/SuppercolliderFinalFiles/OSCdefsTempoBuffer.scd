@@ -471,7 +471,11 @@ OSCdef(\synth2, { |msg|
 	\amp, Pfunc{~testSeqAmp},
     \dur, 0.125,  //maybe change rythms based on 0.125,0.250,0.5, 0.75, 1?
 ).play(t, quant: 1);
+
+~stepstep =  PmonoArtic(\sawpulse, \dur, 0.125, \degree, ~stepSeqDegrees, \root, ~rootNotesDegrees, \legato, 1.0, \amp, Pfunc{~testSeqAmp} ).play(t, quant: 1);
 )
+
+
 // ~stepSequenceRoot.stop;
 // ~testSeqAmp.postln;
 // ~stepSequence.stop;

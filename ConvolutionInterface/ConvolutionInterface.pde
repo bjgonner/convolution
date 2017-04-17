@@ -18,7 +18,7 @@ import oscP5.*;
 
 // which serial device to use. this is an index into the list
 // of serial devices printed when this program runs. 
-int SERIAL_PORT = 5;
+int SERIAL_PORT = 0;
 int BAUD = 1843200; // baud rate of the serial device
 
 // the OSC server to talk to
