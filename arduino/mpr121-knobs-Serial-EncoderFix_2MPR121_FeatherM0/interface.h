@@ -8,9 +8,9 @@ const int enc1PinB = 6; // Our second hardware interrupt pin is digital pin 3
 const int enc1ButtPin = 9; // Our first hardware interrupt pin is digital pin 2
 const int enc1_ID = 0;
 
-static int enc2PinA = 10; // Our first hardware interrupt pin is digital pin 2
-static int enc2PinB = 11; // Our second hardware interrupt pin is digital pin 3
-static int enc2ButtPin = 12; // Our first hardware interrupt pin is digital pin 2
+static int enc2PinA = 22; // Our first hardware interrupt pin is digital pin 2
+static int enc2PinB = 23; // Our second hardware interrupt pin is digital pin 3
+static int enc2ButtPin = 24; // Our first hardware interrupt pin is digital pin 2
 static int enc2_ID = 1;
 
 volatile long encoderPos = 0; //this variable stores our current value of encoder position. Change to int or uin16_t instead of byte if you want to record a larger range than 0-255

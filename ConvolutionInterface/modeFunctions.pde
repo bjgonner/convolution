@@ -4,12 +4,14 @@ void seqMode(){
   musicMaker.setVisibility(true);
   musicMaker.stepCount(cp5.get(Slider.class, "stepCount").getValue());
   musicMaker.drawExtras();
+  musicMaker.setSeqSteps(arduino, seqRowIndex);
+  musicMaker.sequencerButtons.update();
   seq.setVisibility(false);
-  cp5.getController("seq").setVisible(false);
-    cp5.get(Textlabel.class, "bpm").setVisible(false);
-    cp5.get(Textlabel.class, "current").setVisible(false);
-    cp5.get(Group.class, "Effects Controls").setVisible(false);
-    cp5.get(Group.class, "Global Controls").setVisible(false);
+  cp5.getController("seq").hide();
+ cp5.get(Textlabel.class, "bpm").hide();
+    cp5.get(Textlabel.class, "current").hide();
+    cp5.get(Group.class, "Effects Controls").hide();
+    cp5.get(Group.class, "Global Controls").hide();
 }
 
 void leadMode(){
@@ -17,11 +19,11 @@ void leadMode(){
     fill(255,0,255);
     musicMaker.setVisibility(false);
     seq.setVisibility(false);
-    cp5.getController("seq").setVisible(false);
-    cp5.get(Textlabel.class, "bpm").setVisible(false);
-    cp5.get(Textlabel.class, "current").setVisible(false);
-    cp5.get(Group.class, "Effects Controls").setVisible(false);
-    cp5.get(Group.class, "Global Controls").setVisible(true);
+    cp5.getController("seq").hide();
+    cp5.get(Textlabel.class, "bpm").hide();
+    cp5.get(Textlabel.class, "current").hide();
+    cp5.get(Group.class, "Effects Controls").hide();
+    cp5.get(Group.class, "Global Controls").show();
      sup.updateEnvPoints();
      sup.disp();
     if(arduino.knobFlag){
@@ -33,12 +35,15 @@ void leadMode(){
 
 void dmMode(){
   musicMaker.setVisibility(false);
+  
   seq.setVisibility(true);
-  cp5.get(Textlabel.class, "bpm").setVisible(true);
-  cp5.get(Textlabel.class, "current").setVisible(true);
-  cp5.get(Group.class, "Effects Controls").setVisible(true);
-    cp5.get(Group.class, "Global Controls").setVisible(false);
-    cp5.getController("seq").setVisible(true);
+   cp5.getController("seq").show();
+  //cp5.getController("seq").bringToFront();
+ // cp5.getController("seq").updateInternalEvents(this);
+  // cp5.getController(musicMaker.matrixName).bringToFront();
+  
+    cp5.get(Group.class, "Global Controls").hide();
+
   if(instDisplay){
     if(instDsplyTime.isFinished()){
       instDisplay = false;

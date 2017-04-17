@@ -69,7 +69,7 @@ void setup(){
   //Serial.begin(9600);
   Wire.begin();
   
- establishContact();  // send a byte to establish contact until receiver responds
+// establishContact();  // send a byte to establish contact until receiver responds
   mpr121_setup(mpr121_A);
   mpr121_setup(mpr121_B);
 
@@ -90,7 +90,7 @@ void loop(){
   if(octCheck != octave) octave = octCheck;
   readTouchInputs(irqpin, mpr121_A);
   readTouchInputs(irqpin2, mpr121_B);
-  readRotButt();
+  //readRotButt();
   enc1.getButtonState(3);
   enc2.getButtonState(10);
   readKnobs(knobs, sizeof(knobs)/sizeof(int));

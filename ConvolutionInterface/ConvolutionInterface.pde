@@ -18,7 +18,7 @@ import oscP5.*;
 
 // which serial device to use. this is an index into the list
 // of serial devices printed when this program runs. 
-int SERIAL_PORT = 5;
+int SERIAL_PORT = 0;
 int BAUD = 1843200; // baud rate of the serial device
 
 // the OSC server to talk to
@@ -89,11 +89,13 @@ String[] funcs = {"setAtk",
 int listIndex = 5;
 int lastListIndex = 4;
 
+int seqRowIndex = 0;
+
 //Input mode defaults and total for control via keyboard input.  
 int theMode = 0;
 int lastMode = 0;
 int tModes = 3;
-
+PApplet appletRef;
 //
 int mode = 1;  //sequencer mode
 int bpm = 30;
@@ -124,6 +126,8 @@ void setup() {
   size(800, 480, P2D);
   frameRate(30);
   
+  appletRef = this;
+  
   String[] scalesFile = loadStrings("scales.txt");
   scales = split(scalesFile[0], ",");
   
@@ -136,7 +140,7 @@ void setup() {
   osc = new OscP5(this, 12001);
   address = new NetAddress(HOST, PORT);
  // port = new Serial(this, Serial.list()[SERIAL_PORT], BAUD);
-  port = new Serial(this, Serial.list()[0], BAUD);
+  port = new Serial(this, "COM9", BAUD); //Serial.list()[0], BAUD);
   port.bufferUntil('\n');
   //==============================================
   
@@ -218,33 +222,33 @@ void setup() {
       .setLineHeight(0)
       .setVisible(true)
       ;
-      String[] toggleNames = {"Adjust_Lock","Mute_All", "Mute_Instrument"};
-    String[] buttonNames = {"Randomize", "Clear_Instrument", "Clear_Matrix"};
-      for(int i = 0; i < toggleNames.length; i++){ 
-      cp5.addToggle( toggleNames[i])
+    //String[] toggleNames = {"Adjust_Lock","Mute_All", "Mute_Instrument"};
+    //String[] buttonNames = {"Randomize", "Clear_Instrument", "Clear_Matrix"};
+    //  for(int i = 0; i < toggleNames.length; i++){ 
+    //  cp5.addToggle( toggleNames[i])
        
-       //.setValue( 0.1 )
-       .setLabel(toggleNames[i])
-       .setPosition(0, 5+i*45)
-       .setSize(150, 30)
+    //   //.setValue( 0.1 )
+    //   .setLabel(toggleNames[i])
+    //   .setPosition(0, 5+i*45)
+    //   .setSize(150, 30)
        
-       ;
-       cp5.getController(toggleNames[i]).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0); //getValueLabel().alignX(ControlP5.CENTER);
+    //   ;
+      // cp5.getController(toggleNames[i]).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER).setPaddingX(0); //getValueLabel().alignX(ControlP5.CENTER);
       // cp5.getController(toggles[i]).getValueLabel().alignY(ControlP5.CENTER);
   
-      }
-      for(int i = 0; i < buttonNames.length; i++){ 
-      cp5.addButton( buttonNames[i])
+      //}
+      //for(int i = 0; i < buttonNames.length; i++){ 
+      //cp5.addButton( buttonNames[i])
        
-       //.setValue( 0.1 )
-       .setLabel(buttonNames[i])
-       .setPosition(0, (toggleNames.length)*45 + i*45)
-       .setSize(150, 30)
+      // //.setValue( 0.1 )
+      // .setLabel(buttonNames[i])
+      // .setPosition(0, (toggleNames.length)*45 + i*45)
+      // .setSize(150, 30)
        
-       ;
-       cp5.getController(buttonNames[i]).getValueLabel().alignX(ControlP5.CENTER);
+      // ;
+      // cp5.getController(buttonNames[i]).getValueLabel().alignX(ControlP5.CENTER);
   
-      }
+      //}
       
      //cp5.addKnob("bpm")
      //  .setSize(50, 50)
@@ -273,7 +277,7 @@ void setup() {
  // efg = new EffectsGroup("test", sliderNames, 100,100,500, 300);
  // efg.setupSliders();
 // String[] buttons = {"Mute", "Adjust/Lock", "Clear Insturment", "Clear Matrix", "Save"};
- bs = new ButtonGroup("Controls", buttonNames, 430, 5, 300,300);
+// bs = new ButtonGroup("Controls", buttonNames, 430, 5, 300,300);
 }
 
 
@@ -297,6 +301,8 @@ void draw() {
     
   
   }else{
+    //herein lay the problem
+    cp5.getController(musicMaker.matrixName).hide();
     cp5.getController("seq").setVisible(false);
     cp5.get(Group.class, "Effects Controls").setVisible(false);
     cp5.get(Group.class, "Global Controls").setVisible(false);
@@ -428,10 +434,12 @@ void updateInsturment(){
     arduino.encChangeFlag = false;
     if( arduino.rawEnc2[0] > arduino.rawEnc2[1]){
        listIndex = (listIndex+1) % instNames.length;
+       seqRowIndex = (seqRowIndex+1)%musicMaker.xSteps;
      }else if(arduino.rawEnc2[0] < arduino.rawEnc2[1]){
-       
        listIndex -= 1;
-       if(listIndex < 0) listIndex = instNames.length-1;
+       seqRowIndex -= 1;
+       if(listIndex < 0)listIndex = instNames.length-1;
+       if (seqRowIndex < 0) seqRowIndex = musicMaker.xSteps - 1;
      }
      cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);  //change inst name display
      cp5.get(Textlabel.class, "instName2").setText("Instrument: " + instNames[listIndex]);  //change inst name display
@@ -685,3 +693,13 @@ void sendSlide(){
 //  println();
 //  port.write("\n");
 //}
+
+/**
+*Sends a message between 1 and 0 to change the volume of the step sequencer with respect to the other parts.
+*/
+void volume(float count){
+  OscMessage vMessage = new OscMessage("/volume");
+  vMessage.add(count);
+ 
+  osc.send(vMessage, address);
+}

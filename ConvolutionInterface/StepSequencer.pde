@@ -471,6 +471,7 @@ void stepCount(float count){
 void volume(float count){
   OscMessage vMessage = new OscMessage("/volume");
   vMessage.add(count);
+  println("sending message");
   osc.send(vMessage, address);
 }
   
@@ -500,6 +501,22 @@ void randomize(){
     }
   }
 }
+
+
+  void setSeqSteps(HardwareInput a, int column){
+    int encPos = (int)a.encoders[0];
+    for(int i = 0; i < a.pads.length; i++){
+      int dex = i + 16 * (encPos%2);
+      
+      if(a.pads[i] == true){
+        println("I should update the matrix at:" + column + " , " + dex);
+        sequencerButtons.set(column, dex, !sequencerButtons.get(column, dex));
+        a.pads[i] = false;
+      }
+      print(dex + " : " + boolean(a.notes[i]) +" | ");
+    }
+    println("column: " + column);
+  }
 
 
 /**
@@ -621,20 +638,45 @@ private void saveRecentCells(){  // it will practically only be called when the 
   }
 }
 
- /** 
- *Sets the visibility of all ControlP5 elements in the instance
- */
-void setVisibility(boolean vis){ 
-  sequencerButtons.setVisible(vis);
-   keyRadioButton.setVisible(vis);
-   stepCount.setVisible(vis);
-   random.setVisible(vis);
-   mute.setVisible(vis);
-   loop.setVisible(vis);
-   slide_mode.setVisible(vis);
-   root_notes.setVisible(vis);
-   Send.setVisible(vis);
-   volume.setVisible(vis);
+
+
+ /** Sts the visibility of all ControlP5 elements in the instance */
+void setVisibility(boolean vis){
+  if(vis == true){
+    sequencerButtons.show();
+   volume.show();
+   keyRadioButton.show();
+   stepCount.show();
+   random.show();
+   mute.show();
+   loop.show();
+   slide_mode.show();
+   root_notes.show();
+   Send.show();
+  }else{
+    
+    
+    sequencerButtons.hide();
+   volume.hide();
+   keyRadioButton.hide();
+   stepCount.hide();
+   random.hide();
+   mute.hide();
+   loop.hide();
+   slide_mode.hide();
+   root_notes.hide();
+   Send.hide();
+    
+    
+  }
+
+   if(vis == true){
+     cp5.getController(matrixName).bringToFront();
+      cp5.getController(matrixName).updateInternalEvents(appletRef);
+       loop.updateInternalEvents(appletRef);
+       loop.bringToFront();
+   }
+
 }
   
   /**
@@ -681,7 +723,7 @@ void sendMatrixOsc(){
         }
       }
     }
-    if (!(k == 0) && !loop.getBooleanValue()){                 //If there are differences (or k > 0), then we'll send the message, but
+    if (!(k == 0) && !loop.getBooleanValue()){                 //If there are differences (k > 0), then we'll send the message, but
       lastSelectedRootNotes.clear();                           // we don't want to send one if the loop button is active.
       lastSelectedRootNotes = selectedRootNotes.copy();   //Make sure to copy the current list to the previous list variable so we can compare against it next time.
   
@@ -713,7 +755,8 @@ void drawExtras(){
   float spacing  = ((matrixWidth/stepper)*(counts)) - 1;  //Spacing gives: (the size of each cell) * (the current timer count). Subtract 1 becuase 
   rect(posMatrix_X + spacing, posMatrix_Y - 20, matrixWidth/(stepper), 20); // it somehow looks better when it's back one pixel.
                                                                          //Draw a rectangle above the matrix.
-  float buttonSpacing = ((matrixWidth/stepper)*(highlightedRow)) - 1;
+  //float buttonSpacing = ((matrixWidth/stepper)*(highlightedRow)) - 1;
+  float buttonSpacing = ((matrixWidth/stepper)*(seqRowIndex)) - 1;
   rectMode(CORNER);                                                     //This is the same as the above rectangle, just at the bottom, instead of the top.
   fill(100, 215, 40);
   rect(posMatrix_X + buttonSpacing, posMatrix_Y + sizeMatrix_Y, matrixWidth/(stepper), 20);

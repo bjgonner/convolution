@@ -29,10 +29,10 @@ SynthDef(\ueeb, { |freq=300, degree=1|
 
 
 SynthDef(\help_sinegrain,
-    { arg out=0, freq=440, sustain=0.05;
+    { arg out=0, freq=440, sustain=0.05, amp=1;
         var env;
         env = EnvGen.kr(Env.perc(0.001, sustain, 0.05), doneAction:2);
-        Out.ar(out, SinOsc.ar(freq, 0, env))
+        Out.ar(out, SinOsc.ar(freq, 0, env*amp))
     }).add;
 
 /*SynthDef(\help_sawgrain,
