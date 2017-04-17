@@ -156,7 +156,7 @@ class HardwareInput{
     int note = int(trim(v[2]));
     int encPos = (int)encoders[0];
     notes[note] = 1;
-    if (enc1Mode == SEQUENCER){
+    if (enc1Mode == SEQUENCER || enc1Mode == DRUM_MACHINE){
      // println("note on: " + note + " | oct: " + encPos + " | note%enc: " + ((note-encPos*12)+(16*(encPos%2))));
       note -= encPos*12;
       lastPads[note] = pads[note];
@@ -172,7 +172,7 @@ class HardwareInput{
     int note = int(trim(v[2]));
     int encPos = (int)encoders[0];
     notes[note] = 0;
-     if (enc1Mode == SEQUENCER){
+     if (enc1Mode == SEQUENCER || enc1Mode == DRUM_MACHINE){
      // println("note off: " + note + " | oct: " + encPos + " | note%enc: " + ((note-encPos*12)+(16*(encPos%2))));
       note -= encPos*12;
       lastPads[note] = pads[note];

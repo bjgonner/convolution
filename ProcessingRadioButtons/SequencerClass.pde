@@ -582,11 +582,9 @@ private void saveActiveCells(){
   else{
 //In this case, the matrix is in root notes mode.
     selectedRootNotes.clear();
-    println("xRootNotes: " + xRootNotes);
     for(int i = 0; i < xRootNotes; i ++){
       k = 0;
       for (int j = 0; j < yNotes; j++){
-        println("i,j: " + i,j);
         if (sequencerButtons.get(i,j)){
           k++;
           selectedRootNotes.append((yNotes - 1) - j);
@@ -655,7 +653,6 @@ void sendMatrixOsc(){
         }
       }
     }
-    println("k :" +k);
     if (!(k == 0) && !(loop.getBooleanValue())){
       lastActiveCells.clear();
       lastActiveCells = activeCells.copy();
@@ -681,7 +678,6 @@ void sendMatrixOsc(){
         }
       }
     }
-    println("k :" +k);
     if (!(k == 0) && !loop.getBooleanValue()){
       lastSelectedRootNotes.clear();
       lastSelectedRootNotes = selectedRootNotes.copy();
@@ -702,9 +698,10 @@ void sendMatrixOsc(){
   */
    void drawExtras(){
      float counts;
+     int number = (int)cnt;
      if(!root_notes.getBooleanValue()) counts = cnt % xSteps;
-     else counts = (cnt / xSteps) % (xRootNotes + 1);
-     
+     else counts = (number / xSteps) % (xRootNotes);
+     //println("cnt " + cnt + "xSteps " + xSteps + " rootNotes" + xRootNotes + " counts: " + counts);
      int stepper;
      if(!root_notes.getBooleanValue()) stepper = xSteps;
      else stepper = xRootNotes;
@@ -717,7 +714,7 @@ void sendMatrixOsc(){
  
      float buttonSpacing = ((matrixWidth/stepper)*(highlightedRow)) - 1;
      rectMode(CORNER);
-     fill(175, 215, 40);
+     fill(100, 215, 40);
      rect(posMatrix_X + buttonSpacing, posMatrix_Y + sizeMatrix_Y, matrixWidth/(stepper), 20);
    }
 

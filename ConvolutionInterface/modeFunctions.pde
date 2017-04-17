@@ -4,6 +4,8 @@ void seqMode(){
   musicMaker.setVisibility(true);
   musicMaker.stepCount(cp5.get(Slider.class, "stepCount").getValue());
   musicMaker.drawExtras();
+  musicMaker.setSeqSteps(arduino, seqRowIndex);
+  musicMaker.sequencerButtons.update();
   seq.setVisibility(false);
   cp5.getController("seq").hide();
  cp5.get(Textlabel.class, "bpm").hide();

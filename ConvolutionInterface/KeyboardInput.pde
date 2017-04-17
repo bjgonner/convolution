@@ -1,5 +1,5 @@
 void keyPressed() {
-  musicMaker.keysPressed();
+  //musicMaker.keysPressed();
   //cannot use left/right without error!
   if(key == CODED){
     lastMode = theMode;

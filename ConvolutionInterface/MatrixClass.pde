@@ -200,8 +200,8 @@ class Matricks {
         cp5.get(Matrix.class, matrixName).set(dex, index, state);
         a.pads[i] = false;
       }
-    //  print(dex + " : " + boolean(a.notes[i]) +" | ");
+      print(dex + " : " + boolean(a.notes[i]) +" | ");
     }
-   // println();
+    println();
   } 
 }

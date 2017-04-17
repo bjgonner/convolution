@@ -290,11 +290,11 @@ void draw() {
     dmMode();
     
   }
-  else if(arduino.enc1Mode == LEAD){// || theMode == LEAD){
+  else if(arduino.enc1Mode == LEAD){ // || theMode == LEAD){
     leadMode();
      
   }
-  else if(arduino.enc1Mode == DRUM_MACHINE){// || theMode == DRUM_MACHINE){
+  else if(arduino.enc1Mode == DRUM_MACHINE){ // || theMode == DRUM_MACHINE){
     seqMode();
     
   
@@ -432,10 +432,12 @@ void updateInsturment(){
     arduino.encChangeFlag = false;
     if( arduino.rawEnc2[0] > arduino.rawEnc2[1]){
        listIndex = (listIndex+1) % instNames.length;
+       seqRowIndex = (seqRowIndex+1)%musicMaker.xSteps;
      }else if(arduino.rawEnc2[0] < arduino.rawEnc2[1]){
-       
        listIndex -= 1;
-       if(listIndex < 0) listIndex = instNames.length-1;
+       seqRowIndex -= 1;
+       if(listIndex < 0)listIndex = instNames.length-1;
+       if (seqRowIndex < 0) seqRowIndex = musicMaker.xSteps - 1;
      }
      cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);  //change inst name display
      cp5.get(Textlabel.class, "instName2").setText("Instrument: " + instNames[listIndex]);  //change inst name display
