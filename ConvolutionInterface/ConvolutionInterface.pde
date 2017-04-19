@@ -93,6 +93,7 @@ int lastListIndex = 4;
 int theMode = 0;
 int lastMode = 0;
 int tModes = 3;
+int seqRowIndex;
 PApplet appletRef;
 //
 int mode = 1;  //sequencer mode
