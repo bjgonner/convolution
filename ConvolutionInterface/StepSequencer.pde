@@ -127,6 +127,11 @@ class StepSequencer {
  private int lastXRootNotes;
  
  /**
+ * A variable to keep track of the number of horizontal cells in the matrix at all times.
+ */
+ private int MDHIndex; //Stands for Mode Dependent Horizontal Index
+ 
+ /**
  *Keeps track of which row the user is highlighting with keys.
  */
  private int highlightedRow;
@@ -202,6 +207,7 @@ class StepSequencer {
 public StepSequencer(String _matrixName){
   matrixName = _matrixName;
   xSteps = 16; 
+  MDHIndex = xSteps;
   yNotes = 9;
   tempo = 200;
   posMatrix_X = 90;
@@ -392,12 +398,14 @@ public StepSequencer(String _matrixName){
         if(root_notes.getBooleanValue()){    //Split here because the values are different for entering root notes mode and entering sequencer mode.
           stepCount.setValue(xRootNotes - 1);          //Change the size of the matrix to show the root note, 
           sequencerButtons.setGrid(xRootNotes,yNotes); // And change the value of the step count slider to reflect that change.
+          MDHIndex = xRootNotes;
           
           for(int i = 0; i < Math.min(xRootNotes, selectedRootNotes.size()); i++){     //Sets the appropriate cells on the matrix to true.
             sequencerButtons.set(i, (yNotes - 2) - selectedRootNotes.get(i), true);    // This means that if the user has set cells in this
           }                                                         // mode before, it will set the most recent active cells to the matrix. 
         }                                                           // If the user has not set any cells in this mode yet, or the matrix 
         else{                                                       // was blank when the user switched the mode last,the bottom row of cells is set.
+        MDHIndex = xSteps;
           switch(xSteps){                                                    
             case(2): cp5.get(Slider.class,("stepCount")).setValue(1); break;  //Changes the size of the matrix to show the sequencer mode,
             case(3): cp5.get(Slider.class,("stepCount")).setValue(2); break;  // and changes the value of the step count slider to reflect that change
@@ -442,6 +450,7 @@ void stepCount(float count){
       case("5"):xSteps = 16; break;
     }
     if (lastXSteps != xSteps){
+      MDHIndex = xSteps;
       if(xSteps == 3) sequencerButtons.setSize(612,sizeMatrix_Y);  //Fixes an error in the matrix caused by 
       else sequencerButtons.setSize(sizeMatrix_X, sizeMatrix_Y);   // the size of the matrix not being divisible by the number of buttons in it.
       sequencerButtons.setGrid(xSteps,yNotes);
@@ -457,6 +466,7 @@ void stepCount(float count){
       case("5"):xRootNotes = 6; break;
     }
     if(lastXRootNotes != xRootNotes){
+      MDHIndex = xRootNotes;
       if(xRootNotes == 3 || xRootNotes == 6) sequencerButtons.setSize(612, sizeMatrix_Y);
       else if(xRootNotes == 5) sequencerButtons.setSize(610,sizeMatrix_Y);//This, again, fixes an error in the 
       else sequencerButtons.setSize(sizeMatrix_X, sizeMatrix_Y);          // matrix caused by the size of the matrix not 
@@ -504,18 +514,22 @@ void randomize(){
 
 
   void setSeqSteps(HardwareInput a, int column){
-    int encPos = (int)a.encoders[0];
+    int encPos = ((int)a.encoders[0] % 5) + 1;
+    stepCount.setValue(encPos);
     for(int i = 0; i < a.pads.length; i++){
-      int dex = i + 16 * (encPos%2);
-      
       if(a.pads[i] == true){
-        println("I should update the matrix at:" + column + " , " + dex);
-        sequencerButtons.set(column, dex, !sequencerButtons.get(column, dex));
-        a.pads[i] = false;
-      }
-      print(dex + " : " + boolean(a.notes[i]) +" | ");
+        if(i % 2 == 0){
+          clearRow(column);
+          sequencerButtons.set(column, (yNotes - 2) - (i / 2), !sequencerButtons.get(column, (yNotes - 2) - (i / 2)));
+          a.pads[i] = false;
+        }
+        else{
+          clearRow(column + 1);
+          sequencerButtons.set(column + 1,(yNotes - 2) -  (i / 2), !sequencerButtons.get(column + 1, (yNotes - 2) - (i / 2)));
+          a.pads[i] = false;
+        }
+      } 
     }
-    println("column: " + column);
   }
 
 
