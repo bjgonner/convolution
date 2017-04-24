@@ -2,6 +2,8 @@
 //Scale.directory;
 //variable definitions
 (
+~stepSeqPatternProxy = PatternProxy(Pn(Pseries(0, 2, 12), inf));
+~testSeqAmp =0.5;
 ~scales = Scale.minor;
 ~scale = Scale.minor;
 ~rootNote = 0;
@@ -47,6 +49,8 @@
 ~synth1Rate = PatternProxy(Pseq([1], inf));
 ~synth2Rate= PatternProxy(Pseq([1], inf));
 
+~stepSequencePatternProxy.source = PmonoArtic(\sawpulse, \dur, 0.125, \degree, ~stepSeqDegrees, \root, ~rootNotesDegrees, \legato, 1.0, \amp, Pfunc{~testSeqAmp} );
+
 //start tempoClock
 
 //Setup OSC messages to Processing and setup tempoClock.  Below is OSCdef to set tempo
@@ -68,7 +72,16 @@ u = TempoClock(t.tempo*8, 0, v);
 t.schedAbs(0, { arg beat, sec; /* [\t, beat, sec].postln;*/ 1 });
 u.schedAbs(0, { arg beat, sec; /*["/tick", beat%32, "hrlp","more"].postln;*/b.sendMsg("/tick", beat, "hrlp","more");  1 });
 
-//here I stopped removing parenthesis
+
+
+~stepstep =  Pbind(
+		\instrument, \sawpulse,
+		\degree, ~stepSeqDegrees,
+		\scale, Pfunc{~scales},
+		\root, ~rootNotesDegrees,
+		\amp, Pfunc{~testSeqAmp},
+		\dur, 0.125,  //maybe change rythms based on 0.125,0.250,0.5, 0.75, 1?
+	).play(t, quant: 1);
 
 //OSCdefs
 
@@ -88,6 +101,28 @@ OSCdef(\getSeqAmp, {|msg|                /*GetBPM listens for BPM message from P
 	msg.postln;
 	//~seqAmp.source.postln;
 }, "/volume");
+
+OSCdef(\getSlideMode, {|msg|                /*GetBPM listens for BPM message from Processing*/
+	   var temp;
+	temp = msg[1];
+	if(msg[1] == 1, {
+		~stepstep.stop;
+		~stepstep =  PmonoArtic(\sawpulse, \dur, 0.125, \degree, ~stepSeqDegrees, \root, ~rootNotesDegrees, \legato, 1.0, \amp, Pfunc{~testSeqAmp} ).play(t, quant: 1);},
+	{   ~stepstep.stop;
+		(~stepstep =  Pbind(
+		\instrument, \sawpulse,
+		\degree, ~stepSeqDegrees,
+		\scale, Pfunc{~scales},
+		\root, ~rootNotesDegrees,
+		\amp, Pfunc{~testSeqAmp},
+		\dur, 0.125,  //maybe change rythms based on 0.125,0.250,0.5, 0.75, 1?
+	).play(t, quant: 1));});
+});
+	//~seqAmp.source =(Pseq([1.0], inf));
+	//~testSeqAmp = msg[1];
+	msg.postln;
+	//~seqAmp.source.postln;
+}, "/Slide");
 
 OSCdef(\knobStates, {|msg|
 	//msg[1].postln;
@@ -463,15 +498,20 @@ OSCdef(\synth2, { |msg|
 
 
 
-~stepSequenceRoot= Pbind(
+/*~stepSequenceRoot= Pbind(
 	\instrument, \sawpulse,
     \degree, ~stepSeqDegrees,
 	\scale, Pfunc{~scales},
 	\root, ~rootNotesDegrees,
 	\amp, Pfunc{~testSeqAmp},
     \dur, 0.125,  //maybe change rythms based on 0.125,0.250,0.5, 0.75, 1?
-).play(t, quant: 1);
+).play(t, quant: 1);*/
+//testing
+//~stepSequencePatternProxy.play(t, quant: 1);
+//~stepstep =  PmonoArtic(\sawpulse, \dur, 0.125, \degree, ~stepSeqDegrees, \root, ~rootNotesDegrees, \legato, 1.0, \amp, Pfunc{~testSeqAmp} ).play(t, quant: 1);
 )
+
+
 // ~stepSequenceRoot.stop;
 // ~testSeqAmp.postln;
 // ~stepSequence.stop;

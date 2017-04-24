@@ -32,5 +32,5 @@ s.quit;
 
 //test play a sound if drum machine does not start
 x = {SinOsc.ar(440)}.play
-x=Synth(\help_sinegrain, [\amp, 0.5]);
+x=Synth(\help_sinegrain, [\amp, 1.0]);
 x.free;

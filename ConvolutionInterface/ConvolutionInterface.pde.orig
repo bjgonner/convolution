@@ -89,11 +89,12 @@ String[] funcs = {"setAtk",
 int listIndex = 5;
 int lastListIndex = 4;
 
+int seqRowIndex = 0;
+
 //Input mode defaults and total for control via keyboard input.  
 int theMode = 0;
 int lastMode = 0;
 int tModes = 3;
-int seqRowIndex;
 PApplet appletRef;
 //
 int mode = 1;  //sequencer mode
@@ -139,7 +140,11 @@ void setup() {
   osc = new OscP5(this, 12001);
   address = new NetAddress(HOST, PORT);
  // port = new Serial(this, Serial.list()[SERIAL_PORT], BAUD);
+<<<<<<< HEAD
   port = new Serial(this, Serial.list()[SERIAL_PORT], BAUD);
+=======
+  port = new Serial(this, "COM9", BAUD); //Serial.list()[0], BAUD);
+>>>>>>> bjgonner-note-expansion
   port.bufferUntil('\n');
   //==============================================
   
@@ -291,11 +296,19 @@ void draw() {
     dmMode();
     
   }
+<<<<<<< HEAD
+  else if(arduino.enc1Mode == LEAD){// || theMode == LEAD){
+    leadMode();
+     
+  }
+  else if(arduino.enc1Mode == DRUM_MACHINE){// || theMode == DRUM_MACHINE){
+=======
   else if(arduino.enc1Mode == LEAD){ // || theMode == LEAD){
     leadMode();
      
   }
   else if(arduino.enc1Mode == DRUM_MACHINE){ // || theMode == DRUM_MACHINE){
+>>>>>>> bjgonner-note-expansion
     seqMode();
     
   
@@ -433,12 +446,12 @@ void updateInsturment(){
     arduino.encChangeFlag = false;
     if( arduino.rawEnc2[0] > arduino.rawEnc2[1]){
        listIndex = (listIndex+1) % instNames.length;
-       seqRowIndex = (seqRowIndex+1)%(musicMaker.MDHIndex - 1);
+       seqRowIndex = (seqRowIndex+1)%musicMaker.xSteps;
      }else if(arduino.rawEnc2[0] < arduino.rawEnc2[1]){
        listIndex -= 1;
        seqRowIndex -= 1;
        if(listIndex < 0)listIndex = instNames.length-1;
-       if (seqRowIndex < 0) seqRowIndex = musicMaker.MDHIndex - 2;
+       if (seqRowIndex < 0) seqRowIndex = musicMaker.xSteps - 1;
      }
      cp5.get(Textlabel.class, "instName").setText("Instrument: " + instNames[listIndex]);  //change inst name display
      cp5.get(Textlabel.class, "instName2").setText("Instrument: " + instNames[listIndex]);  //change inst name display
