@@ -514,18 +514,25 @@ void randomize(){
 
 
   void setSeqSteps(HardwareInput a, int column){
+    boolean pushedButton = false;
     int encPos = ((int)a.encoders[0] % 5) + 1;
     stepCount.setValue(encPos);
     for(int i = 0; i < a.pads.length; i++){
       if(a.pads[i] == true){
         if(i % 2 == 0){
+          if(sequencerButtons.get(column, (yNotes - 2) - (i / 2)))
+            pushedButton = true;
           clearRow(column);
-          sequencerButtons.set(column, (yNotes - 2) - (i / 2), !sequencerButtons.get(column, (yNotes - 2) - (i / 2)));
+          if(!pushedButton)
+            sequencerButtons.set(column, (yNotes - 2) - (i / 2), !sequencerButtons.get(column, (yNotes - 2) - (i / 2)));
           a.pads[i] = false;
         }
         else{
+          if(sequencerButtons.get(column + 1, (yNotes - 2) - (i / 2)))
+            pushedButton = true;
           clearRow(column + 1);
-          sequencerButtons.set(column + 1,(yNotes - 2) -  (i / 2), !sequencerButtons.get(column + 1, (yNotes - 2) - (i / 2)));
+          if(!pushedButton)
+            sequencerButtons.set(column + 1,(yNotes - 2) -  (i / 2), !sequencerButtons.get(column + 1, (yNotes - 2) - (i / 2)));
           a.pads[i] = false;
         }
       } 
