@@ -509,13 +509,13 @@ void randomize(){
       int dex = i + 16 * (encPos%2);
       
       if(a.pads[i] == true){
-        println("I should update the matrix at:" + column + " , " + dex);
+      //  println("I should update the matrix at:" + column + " , " + dex);
         sequencerButtons.set(column, dex, !sequencerButtons.get(column, dex));
         a.pads[i] = false;
       }
-      print(dex + " : " + boolean(a.notes[i]) +" | ");
+      //print(dex + " : " + boolean(a.notes[i]) +" | ");
     }
-    println("column: " + column);
+   // println("column: " + column);
   }
 
 

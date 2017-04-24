@@ -45,10 +45,10 @@ SynthDef(\help_sinegrain,
 
 
 SynthDef(\funSynth, {
-	|pitch =400|
-	var sound = SinOsc.ar(pitch, mul: 0.2);
+	|freq =400, gate=0.5|
+	var sound = SinOsc.ar(freq, mul: 0.2);
 	var linen = Env.linen(sustainTime: 0.1, releaseTime:0.25);
-	var env = EnvGen.kr(linen, doneAction: 2);
+	var env = EnvGen.kr(linen,gate, doneAction: 2);
 	Out.ar(0, sound*env);
 }).add;
 
